@@ -1,4 +1,18 @@
-﻿function New-IPv4Range
+﻿<#
+.Synopsis
+    Generates a list of IPv4 IP Addresses given a Start and End IP.
+.DESCRIPTION
+    Generates a list of IPv4 IP Addresses given a Start and End IP.
+.EXAMPLE
+    Generating a list of IPs
+    PS C:\> New-IPv4Range -StartIP 192.168.1.1 -EndIP 192.168.1.5
+    192.168.1.1
+    192.168.1.2
+    192.168.1.3
+    192.168.1.4
+    192.168.1.5
+#>
+function New-IPv4Range
 {
 	param(
 		[Parameter(Mandatory=$true,
@@ -28,8 +42,23 @@
     }
 }
 
-
-function Get-IPv4RangeFromCIDR {
+<#
+.Synopsis
+    Generates a list of IPv4 IP Addresses given a CIDR.
+.DESCRIPTION
+    Generates a list of IPv4 IP Addresses given a CIDR.
+.EXAMPLE
+    Generating a list of IPs
+    PS C:\> New-IPv4RangeFromCIDR -Network 192.168.1.0/29
+    192.168.1.1
+    192.168.1.2
+    192.168.1.3
+    192.168.1.4
+    192.168.1.5
+    192.168.1.6
+    192.168.1.7
+#>
+function New-IPv4RangeFromCIDR {
     param(
 		[Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
@@ -265,10 +294,6 @@ function Invoke-PingScan
                 new-object psobject -Property @{Address = $result.Address; Time = $result.RoundtripTime}
             }
         }
-
-        $jobs = @()
-        $start = get-date
-        write-verbose "Begin Scanning at $start"
 
         #Multithreading setup
 
