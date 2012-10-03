@@ -61,6 +61,146 @@ function Get-IPv4RangeFromCIDR {
     New-IPv4Range $StartIP $EndIP
 }
 
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Invoke-ReverseDNSLookup
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true,
+                   ParameterSetName = "Range",
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+        [string]$Range,
+
+        [Parameter(Mandatory=$true,
+                   ParameterSetName = "CIDR",
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+        [string]$CIDR,
+
+        [Parameter(Mandatory=$false,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+        [string]$MaxThreads=30,
+        [Parameter(
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=2)]
+        [int]$TimeOut = 200
+    )
+
+    Begin
+    {
+        # Manage if range is given
+        if ($Range)
+        {
+            $rangeips = $Range.Split("-")
+            $targets = New-IPv4Range -StartIP $rangeips[0] -EndIP $rangeips[1]
+        }
+
+        # Manage if CIDR is given
+        if ($CIDR)
+        {
+            $targets = Get-IPv4RangeFromCIDR -Network $CIDR
+        }
+    }
+    Process
+    {
+        $RvlScripBlock = {
+            param($ip)
+            try {
+            [System.Net.Dns]::GetHostEntry($ip)
+            }
+            catch {}
+        }
+
+        #Multithreading setup
+
+        # create a pool of maxThread runspaces   
+        $pool = [runspacefactory]::CreateRunspacePool(1, $MaxThreads)   
+        $pool.Open()
+  
+        $jobs = @()   
+        $ps = @()   
+        $wait = @()
+
+        $i = 0
+
+        # How many servers
+        $record_count = $targets.Length
+
+        #Loop through the endpoints starting a background job for each endpoint
+        foreach ($ip in $targets)
+        {
+            Write-Verbose $ip
+            # Show Progress
+            $record_progress = [int][Math]::Ceiling((($i / $record_count) * 100))
+            Write-Progress -Activity "Performing DNS Reverse Lookup Discovery" -PercentComplete $record_progress -Status "Reverse Lookup - $record_progress%" -Id 1;
+
+            while ($($pool.GetAvailableRunspaces()) -le 0) {
+                Start-Sleep -milliseconds 500
+            }
+    
+            # create a "powershell pipeline runner"   
+            $ps += [powershell]::create()
+
+            # assign our pool of 3 runspaces to use   
+            $ps[$i].runspacepool = $pool
+
+            # command to run
+            [void]$ps[$i].AddScript($RvlScripBlock).AddParameter('ip', $ip)
+            #[void]$ps[$i].AddParameter('ping', $ping)
+    
+            # start job
+            $jobs += $ps[$i].BeginInvoke();
+     
+            # store wait handles for WaitForAll call   
+            $wait += $jobs[$i].AsyncWaitHandle
+    
+            $i++
+        }
+
+        $waitTimeout = get-date
+
+        while ($($jobs | ? {$_.IsCompleted -eq $false}).count -gt 0 -or $($($(get-date) - $waitTimeout).totalSeconds) -gt 60) {
+                Start-Sleep -milliseconds 500
+            } 
+  
+        # end async call   
+        for ($y = 0; $y -lt $i; $y++) {     
+  
+            try {   
+                # complete async job   
+                $ScanResults += $ps[$y].EndInvoke($jobs[$y])   
+  
+            } catch {   
+       
+                # oops-ee!   
+                write-warning "error: $_"  
+            }
+    
+            finally {
+                $ps[$y].Dispose()
+            }    
+        }
+
+        $pool.Dispose()
+    }
+
+    end
+    {
+        $ScanResults
+    }
+}
 
 <#
 .Synopsis
@@ -92,11 +232,11 @@ function Invoke-PingScan
         [Parameter(Mandatory=$false,
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
-        [string]$MaxThreads=50,
+        [string]$MaxThreads=10,
         [Parameter(
                    ValueFromPipelineByPropertyName=$true,
                    Position=2)]
-        [int]$TimeOut = 100
+        [int]$TimeOut = 200
     )
 
     Begin
@@ -113,21 +253,19 @@ function Invoke-PingScan
         {
             $targets = Get-IPv4RangeFromCIDR -Network $CIDR
         }
-
-        $PingScripBlock ={
-            param($ip, $TimeOut, $ping)
-            $result = $ping.Send($ip, $TimeOut)
-            if ($result.status -eq "Success")
-            {
-                $result.Address
-            }
-        }
-
-        # Instansiate a ping object
-        $ping = New-Object System.Net.NetworkInformation.Ping
     }
     Process
     {
+        $PingScripBlock = {
+            param($ip, $TimeOut)
+            $ping = New-Object System.Net.NetworkInformation.Ping
+            $result = $ping.Send($ip, $TimeOut)
+            if ($result.Status -eq 'success')
+            {
+                new-object psobject -Property @{Address = $result.Address; Time = $result.RoundtripTime}
+            }
+        }
+
         $jobs = @()
         $start = get-date
         write-verbose "Begin Scanning at $start"
@@ -148,8 +286,9 @@ function Invoke-PingScan
         $record_count = $targets.Length
 
         #Loop through the endpoints starting a background job for each endpoint
-        foreach ($IPAddress in $targets)
+        foreach ($ip in $targets)
         {
+            Write-Verbose $ip
             # Show Progress
             $record_progress = [int][Math]::Ceiling((($i / $record_count) * 100))
             Write-Progress -Activity "Performing Ping Discovery" -PercentComplete $record_progress -Status "Pinged Host - $record_progress%" -Id 1;
@@ -165,7 +304,7 @@ function Invoke-PingScan
             $ps[$i].runspacepool = $pool
 
             # command to run
-            [void]$ps[$i].AddScript($PingScripBlock).AddParameter('IPaddress', $IPAddress).AddParameter('Timeout', $TimeOut).AddParameter('ping', $ping)
+            [void]$ps[$i].AddScript($PingScripBlock).AddParameter('ip', $ip).AddParameter('Timeout', $TimeOut)
             #[void]$ps[$i].AddParameter('ping', $ping)
     
             # start job
