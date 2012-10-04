@@ -1,13 +1,21 @@
 ﻿$Global:sqliteconn = @()
 
-function get-logdatestring
+
+
+function Get-LogDateString
 {
     (get-date).toString(‘yyyyMMddhhmm’)
 }
 
 function Connect-SQLite3 
 {
-	param ( [string]$DataBase)
+    [CmdletBinding()]
+	param (
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+        [string]$DataBase
+    )
     
     Begin{}
     Process
@@ -36,7 +44,8 @@ function Connect-SQLite3
 }
 
 function Invoke-SQLite3Query           
-{            
+{
+    [CmdletBinding()]            
     param( [string]$SQL,            
            [System.Data.SQLite.SQLiteConnection]$Connection            
            )            
@@ -64,25 +73,6 @@ function Get-FileHash
 
 		.EXAMPLE
 			PS C:\> Get-Something -ParameterA 'One value' -ParameterB 32
-
-		.EXAMPLE
-			PS C:\> Get-Something 'One value' 32
-
-		.INPUTS
-			System.String,System.Int32
-
-		.OUTPUTS
-			System.String
-
-		.NOTES
-			Additional information about the function go here.
-
-		.LINK
-			about_functions_advanced
-
-		.LINK
-			about_comment_based_help
-
 	#>
 	[CmdletBinding()]
 	[OutputType([string])]
@@ -136,7 +126,8 @@ function Confirm-IsAdmin
 	   Checks if current PowerShell Session is running with administrative privelages
 	.EXAMPLE
 	   Return True or False if curremt PowerShell session is running with adminitratibe privelages.
-	   Confirm-IsAdmin
+	   PS c:\> Confirm-IsAdmin
+       True
 	#>
     (whoami /all | Select-String S-1-16-12288) -ne $null
 }
@@ -183,13 +174,20 @@ function Add-Zip
 
 function Get-ZipChildItems_Recurse 
 {
-	param([object]$items) 
-      foreach($si in $items) 
-      { 
-           if($si.getfolder -ne $null) 
-           { 
-            	Get-ZipChildItems_Recurse $si.getfolder.items() 
-           } 
+    [CmdletBinding()]
+	param(
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+        [object]$items
+    )
+     
+    foreach($si in $items) 
+    { 
+        if($si.getfolder -ne $null) 
+        { 
+            Get-ZipChildItems_Recurse $si.getfolder.items() 
+        } 
       $si | select path
       } 
 }
@@ -199,13 +197,14 @@ function Get-Zip
 	[CmdletBinding()]
     Param
     (
-	[Parameter(Mandatory=$true,
+	    [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
         [ValidateScript({Test-Path $_})]
 		$ZipFile,
 		$Recurse = $true
 	)
+
 	$shellApplication = new-object -com shell.application
 	$zipPackage = $shellApplication.NameSpace(((get-item $ZipFile).fullname))
 	if ($Recurse -eq $false)
@@ -223,13 +222,13 @@ function Expand-Zip
 	[CmdletBinding()]
     Param
     (
-	[Parameter(Mandatory=$true,
+	    [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
         [ValidateScript({Test-Path $_})]
 		$ZipFile,
 		
-	[Parameter(Mandatory=$true,
+	    [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
                    Position=1)]
 		$Destination
@@ -315,14 +314,14 @@ function Get-RegKeyLastWriteTime {
  [CmdletBinding()]            
             
  param(            
- [parameter(            
- ValueFromPipeline=$true,            
- ValueFromPipelineByPropertyName=$true)]            
- [Alias("CN","__SERVER","Computer","CNAME")]            
- [string[]]$ComputerName=$env:ComputerName,            
- [string]$Key = "HKLM",            
- [string]$SubKey            
- )            
+    [parameter(            
+    ValueFromPipeline=$true,            
+    ValueFromPipelineByPropertyName=$true)]            
+    [Alias("CN","__SERVER","Computer","CNAME")]            
+    [string[]]$ComputerName=$env:ComputerName,            
+    [string]$Key = "HKLM",            
+    [string]$SubKey            
+)            
             
  BEGIN {            
   switch ($Key) {            

@@ -92,9 +92,9 @@ function New-IPv4RangeFromCIDR {
 
 <#
 .Synopsis
-   Short description
+   Performs a DNS Reverse Lookup of a given IPv4 IP Range.
 .DESCRIPTION
-   Long description
+   Performs a DNS Reverse Lookup of a given IPv4 IP Range.
 .EXAMPLE
    Example of how to use this cmdlet
 .EXAMPLE
@@ -233,9 +233,10 @@ function Invoke-ReverseDNSLookup
 
 <#
 .Synopsis
-   Short description
+   Performs a Ping Scan against a given range of IPv4 IP addresses.
 .DESCRIPTION
-   Long description
+   Performs a Ping Scan against a given range of IPv4 IP addresses by sending
+   ICMP Echo Packets.
 .EXAMPLE
    Example of how to use this cmdlet
 .EXAMPLE
@@ -380,7 +381,8 @@ function Invoke-PingScan
 .Synopsis
    Performs full TCP Connection and UDP port scan.
 .DESCRIPTION
-   Performs full TCP Connection and UDP port scan.
+   Performs full TCP Connection and UDP port scan against a given host 
+   or range of IPv4 addresses.
 .EXAMPLE
    Example of how to use this cmdlet
 .EXAMPLE
@@ -548,6 +550,16 @@ function Invoke-PortScan
     }
 }
 
+<#
+.Synopsis
+   Performs an ARP scan against a given range of IPv4 IP Addresses.
+.DESCRIPTION
+   Performs an ARP scan against a given range of IPv4 IP Addresses.
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
 function Invoke-ARPScan {
 
     param (
