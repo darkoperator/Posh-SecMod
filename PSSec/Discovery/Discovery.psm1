@@ -325,13 +325,11 @@ function Invoke-PingScan
     
             # create a "powershell pipeline runner"   
             $ps += [powershell]::create()
-
-            # assign our pool of 3 runspaces to use   
+   
             $ps[$i].runspacepool = $pool
 
             # command to run
             [void]$ps[$i].AddScript($PingScripBlock).AddParameter('ip', $ip).AddParameter('Timeout', $TimeOut)
-            #[void]$ps[$i].AddParameter('ping', $ping)
     
             # start job
             $jobs += $ps[$i].BeginInvoke();
@@ -357,9 +355,7 @@ function Invoke-PingScan
                 # complete async job   
                 $ScanResults += $ps[$y].EndInvoke($jobs[$y])   
   
-            } catch {   
-       
-                # oops-ee!   
+            } catch {
                 write-warning "error: $_"  
             }
     
@@ -723,7 +719,6 @@ public static class NetUtils
   
             } catch {   
        
-                # oops-ee!   
                 write-warning "error: $_"  
             }
     

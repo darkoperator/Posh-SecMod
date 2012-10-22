@@ -542,7 +542,7 @@ function Set-RegValue
     PS C:\> ([System.Text.Encoding]::ASCII).GetString($bindata)
     PowerShell
 
-PS C:\Wind
+    PS C:\Wind
 #>
 function Get-RegValue
 {
