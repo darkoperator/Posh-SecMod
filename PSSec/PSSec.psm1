@@ -1,4 +1,145 @@
-﻿$Global:sqliteconn = New-Object System.Collections.ArrayList
+﻿<#
+.Synopsis
+   Workflow for checking the presence of an Windows Update on a System using WMI.
+.DESCRIPTION
+   Using a WMI the Workflow will check upto 5 hosts in parallel if a specified HotFix KB
+   or series of KB are present on the system and retun a custom object with the update
+   Information. The Workflow will test if the host has port 135 open before attempting to
+   query for the information.
+.EXAMPLE
+   PS > Confirm-HotFix -Computers 192.168.10.20,192.168.10.1 -KB KB976902 -Credentials (Get-Credential acmelabs\administrator) -Verbose
+   VERBOSE: [localhost]:Running against 192.168.10.1
+   VERBOSE: [localhost]:Running against 192.168.10.20
+   VERBOSE: [localhost]:Checking for KB976902 on 192.168.10.20
+   VERBOSE: [localhost]:Could not connect to 192.168.10.1 port 135.
+   VERBOSE: [localhost]:Hotfix KB976902 found on 192.168.10.20
+
+
+   Computer              : 192.168.10.20
+   HotFix                : KB976902
+   InstalledDate         : 1/22/2013 12:00:00 AM
+   InstalledBy           : NT AUTHORITY\SYSTEM
+   Description           : Update
+   Caption               : http://support.microsoft.com/?kbid=976902
+   Installed             : True
+   PSComputerName        : localhost
+   PSSourceJobInstanceId : 3704d139-8328-4bd2-adcc-06bc994bf8b5
+
+.EXAMPLE
+   Using the Active Directory Module Get-ADComputer cmdlet to get a list of computers to 
+   test and running against it.
+
+   PS C:\> $hosts = Get-ADComputer -Filter * | select -ExpandProperty name
+   PS C:\> Confirm-HotFix -Computers $hosts -KB KB976902 | Format-Table -Property computer,hotfix,installed -AutoSize
+
+   Computer HotFix   Installed
+   -------- ------   ---------
+   WIN801   KB976902     False
+   WIN2K01  KB976902     False
+   WINXP01  KB976902     False
+   WIN2K302 KB976902     False
+   DC02     KB976902      True
+   WIN2K301 KB976902     False
+   WINXP02  KB976902     False
+   DC01     KB976902     False
+   WIN702   KB976902      True
+   WIN701   KB976902      True
+
+.PARAMETER Computers
+   Array of computers by Name or by IP Address to check for the presence of a Hotfix KB.
+
+.PARAMETER KB
+   Array of Microsoft Hotfix KB Ids to check for.
+
+.PARAMETER Credentials
+   Alternate set of credentials to use to connect to remote systems.
+    
+.NOTES
+   AUTHOR: Carlos Perez
+   EMAIL: carlos_perez@darkoperator.com
+
+#>
+
+Workflow Confirm-HotFix {
+    [cmdletbinding()]
+    param(
+
+        [parameter(Mandatory=$true)]
+        [psobject[]]$Computers,
+
+        [parameter(Mandatory=$true)]
+        [string[]]$KB,
+
+        [System.Management.Automation.PSCredential] $Credentials
+
+    )
+
+    foreach -parallel ($computer in $computers) {
+        Write-Verbose -Message "Running against $($computer)"
+        InlineScript {
+            # Move credentials in to the inline script for easier manipulation
+            $creds = $using:Credentials
+            # If none are provided create an empty PSCredential Object to force use of current user token.
+            if (!$creds){
+                $creds = ([PSCredential]::Empty)
+            }
+            $TCPclient = new-Object system.Net.Sockets.TcpClient
+            $Connection = $TCPclient.BeginConnect($using:computer,135,$null,$null)
+            $TimeOut = $Connection.AsyncWaitHandle.WaitOne(3000,$false)
+            if(!$TimeOut)   {
+
+                $TCPclient.Close()
+                Write-Verbose "Could not connect to $($using:computer) port 135."
+
+            }
+            else {
+
+               Try {
+                    $TCPclient.EndConnect($Connection) | out-Null
+                    $TCPclient.Close()
+
+                    # Check each computer for the info.
+                    foreach ($hid in $using:KB){
+                        Write-Verbose -Message "Checking for $($hid) on $($using:computer)"
+                        $KBs = Get-WmiObject -class Win32_QuickFixEngineering -Filter "HotFixID='$($hid)'" -ComputerName $using:computer -Credential $creds
+                        if ($KBs){
+                            # Process each version found
+                            Write-Verbose -Message "Hotfix $($hid) found on $($using:computer)"
+                            $objprops =[ordered] @{'Computer'=$Using:computer;
+                                          'HotFix'=$hid;
+                                          'InstalledDate' = $KBs.InstalledOn;
+                                          'InstalledBy' = $KBs.InstalledBy;
+                                          'Description' = $KBs.Description;
+                                          'Caption' = $KBs.Caption;
+                                          'Installed'=$true}
+                            [PSCustomObject]$objprops
+
+                        }
+                        else {
+                            #If not found return an object with Installed False
+                            Write-Verbose -Message "Hotfix $($hid) not found in $($using:computer)"
+                            $objprops =[ordered] @{'Computer'=$Using:computer;
+                                          'HotFix'=$hid;
+                                          'InstalledDate' = "";
+                                          'InstalledBy' = "";
+                                          'Description' = "";
+                                          'Caption' = "";
+                                          'Installed'=$false}
+                            [PSCustomObject]$objprops
+                        }
+                   }
+                }
+
+                Catch {
+
+                    write-verbose "Connction to $($using:computer) on port 135 was refused."
+                }
+            }
+        }
+    }
+}
+
+$Global:sqliteconn = New-Object System.Collections.ArrayList
 
 
 function Get-LogDateString
