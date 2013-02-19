@@ -1,4 +1,255 @@
-﻿function Import-DNSReconXML
+﻿function Import-NmapXML
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0,
+                   ParameterSetName = "File")]
+        [ValidateScript({Test-Path $_})] 
+        $NmapXML,
+
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0,
+                   ParameterSetName = "XMLDoc")]
+        [xml]$InputObject,
+
+        # Type of Information to return
+        [Parameter(Mandatory=$false,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=1)]
+        [ValidateSet("ScanInfo","Hosts")] 
+        $InfoType = "ScanInfo"
+    )
+
+    Begin
+    {
+    }
+    Process
+    {
+        if ($NmapXML)
+        {
+            $file = Get-ChildItem $NmapXML
+            [xml]$nmap = [System.IO.File]::ReadAllText($file.FullName)
+        }
+        else
+        {
+            [xml]$nmap = $InputObject
+        }
+
+        if ($InfoType -eq "ScanInfo")
+        {
+            # Format string for date
+            $datefrmtstr = "ddd MMM dd HH:mm:ss yyyy"
+            $scanstart = $nmap.nmaprun.startstr
+            $scanend   = $nmap.nmaprun.runstats.finished.timestr
+            
+
+            $ScanInfoProperties = [ordered]@{
+                NmapVersion      = $nmap.nmaprun.version
+                Command          = $nmap.nmaprun.args
+                StartTime        = [datetime]::ParseExact($scanstart,$datefrmtstr,$null)
+                EndTime          = [datetime]::ParseExact($scanend,$datefrmtstr,$null)
+                RunTime          = $nmap.nmaprun.runstats.finished.elapsed
+                ScanType         = $nmap.nmaprun.scaninfo.type
+                ScanProtocol     = $nmap.nmaprun.scaninfo.protocol
+                NumberofServices = $nmap.nmaprun.scaninfo.numservices
+                Services         = $nmap.nmaprun.scaninfo.services
+                DebugLevel       = $nmap.nmaprun.debugging.level
+                VerboseLevel     = $nmap.nmaprun.verbose.level
+                Summary          = $nmap.nmaprun.runstats.finished.summary
+                ExitStatus       = $nmap.nmaprun.runstats.finished.exit
+            }
+            [pscustomobject]$ScanInfoProperties
+            
+        }
+        elseif ($InfoType -eq "Hosts")
+        {
+            # Returns epoch time so we need to tranform it
+            $origin = New-Object -Type DateTime -ArgumentList 1970, 1, 1, 0, 0, 0, 0
+
+            $discoveredhosts = $nmap.nmaprun.host | Where-Object {$_.status.state -eq "up"}
+            foreach($dischost in $discoveredhosts)
+            {
+                # Set host addresses
+                $macaddr  = $dischost.address | ForEach-Object {if($_.addrtype -eq "mac"){$_.addr}}
+                $ipv4addr = $dischost.address | ForEach-Object {if($_.addrtype -eq "ipv4"){$_.addr}}
+                $ipv6addr = $dischost.address | ForEach-Object {if($_.addrtype -eq "ipv6"){$_.addr}}
+
+                # Hostsnames detected and type
+                $hostnames = @()
+                foreach($hostname in $dischost.hostnames.childnodes)
+                {
+                    $hostnmae_props = [ordered]@{
+                        Name = $hostname.name
+                        Type = $hostname.type
+                    }
+                    $hostnameobj = [pscustomobject]$hostnmae_props
+                    $hostnameobj.pstypenames.insert(0,'Nmap.Host.Hostname')
+                    $hostnames += $hostnameobj
+                }
+
+                # Traceroute information for the specific host
+                $hops = @()
+                foreach($hop in $dischost.trace.hop)
+                {
+                     $hopobj = [pscustomobject][ordered]@{
+                        rtt       = $hop.rtt
+                        ttl       = $hop.ttl
+                        Host      = $hop.host
+                        IPAddress = $hop.ipaddr
+                    }
+                    $hopobj.pstypenames.insert(0,'Nmap.Host.Trace.Hop')
+                    $hops += $hopobj
+                }
+                
+                $traceprop = [ordered]@{
+                    Port     = $dischost.trace.port
+                    Protocol = $dischost.trace.proto
+                    Hops     = $hops
+                }
+                $traceobj = [pscustomobject]$traceprop
+                $traceobj.pstypenames.insert(0,'Nmap.Host.Trace')
+
+                # OS information on host
+                $OSName   = $dischost.os.osmatch.name
+                $Accuracy = $dischost.os.osmatch.accuracy
+                $OSDBLine = $dischost.os.osmatch.line
+                $osclass  = @()
+                foreach($class in $dischost.os.osmatch.osclass){
+                    $osclassobj = [pscustomobject][ordered]@{
+                        Type          = $class.type
+                        Vendor        = $class.vendor
+                        OSFamily      = $class.osfamily
+                        OSGeneration  = $class.osgen
+                        Accuracy      = $class.accuracy
+                    }
+                    $osclassobj.pstypenames.insert(0,'Nmap.Host.OS.OSMatch.Class')
+                    $osclass += $osclassobj
+                }
+
+                $portsused = @()
+                foreach($portuse in $dischost.os.portused)
+                {
+                    $portusedobj = [pscustomobject]@{
+                        State      = $portuse.state
+                        PortNumber = $portuse.portid
+                        Protocol   = $portuse.proto
+                    }
+                }
+
+                # Port information for hosts
+                $ports = @()
+                foreach($port in $dischost.ports.port)
+                {
+                    # Port Scripts if any ran
+                    $scripts = @()
+                    if ($port.script)
+                    {
+                        foreach($script in $port.script)
+                        {
+                            $scripts += [pscustomobject][ordered]@{
+                                ScriptName   = $script.id
+                                ScriptOutput = $script.output
+                            }
+                        }
+                    }
+
+                    # port details
+                    $portobj = [pscustomobject][ordered]@{
+                        PortNumber = $port.portid
+                        Protocol   = $port.protocol
+                        PortState  = $port.state.state
+                        Reason     = $port.state.reason
+                        Scripts    = if ($scripts.count -gt 0){$scripts}else{$null}
+                        Service = [pscustomobject][ordered]@{
+                            ServiceName = $port.service.name
+                            Product     = $port.service.product
+                            OSType      = $port.service.ostype
+                            Conf        = $port.service.conf
+                            Extrainfo   = $port.service.extrainfo
+                            Method      = $port.service.method
+                            CPE         = $port.service.cpe
+                            Tunnel      = $port.service.tunnel
+                            RPCNumber   = $port.service.rpcnum
+                            LowVersion  = $port.service.lowver
+                            HighVersion = $port.service.highver
+                            Hostname    = $port.service.hostname
+                            ServiceFP   = $port.service.servicefp
+                            DeviceType  = $port.service.devicetype
+                        }
+                    }
+                    $portobj.pstypenames.insert(0,'Nmap.Host.Port')
+                    $ports += $portobj
+                }
+
+                # Hosts scripts
+                $hostscripts = @()
+                $prescripts  = @()
+                $postscripts = @()
+
+                if ($dischost.hostscript)
+                {
+                    foreach($hostscript in $dischost.hostscript.script)
+                    {
+                        $hostscripts += [pscustomobject]@{
+                            ScriptName   = $hostscript.id
+                            ScriptOutput = $hostscript.output
+                        }
+                    }
+                }
+
+                if ($dischost.prescript)
+                {
+                    foreach($prescript in $dischost.prescript.script)
+                    {
+                        $prescripts += [pscustomobject]@{
+                            ScriptName   = $prescript.id
+                            ScriptOutput = $prescript.output
+                        }
+                    }
+                }
+
+                if ($dischost.postscript)
+                {
+                    foreach($postscript in $dischost.postscript.script)
+                    {
+                        $postscripts += [pscustomobject]@{
+                            ScriptName   = $postscript.id
+                            ScriptOutput = $postscript.output
+                        }
+                    }
+                }
+
+                $hostprops = [ordered]@{
+                    ScanStartTime = $origin.AddSeconds($dischost.starttime).ToLocalTime()
+                    ScanEndTime   = $origin.AddSeconds($dischost.endtime).ToLocalTime()
+                    Status        = $dischost.status
+                    MacAddress    = $macaddr
+                    IPv4Address   = $ipv4addr
+                    IPv6Address   = $ipv6addr
+                    HostNames     = $hostnames
+                    Smurf         = $dischost.smurf.responses
+                    Distance      = $dischost.distance.value
+                    Trace         = $traceobj
+                    Ports         = $ports
+                    HostScript    = $hostscripts
+                    PreScript     = $prescripts
+                    PostScript    = $postscripts
+                }
+                [pscustomobject]$hostprops
+            }
+        }
+    }
+    End
+    {
+    }
+}
+
+
+function Import-DNSReconXML
 {
     <#
     .Synopsis
@@ -161,187 +412,5 @@
     End
     {
         $dnsrecords
-    }
-}
-
-function Import-NessusReport
-{
-	<#
-	.Synopsis
-	   Converts object properties in a NessusV2 Report file in to objects
-	.DESCRIPTION
-	   The Import-NessusReport cmdlet creates objects from Nessus v2 files that are generated by the Nessus 4.x or 5.x scanner.
-	.EXAMPLE
-	   Return object with Profile Configuration info.
-	   Import-NessusReport .\report.nessus -InfoType ProfileInfo
-	.EXAMPLE
-	   Returns objects for each of the hosts scanned with Properties and Report Items for each.
-	   Import-NessusReport .\report.nessus
-	.EXAMPLE
-	   Looks for hosts for which a a Vulnerability was found that a Metasploit exploit exists and return the IP and Name of the Module.
-	   Import-NessusReport .\repport.nessus | foreach {$_.reportitems} | where {$_.metasploit -ne $null} | foreach { "$($_.host) $($_.metasploitmodule)"}
-	#>
-    [CmdletBinding()]
-    Param
-    (
-        # Nessus Version 2 report file
-        [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
-        [ValidateScript({Test-Path $_})] 
-        $NessusFile,
-
-        # Type of Information to return
-        [Parameter(Mandatory=$false,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=1)]
-        [ValidateSet("ProfileInfo","Vulnerabilities")] 
-        $InfoType = "Vulnerabilities"
-    )
-
-    Begin
-    {
-        $file = Get-ChildItem $NessusFile
-        [xml]$nessus = [System.IO.File]::ReadAllText($file.FullName)
-    }
-    Process
-    {
-        if ($InfoType -eq "Vulnerabilities")
-        {
-            # How many servers
-            $record_count = $nessus.NessusClientData_v2.Report.ReportHost.Length
-            # processed host count
-            $i = 0;
-            # Declare Array that will be returned with the objects
-            $reported_hosts = @()
-            # for each of the hosts reported
-            foreach ($reporthost in $nessus.NessusClientData_v2.Report.ReportHost) {
-                # Declare variables for properties that will form the object
-                $hproperties = @{}
-                $host_properties = @{}
-                $vulns = @()
-                $hostip = $reporthost.name
-                # Gathering properties for each host
-                foreach($hostproperty in $reporthost.HostProperties.tag) 
-                {
-                    $hproperties += @{($hostproperty.name -replace "-","_") = $hostproperty."#text"}
-                }
-    
-                # Set the Host and Host Properties object properties
-                $host_properties += @{Host = $hostip.Trim()}
-                $host_properties += @{Host_Properties = New-Object PSObject -Property $hproperties}
-
-                # Collect vulnerable information for each host
-                foreach ($reportitem in ($reporthost.ReportItem | where {$_.pluginID -ne "0"})) {
-                    
-                    $vuln_properties = New-Object PSObject -Property @{
-                    Host                 = $hostip.Trim()
-                    Port                 = $reportitem.Port
-                    ServiceName          = $reportitem.svc_name
-                    Severity             = $reportitem.severity
-                    PluginID             = $reportitem.pluginID
-                    PluginName           = $reportitem.pluginName
-                    PluginFamily         = $reportitem.pluginFamily
-                    RiskFactor           = $reportitem.risk_factor
-                    Synopsis             = $reportitem.synopsis
-                    Description          = $reportitem.description
-                    Solution             = $reportitem.solution
-                    PluginOutput         = $reportitem.plugin_output
-                    SeeAlso              = $reportitem.see_also
-                    CVE                  = $reportitem.cve
-                    BID                  = $reportitem.bid
-                    ExternaReference     = $reportitem.xref
-                    PatchPublicationDate = $reportitem.patch_publication_date
-                    VulnPublicationDate  = $reportitem.vuln_publication_date
-                    Exploitability       = $reportitem.exploitability_ease
-                    ExploitAvailable     = $reportitem.exploit_available
-                    CANVAS               = $reportitem.exploit_framework_canvas
-                    Metasploit           = $reportitem.exploit_framework_metasploit
-                    COREImpact           = $reportitem.exploit_framework_core
-                    MetasploitModule     = $reportitem.metasploit_name
-                    CANVASPackage        = $reportitem.canvas_package
-                    CVSSVector           = $reportitem.cvss_vector
-                    CVSSBase             = $reportitem.cvss_base_score
-                    CVSSTemporal         = $reportitem.cvss_temporal_score
-                    PluginType           = $reportitem.plugin_type
-                    PluginVersion        = $reportitem.plugin_version
-                    }
-                    
-                   
-                    $vulns += $vuln_properties
-                }
-                $host_properties += @{ReportItems = $vulns}
-    
-                # Create each host object
-                $reported_vuln = New-Object PSObject -Property $host_properties
-                $reported_hosts += $reported_vuln
-
-                # Provide progress, specially usefull in large reports
-                $record_progress = [int][Math]::Ceiling((($i / $record_count) * 100))
-                Write-Progress -Activity "Processing Vulnerability Report" -PercentComplete $record_progress -Status "Processing records - $record_progress%" -Id 1;
-                $i++
-            }
-            $reported_hosts
-        }
-        else
-        {
-            $prefs = @()
-            $ips_plugins =@()
-            # Get Server Settings
-            $ServerSettings = @{}
-            foreach ($serverpref in ($nessus.NessusClientData_v2.Policy.Preferences.ServerPreferences.preference))
-            { 
-               $ServerSettings += @{$serverpref.name = $serverpref.value 
-            }
-            
-            
-            # Policy Name
-            $polname = $nessus.NessusClientData_v2.Policy.policyName
-            
-            # Get policy settings
-            $prefobj = $nessus.NessusClientData_v2.Policy.Preferences.PluginsPreferences.ChildNodes
-            foreach ($pref in $prefobj) 
-            {
-                $pref_property = @{}
-                foreach ($prefprop in (Get-Member -InputObject $pref -MemberType Property))
-                { 
-                    $pref_property += @{$prefprop.name = $pref.($prefprop.name.trim())}
-                $prefs += New-Object PSObject -Property $pref_property
-                }
-            }
-            
-            # Get selected Plugin Families
-            $families = @{}
-            foreach ($familyitem in ($nessus.NessusClientData_v2.Policy.FamilySelection.FamilyItem))
-            { 
-                $families += @{$familyitem.familyname = $familyitem.value}
-            }
-
-            # Individual Plugin Selection
-            $ips = $nessus.NessusClientData_v2.Policy.IndividualPluginSelection.PluginItem 
-            foreach ($plugin in $ips)
-            {
-                
-                foreach ($plugprop in (Get-Member -InputObject $plugin -MemberType Property)) 
-                { 
-                   $plugin_property = @{}
-                   $plugin_property += @{$plugprop.name = $plugin.($plugprop.name.trim())}
-                   $ips_plugins += New-Object PSObject -Property $plugin_property
-                }
-            }
-
-        }
-        New-Object PSObject -Property @{
-        PolicyName                = $polname
-        Preferences               = $prefs
-        PluginFamilies            = $families
-        IndividualPluginSelection = $ips_plugins
-        ServerSettings            = $ServerSettings
-        }
-        $policyobj
-        }
-    }
-    End
-    {
     }
 }
