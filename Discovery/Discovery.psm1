@@ -1,5 +1,49 @@
 ﻿<#
 .Synopsis
+   Perform Whois Query
+.DESCRIPTION
+   Performs a Whois query for a given Domain and IP Address. NOT FINISHED
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Get-Whois
+{
+    [CmdletBinding(DefaultParameterSetName="Domain")]
+    
+    Param
+    (
+        # Param1 help description
+        [Parameter(Mandatory=$true,
+                   ParameterSetName = "Domain",
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+        [string]$Domain
+
+        #[string]$IPAddress
+    )
+
+    Begin
+    {
+        # Need to generate hash from http://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xml,
+        # http://www.iana.org/assignments/ipv6-address-space
+        # http://www.iana.org/assignments/multicast-addresses
+    }
+    Process
+    {
+        if ($Domain)
+        {
+            [WebTools.Whois]::lookup($Domain, [WebTools.Whois+RecordType]::domain)
+        }
+    }
+    End
+    {
+    }
+}
+
+<#
+.Synopsis
    Enumerates all mDNS records in the local subnet.
 .DESCRIPTION
    Unsing mDNS the function qill query and resolve all mDNS records for
