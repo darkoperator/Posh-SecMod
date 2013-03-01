@@ -1,5 +1,43 @@
 ﻿<#
 .Synopsis
+   Enumerates all mDNS records in the local subnet.
+.DESCRIPTION
+   Unsing mDNS the function qill query and resolve all mDNS records for
+   devices advertising on the local subnet.
+.EXAMPLE
+   Shows only the A and AAAA Records for hosts in the local subnet
+
+   Get-MDNSRecords | where recordtype -like "A*"
+
+.EXAMPLE
+   Show only HTTP servers in the local subnet
+
+   Get-MDNSRecords | where name -like "*_http._tcp*"
+#>
+
+function Get-MDNSRecords
+{
+    $mdns = new-object -typename ARSoft.Tools.Net.Dns.MulticastDnsOneShotClient -ArgumentList 3
+    $records = $mdns.Resolve("_services._dns-sd._udp.local",[ARSoft.Tools.Net.Dns.RecordType]::Any)
+    $doms = @();
+    $records | foreach-object {
+        $_.answerrecords| foreach {
+            $doms += $_.PointerDomainName
+        }
+    }
+    $results = @()
+    $doms | foreach-object {
+        $queryres = $mdns.Resolve($_,[ARSoft.Tools.Net.Dns.RecordType]::Ptr)
+        $results += $queryres.answerrecords
+        $results += $queryres.additionalrecords
+        
+    }
+
+    $results | sort -Unique
+}
+
+<#
+.Synopsis
     Generates a list of IPv4 IP Addresses given a Start and End IP.
 .DESCRIPTION
     Generates a list of IPv4 IP Addresses given a Start and End IP.
