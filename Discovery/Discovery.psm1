@@ -38,17 +38,68 @@ function Get-MDNSRecords
 
 <#
 .Synopsis
+    Generates a IP Address Objects for IPv4 and IPv6 Ranges.
+.DESCRIPTION
+    Generates a IP Address Objects for IPv4 and IPv6 Ranges given a ranges in CIDR or
+    range <StartIP>-<EndIP> format.
+.EXAMPLE
+    Generating a list of IPs
+    PS C:\> New-IPv4Range -StartIP 192.168.1.1 -EndIP 192.168.1.5
+
+#>
+
+function Get-IPRange
+{
+    [CmdletBinding(DefaultParameterSetName="CIDR")]
+    Param(
+        [parameter(Mandatory=$true,
+        ParameterSetName = "CIDR",
+        Position=0)]
+        [string]$CIDR,
+
+        [parameter(Mandatory=$true,
+        ParameterSetName = "Range",
+        Position=0)]
+        [string]$Range   
+    )
+    if($CIDR)
+    {
+        $IPPart,$MaskPart = $CIDR.Split("/")
+        $AddressFamily = ([System.Net.IPAddress]::Parse($IPPart)).AddressFamily
+
+        # Get the family type for the IP (IPv4 or IPv6)
+        $subnetMaskObj = [IPHelper.IP.Subnetmask]::Parse($MaskPart, $AddressFamily)
+        
+        # Get the Network and Brodcast Addressed
+        $StartIP = [IPHelper.IP.IPAddressAnalysis]::GetClasslessNetworkAddress($IPPart, $subnetMaskObj)
+        $EndIP = [IPHelper.IP.IPAddressAnalysis]::GetClasslessBroadcastAddress($IPPart,$subnetMaskObj)
+        
+        # Ensure we do not list the Network and Brodcast Address
+        $StartIP = [IPHelper.IP.IPAddressAnalysis]::Increase($StartIP)
+        $EndIP = [IPHelper.IP.IPAddressAnalysis]::Decrease($EndIP)
+        [IPHelper.IP.IPAddressAnalysis]::GetIPRange($StartIP, $EndIP)
+    }
+    elseif ($Range)
+    {
+        $StartIP, $EndIP = $range.split("-")
+        [IPHelper.IP.IPAddressAnalysis]::GetIPRange($StartIP, $EndIP)
+    }
+}
+
+<#
+.Synopsis
     Generates a list of IPv4 IP Addresses given a Start and End IP.
 .DESCRIPTION
     Generates a list of IPv4 IP Addresses given a Start and End IP.
 .EXAMPLE
-    Generating a list of IPs
-    PS C:\> New-IPv4Range -StartIP 192.168.1.1 -EndIP 192.168.1.5
-    192.168.1.1
-    192.168.1.2
-    192.168.1.3
-    192.168.1.4
-    192.168.1.5
+    Generating a list of IPs from CIDR
+
+    Get-IPRange 192.168.1.0/24
+    
+.EXAMPLE
+    Generating a list of IPs from Range
+
+    Get-IPRange -Range 192.168.1.1-192.168.1.50
 #>
 function New-IPv4Range
 {
