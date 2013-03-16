@@ -219,3 +219,100 @@ function Get-FileHash
 		$output
 	}
 }
+
+<#
+.Synopsis
+   Updateds to the latest version the Sysinternals Tool Suite
+.DESCRIPTION
+   Updates to the latest version the Sysinternals Tool Suite the files
+   located in a given path using WebDav to connect to the Microsoft Servers.
+   If the Path does not exists it will create the folder and download  
+   the tools if the force parameter is used.
+.EXAMPLE
+   PS C:\> Update-SysinternalsTools -Path C:\SysinternalsSuite -Verbose
+
+   Updates the to the latest version the tools in a given path
+
+.EXAMPLE
+   PS C:\> Update-SysinternalsTools -Path C:\SysinternalsSuite -Verbose -Force
+
+   Updates the to the latest version the tools in a given path and if the path
+   does not exists it will create it.
+#>
+function Update-SysinternalsTools
+{
+    [CmdletBinding()]
+    [OutputType([int])]
+    Param
+    (
+        # Path to where update the tools
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+        [string]$Path,
+
+        # Creates the directory for the tools if it does not exist.
+        [Parameter(Mandatory=$false)]
+        [switch]$Force
+
+    )
+
+    Begin
+    {
+        $WebPath = "\\live.sysinternals.com\Tools"
+        # Check if the folder exists and if we should create it before starting.
+        if ((Test-Path $Path) -eq $false)
+        {
+            if ($Force -eq $true)
+            {   
+                Write-Verbose "Creating folder $($Path)"
+                New-Item $Path -type directory | out-null
+            }
+            else
+            {
+                Write-Error "Path $($Path) does not exist."
+                return
+            }
+        }
+        $files = Get-ChildItem -Path $WebPath -File 
+    }
+    Process
+    {
+        if (Test-Path $Path)
+        {
+            Write-Verbose "Folder exists, collecting information of files on host."
+            $filesonhost = @{}
+            foreach ($tool in (Get-ChildItem -Path $Path -File))
+            {
+                $filesonhost += @{$tool.name = $tool.CreationTime}
+            }
+
+            foreach ($file in $files)
+            {
+                if ($file.CreationTime -gt $filesonhost[$file.Name])
+                {
+                    Write-Verbose "$($file.Name) is newer."
+                    Write-Verbose "Downloading $($file.Name)"
+                    Copy-Item -Path $file.FullName -Destination "$($Path)\$($file.Name)"
+                }
+                else
+                {
+                    write-verbose "$($file.name) is up to date."
+                }
+            }
+        }
+        else
+        {
+            
+            foreach ($file in $files)
+            {
+                Write-Verbose "Downloading $($file.Name)"
+                Copy-Item -Path $file.FullName -Destination  "$($Path)\$($file.Name)"
+            }
+            
+        }
+    }
+    End
+    {
+    }
+}
