@@ -85,3 +85,9 @@ The module should now be available and you can load the module and look at the f
 Import-Module posh-secmod
 Get-Command -Module posh-secmod
 </pre>
+
+To Update the module with any recent changes just:
+<pre>
+cd "$($env:PSModulePath.split(";")[0])\posh-secmod"
+git pull
+</pre>
