@@ -61,11 +61,14 @@ function Get-Whois
 
 function Get-MDNSRecords
 {
+    [CmdletBinding()]
+    param()
     $mdns = new-object -typename ARSoft.Tools.Net.Dns.MulticastDnsOneShotClient -ArgumentList 3
     $records = $mdns.Resolve("_services._dns-sd._udp.local",[ARSoft.Tools.Net.Dns.RecordType]::Any)
     $doms = @();
     $records | foreach-object {
         $_.answerrecords| foreach {
+            Write-Verbose $_.PointerDomainName
             $doms += $_.PointerDomainName
         }
     }
@@ -87,12 +90,17 @@ function Get-MDNSRecords
     Generates a IP Address Objects for IPv4 and IPv6 Ranges given a ranges in CIDR or
     range <StartIP>-<EndIP> format.
 .EXAMPLE
-    Generating a list of IPs
-    PS C:\> New-IPv4Range -StartIP 192.168.1.1 -EndIP 192.168.1.5
+    PS C:\> New-IPvRange -Range 192.168.1.1-192.168.1.5
 
+    Generate a collection of IPv4 Object collection for the specified range.
+
+.EXAMPLE
+   New-IPRange -Range 192.168.1.1-192.168.1.50 | select -ExpandProperty ipaddresstostring
+
+   Get a list of IPv4 Addresses in a given range as a list for use in another tool.
 #>
 
-function Get-IPRange
+function New-IPRange
 {
     [CmdletBinding(DefaultParameterSetName="CIDR")]
     Param(
