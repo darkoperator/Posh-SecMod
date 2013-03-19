@@ -63,10 +63,10 @@ function Get-MDNSRecords
 {
     [CmdletBinding()]
     param()
-    $mdns = new-object -typename ARSoft.Tools.Net.Dns.MulticastDnsOneShotClient -ArgumentList 3
+    $mdns = new-object -typename ARSoft.Tools.Net.Dns.MulticastDnsOneShotClient -ArgumentList 4
     $records = $mdns.Resolve("_services._dns-sd._udp.local",[ARSoft.Tools.Net.Dns.RecordType]::Any)
     $doms = @();
-    $records | foreach-object {
+    $records| sort -Unique | foreach-object {
         $_.answerrecords| foreach {
             Write-Verbose $_.PointerDomainName
             $doms += $_.PointerDomainName
@@ -74,13 +74,14 @@ function Get-MDNSRecords
     }
     $results = @()
     $doms | foreach-object {
+        Write-Verbose "Resolving $($_)"
         $queryres = $mdns.Resolve($_,[ARSoft.Tools.Net.Dns.RecordType]::Ptr)
         $results += $queryres.answerrecords
         $results += $queryres.additionalrecords
         
     }
-
-    $results | sort -Unique
+    Write-Verbose "do sort and unique"
+    $results | sort -Unique 
 }
 
 <#
