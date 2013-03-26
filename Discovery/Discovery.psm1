@@ -80,7 +80,6 @@ function Get-MDNSRecords
         $results += $queryres.additionalrecords
         
     }
-    Write-Verbose "do sort and unique"
     $results | sort -Unique 
 }
 
