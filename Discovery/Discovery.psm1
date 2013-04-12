@@ -2,11 +2,12 @@
 .Synopsis
    Perform Whois Query
 .DESCRIPTION
-   Performs a Whois query for a given Domain and IP Address. NOT FINISHED
+   Performs a Whois query for a given Domain.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Perfrom a whois query for google.com
+
+   PS C:\> Get-Whois google.com
+
 #>
 function Get-Whois
 {
@@ -82,6 +83,7 @@ function Get-MDNSRecords
     }
     $results | sort -Unique 
 }
+
 
 <#
 .Synopsis
@@ -237,9 +239,14 @@ function New-IPv4RangeFromCIDR {
 .DESCRIPTION
    Performs a DNS Reverse Lookup of a given IPv4 IP Range.
 .EXAMPLE
-   Example of how to use this cmdlet
+   Perfrom a threaded reverse lookup against a given CIDR
+
+   PS C:\> Invoke-ReverseDNSLookup -CIDR 192.168.1.0/24
+
 .EXAMPLE
-   Another example of how to use this cmdlet
+   Perfrom a reverse lookup against a given range given the start and end IP Addresses
+
+   PS C:\> Invoke-ReverseDNSLookup -Range 192.168.1.1-192.168.1.20
 #>
 function Invoke-ReverseDNSLookup
 {
@@ -280,7 +287,7 @@ function Invoke-ReverseDNSLookup
         # Manage if CIDR is given
         if ($CIDR)
         {
-            $targets = Get-IPv4RangeFromCIDR -Network $CIDR
+            $targets = New-IPv4RangeFromCIDR -Network $CIDR
         }
     }
     Process
@@ -379,9 +386,13 @@ function Invoke-ReverseDNSLookup
    Performs a Ping Scan against a given range of IPv4 IP addresses by sending
    ICMP Echo Packets.
 .EXAMPLE
-   Example of how to use this cmdlet
+   Perform Ping Scan against a given range in CIDR format
+
+   PS C:\> Invoke-PingScan -CIDR 192.168.1.0/24 
 .EXAMPLE
-   Another example of how to use this cmdlet
+   Perform Ping Scan against a given range given the start and end IP Addresses
+
+   PS C:\> Invoke-PingScan -Range 192.168.1.1-192.168.1.10
 #>
 function Invoke-PingScan
 {
@@ -422,7 +433,7 @@ function Invoke-PingScan
         # Manage if CIDR is given
         if ($CIDR)
         {
-            $targets = Get-IPv4RangeFromCIDR -Network $CIDR
+            $targets = New-IPv4RangeFromCIDR -Network $CIDR
         }
     }
     Process
