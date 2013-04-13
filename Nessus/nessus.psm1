@@ -2684,7 +2684,7 @@ function Get-NessusReportHostsDetailed
     PluginType           : remote
     PluginVersion        : 
 #>
-l
+
 function Get-NessusReportItems
 {
     [CmdletBinding()]
