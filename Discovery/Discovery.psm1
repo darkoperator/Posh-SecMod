@@ -536,9 +536,16 @@ function Invoke-PingScan
    Performs full TCP Connection and UDP port scan against a given host 
    or range of IPv4 addresses.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Perform TCP Scan of known ports against a host
+   
+    PS C:\> Invoke-PortScan -Target 172.20.10.3 -Ports 22,135,139,445 -Type TCP
+
+    Host                                                 Port State                        Type                        
+    ----                                                 ---- -----                        ----                        
+    172.20.10.3                                           135 Open                         TCP                         
+    172.20.10.3                                           139 Open                         TCP                         
+    172.20.10.3                                           445 Open                         TCP                         
+
 #>
 function Invoke-PortScan
 {
@@ -706,9 +713,15 @@ function Invoke-PortScan
 .DESCRIPTION
    Performs an ARP scan against a given range of IPv4 IP Addresses.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Invoke an ARP Scan against a range of IPs specified in CIDR Format
+
+    PS C:\> Invoke-ARPScan -CIDR 172.20.10.1/24
+
+    MAC                                                       Address                                                  
+    ---                                                       -------                                                  
+    14:10:9F:D5:1A:BF                                         172.20.10.2                                              
+    00:0C:29:93:10:B5                                         172.20.10.3                                              
+    00:0C:29:93:10:B5                                         172.20.10.15  
 #>
 function Invoke-ARPScan {
 
@@ -791,7 +804,7 @@ public static class NetUtils
         # Manage if CIDR is given
         if ($CIDR)
         {
-            $targets = Get-IPv4RangeFromCIDR -Network $CIDR
+            $targets = New-IPv4RangeFromCIDR -Network $CIDR
         }
     }
     Process 
