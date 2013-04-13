@@ -1,4 +1,5 @@
-﻿ Function Get-WebFile
+﻿ 
+ Function Get-WebFile
  {
      Param(
         [Parameter(Mandatory = $true)]
@@ -38,6 +39,7 @@
     }
     End{}
 }
+
 
 
 function New-Zip
@@ -162,24 +164,25 @@ function Expand-Zip
 	$destinationFolder.CopyHere($zipPackage.Items())
 }
 
+
+<#
+	.SYNOPSIS
+		cmdlet for calculatingt the hash of a given file.
+
+	.DESCRIPTION
+		Calculates either the MD5, SHA1, SHA256, SHA384 or SHA512 checksum of a given file.
+
+	.PARAMETER  File
+		The description of the ParameterA parameter.
+
+	.PARAMETER  HashAlgorithm
+		The description of the ParameterB parameter.
+
+	.EXAMPLE
+		PS C:\> Get-Something -ParameterA 'One value' -ParameterB 32
+#>
 function Get-FileHash 
 {
-	<#
-		.SYNOPSIS
-			cmdlet for calculatingt the hash of a given file.
-
-		.DESCRIPTION
-			Calculates either the MD5, SHA1, SHA256, SHA384 or SHA512 checksum of a given file.
-
-		.PARAMETER  File
-			The description of the ParameterA parameter.
-
-		.PARAMETER  HashAlgorithm
-			The description of the ParameterB parameter.
-
-		.EXAMPLE
-			PS C:\> Get-Something -ParameterA 'One value' -ParameterB 32
-	#>
 	[CmdletBinding()]
 	[OutputType([string])]
 	param(
@@ -219,6 +222,7 @@ function Get-FileHash
 		$output
 	}
 }
+
 
 <#
 .Synopsis

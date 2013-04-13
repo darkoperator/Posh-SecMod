@@ -399,24 +399,28 @@ function Invoke-PingScan
     [CmdletBinding()]
     Param
     (
+        # IP Range to perform ping scan against.
         [Parameter(Mandatory=$true,
                    ParameterSetName = "Range",
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
         [string]$Range,
 
+        # IP CIDR to perform ping scan against.
         [Parameter(Mandatory=$true,
                    ParameterSetName = "CIDR",
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
         [string]$CIDR,
 
+        # Number of concurrent threads to execute
         [Parameter(Mandatory=$false,
                    ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
+                   Position=1)]
         [string]$MaxThreads=10,
-        [Parameter(
-                   ValueFromPipelineByPropertyName=$true,
+
+        # Timeout in miliseconds for the ICMP Echo request.
+        [Parameter(ValueFromPipelineByPropertyName=$true,
                    Position=2)]
         [int]$TimeOut = 200
     )
@@ -543,8 +547,6 @@ function Invoke-PortScan
     Param
     (
         # Param1 help description
-        
-
         [Parameter(Mandatory=$true,
                    ParameterSetName = "SingleIP",
                    ValueFromPipelineByPropertyName=$true,
@@ -624,12 +626,12 @@ function Invoke-PortScan
                             #$TcpSocket.client.ReceiveTimeout = $Timeout
                             # Connect to target host and port
                             $TcpSocket.Connect($ip, $p)
-
-                            $scanport = New-Object psobject -Property @{
-                                              Host  = $ip
-                                              Port  = $p
-                                              State = "Open"
-                                              Type  = "TCP"}
+                            $ScanPortProps = New-Object -TypeName System.Collections.Specialized.OrderedDictionary
+                            $ScanPortProps.Add("Host",$ip)
+                            $ScanPortProps.Add("Port",$p)
+                            $ScanPortProps.Add("State","Open")
+                            $ScanPortProps.Add("Type","TCP")
+                            $scanport = New-Object psobject -Property $ScanPortProps
 
                             # Close Connection
                             $tcpsocket.Close()
@@ -667,12 +669,12 @@ function Invoke-PortScan
                             #Attempt to receive a response indicating the port was open
                             $receivebytes = $UDPSocket.Receive([ref] $Endpoint)
                             [string] $returndata = $data.GetString($receivebytes)
-                
-                            $scanport = New-Object psobject -Property @{
-                                            Host  = $ip
-                                            Port  = $p
-                                            State = "Open"
-                                            Type  = "UDP"}
+                            $ScanPortProps = New-Object -TypeName System.Collections.Specialized.OrderedDictionary
+                            $ScanPortProps.Add("Host",$ip)
+                            $ScanPortProps.Add("Port",$p)
+                            $ScanPortProps.Add("State","Open")
+                            $ScanPortProps.Add("Type","UDP")
+                            $scanport = New-Object psobject -Property $ScanPortProps
                             $scanport
                         }
             
