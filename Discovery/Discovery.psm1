@@ -605,7 +605,7 @@ function Invoke-PortScan
         # Expnd CIDR
         if ($CIDR)
         {
-            $targets = Get-IPv4RangeFromCIDR -Network $CIDR
+            $targets = New-IPv4RangeFromCIDR -Network $CIDR
         }
 
         # Manage single target
