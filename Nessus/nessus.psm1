@@ -4760,7 +4760,6 @@ function Update-NessusScanTemplate
             {
                 write-verbose "Template updated successfuly"
                 $updated_template = $update_reply.contents.template
-                tmp
                 $template_properties = [ordered]@{
                     TemplateID  = $updated_template.name
                     PolicyID    = $updated_template.policy_id
