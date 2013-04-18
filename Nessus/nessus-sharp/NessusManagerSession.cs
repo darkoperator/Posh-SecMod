@@ -171,6 +171,86 @@ namespace Nessus.Data
 			return response;
 		}
 
+        // For use when performing queries with option json=1 so as to get a
+        // string representation of a JSON file as used by the HTML5 interface.
+        public String ExecuteCommand2(string uri, Hashtable options)
+        {
+            HttpWebRequest request = WebRequest.Create(_proto + "://" + _host + ":" + _port + uri) as HttpWebRequest;
+            String response = null;
+
+            //This is unsafe. TODO
+            ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true; //anonymous delegates ftw!
+
+            request.KeepAlive = true;
+            request.ProtocolVersion = HttpVersion.Version10;
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+
+            if (!string.IsNullOrEmpty(this.Token))
+                request.Headers.Add("Cookie", "token=" + this.Token);
+
+            try
+            {
+                string postData = string.Empty;
+
+                foreach (DictionaryEntry de in options)
+                    postData = postData + de.Key + "=" + de.Value + "&";
+
+                postData = postData.Remove(postData.Length - 1); //remove trailing '&'
+
+                byte[] byteArray = Encoding.ASCII.GetBytes(postData);
+
+                request.ContentLength = byteArray.Length;
+
+                using (Stream dataStream = request.GetRequestStream())
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+
+            
+                using (HttpWebResponse r = request.GetResponse() as HttpWebResponse)
+                using (Stream responseStream = r.GetResponseStream())
+
+                using (StreamReader readStream = new StreamReader(responseStream))
+                response = readStream.ReadToEnd();
+            }
+           catch
+           {
+
+               bool loggedIn = false;
+               this.Authenticate(this.Username, this.Password, 1234, out loggedIn);
+
+               string postData = string.Empty;
+               request = WebRequest.Create(_proto + "://" + _host + ":" + _port + uri) as HttpWebRequest;
+
+               request.KeepAlive = true;
+               request.ProtocolVersion = HttpVersion.Version10;
+               request.Method = "POST";
+               request.ContentType = "application/x-www-form-urlencoded";
+
+               foreach (DictionaryEntry de in options)
+                   postData = postData + de.Key + "=" + de.Value + "&";
+
+               postData = postData.Remove(postData.Length - 1); //remove trailing '&'
+
+               byte[] byteArray = Encoding.ASCII.GetBytes(postData);
+
+               request.ContentLength = byteArray.Length;
+
+               using (Stream dataStream = request.GetRequestStream())
+                   dataStream.Write(byteArray, 0, byteArray.Length);
+
+
+               using (HttpWebResponse r = request.GetResponse() as HttpWebResponse)
+               using (Stream responseStream = r.GetResponseStream())
+
+               using (StreamReader readStream = new StreamReader(responseStream))
+                   response = readStream.ReadToEnd();
+
+               if (loggedIn == false)
+                   throw new Exception("Can't relogin");
+           }
+
+            return response;
+        }
 		public void Dispose()
 		{
 			
