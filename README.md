@@ -24,16 +24,7 @@ The functions I have written are BSD 3-Clause Licensed. The other files I used f
 - Whois Library from http://coderbuddy.wordpress.com/ under the GPL2 License
 
 ## Installation Instrcutions
-
-###Download and Install Git
-
-Download the latest version of Git for Windows from http://msysgit.github.com/
-When you install make sure of the following:
-
-- Select **Run Git from the Windows Command Prompt** in the **Ajusting your PATH environment** step of the installation wizard.
-- Select Checkout as-is and commit as-is in the options for formating.
- 	
-###Install Posh-Git using PsGet
+###Install PSGet
 
 Run PowerShell with elevetaed privelages and make sure that you have set the ExecutionPolicy to RemoteSigned since none of the scripts, binaries and modules are signed with authenticode. 
 <pre>
@@ -45,7 +36,28 @@ We will use the PS-Get utility to download and install Posh-Git, for this we fir
 (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | iex
 </pre>
 
-Once installed we can now install Posh-Git by running:
+Once installed we can either install directly from github using PSget or install Git and use it to keep the module update
+
+###Installing Module using PSGet
+
+This is the simplest way of installing the module, you just need to run:
+<pre>
+install-module -ModuleUrl https://github.com/darkoperator/Posh-SecMod/archive/master.zip
+</pre>
+
+and the module will be available
+
+###Download and Install Git
+
+Download the latest version of Git for Windows from http://msysgit.github.com/
+When you install make sure of the following:
+
+- Select **Run Git from the Windows Command Prompt** in the **Ajusting your PATH environment** step of the installation wizard.
+- Select Checkout as-is and commit as-is in the options for formating.
+ 	
+###Install Posh-Git using PsGet
+
+ now install Posh-Git by running:
 <pre>
 install-module posh-git
 </pre>
