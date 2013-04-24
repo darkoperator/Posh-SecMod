@@ -1,4 +1,7 @@
-﻿$Global:sqliteconn = New-Object System.Collections.ArrayList
+﻿if (!(Test-Path variable:Global:SQLiteConn ))
+{
+    $Global:SQLiteConn = New-Object System.Collections.ArrayList
+ }
 
 
 
@@ -208,8 +211,7 @@ function Get-SQLite3Connection
    Execute query to list all the tables in the database.
 
    PS C:\> Invoke-SQLite3Query -SQL "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;" -Index 0
-.EXAMPLE
-   Another example of how to use this cmdlet
+
 #>
 function Invoke-SQLite3Query           
 {

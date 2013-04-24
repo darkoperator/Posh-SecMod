@@ -171,8 +171,132 @@ namespace Nessus.Data
 			return response;
 		}
 
+        public XmlDocument UpLoad(string uri, string Filename)
+        {
+            HttpWebRequest request = WebRequest.Create(_proto + "://" + _host + ":" + _port + uri) as HttpWebRequest;
+            XmlDocument response = null;
+
+            //This is unsafe. TODO
+            ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true;
+
+            string boundary = "----------------------------" + DateTime.Now.Ticks.ToString("x");
+            
+            request.KeepAlive = true;
+            request.ProtocolVersion = HttpVersion.Version10;
+            request.Method = "POST";
+            request.ContentType = "multipart/form-data; boundary=" + boundary;
+
+            if (!string.IsNullOrEmpty(this.Token))
+                request.Headers.Add("Cookie", "token=" + this.Token);
+
+            // Prepare proper message 
+            Stream memStream = new System.IO.MemoryStream();
+            byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+            string formdataTemplate = "\r\n--" + boundary + "\r\nContent-Disposition: form-data; name=\"{0}\";\r\n\r\n{1}";
+            string formitem = string.Format(formdataTemplate, "Filename", Path.GetFileName(Filename));
+            byte[] formitembytes = System.Text.Encoding.UTF8.GetBytes(formitem);
+            memStream.Write(formitembytes, 0, formitembytes.Length);
+            memStream.Write(boundarybytes, 0, boundarybytes.Length);
+            string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: application/octet-stream\r\n\r\n";
+            string header = string.Format(headerTemplate, "Filedata", Path.GetFileName(Filename));
+            byte[] headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
+            string footerTemplate = "Content-Disposition: form-data; name=\"Upload\"\r\n\r\nSubmit Query\r\n" + boundary + "--";
+            byte[] footerBytes = System.Text.Encoding.UTF8.GetBytes(footerTemplate);
+            memStream.Write(headerbytes, 0, headerbytes.Length);
+
+            // Read file for upload
+            byte[] filecontent = File.ReadAllBytes(Filename);
+            memStream.Write(filecontent, 0, filecontent.Length);
+            
+            // Add file content to message
+            memStream.Write(boundarybytes, 0, boundarybytes.Length);
+            memStream.Write(footerBytes, 0, footerBytes.Length);
+
+            request.ContentLength = memStream.Length;
+            Stream requestStream = request.GetRequestStream();
+            memStream.Position = 0;
+            byte[] tempBuffer = new byte[memStream.Length];
+            memStream.Read(tempBuffer, 0, tempBuffer.Length);
+
+            memStream.Close();
+            requestStream.Write(tempBuffer, 0, tempBuffer.Length);
+            requestStream.Close();
+            try
+            {
+                response = new XmlDocument();
+
+                using (HttpWebResponse r = request.GetResponse() as HttpWebResponse)
+                using (Stream responseStream = r.GetResponseStream())
+                    response.Load(responseStream);
+            }
+            catch
+            {
+
+                bool loggedIn = false;
+                this.Authenticate(this.Username, this.Password, 1234, out loggedIn);
+
+                string postData = string.Empty;
+                request = WebRequest.Create(_proto + "://" + _host + ":" + _port + uri) as HttpWebRequest;
+                response = null;
+
+                //This is unsafe. TODO
+                ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true;
+
+                boundary = "----------------------------" + DateTime.Now.Ticks.ToString("x");
+            
+                request.KeepAlive = true;
+                request.ProtocolVersion = HttpVersion.Version10;
+                request.Method = "POST";
+                request.ContentType = "multipart/form-data; boundary=" + boundary;
+
+                if (!string.IsNullOrEmpty(this.Token))
+                    request.Headers.Add("Cookie", "token=" + this.Token);
+
+                memStream = new System.IO.MemoryStream();
+                boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+                formdataTemplate = "\r\n--" + boundary + "\r\nContent-Disposition: form-data; name=\"{0}\";\r\n\r\n{1}";
+                formitem = string.Format(formdataTemplate, "Filename", Path.GetFileName(Filename));
+                formitembytes = System.Text.Encoding.UTF8.GetBytes(formitem);
+                memStream.Write(formitembytes, 0, formitembytes.Length);
+                memStream.Write(boundarybytes, 0, boundarybytes.Length);
+                headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\n Content-Type: application/octet-stream\r\n\r\n";
+                header = string.Format(headerTemplate, "Filedata", Path.GetFileName(Filename));
+                headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
+                footerTemplate = "Content-Disposition: form-data; name=\"Upload\"\r\n\r\nSubmit Query\r\n" + boundary + "--";
+                footerBytes = System.Text.Encoding.UTF8.GetBytes(footerTemplate);
+                memStream.Write(headerbytes, 0, headerbytes.Length);
+
+                filecontent = File.ReadAllBytes(Filename);
+                memStream.Write(filecontent, 0, filecontent.Length);
+
+                memStream.Write(boundarybytes, 0, boundarybytes.Length);
+                memStream.Write(footerBytes, 0, footerBytes.Length);
+
+                request.ContentLength = memStream.Length;
+                requestStream = request.GetRequestStream();
+                memStream.Position = 0;
+                tempBuffer = new byte[memStream.Length];
+                memStream.Read(tempBuffer, 0, tempBuffer.Length);
+
+                memStream.Close();
+                requestStream.Write(tempBuffer, 0, tempBuffer.Length);
+                requestStream.Close();
+                response = new XmlDocument();
+
+                    using (HttpWebResponse r = request.GetResponse() as HttpWebResponse)
+                    using (Stream responseStream = r.GetResponseStream())
+                        response.Load(responseStream);
+
+                if (loggedIn == false)
+                    throw new Exception("Can't relogin");
+            }
+
+            return response;
+        }
+
         // For use when performing queries with option json=1 so as to get a
         // string representation of a JSON file as used by the HTML5 interface.
+        // The option json=1 must be hiven for the calls
         public String ExecuteCommand2(string uri, Hashtable options)
         {
             HttpWebRequest request = WebRequest.Create(_proto + "://" + _host + ":" + _port + uri) as HttpWebRequest;

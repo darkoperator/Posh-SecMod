@@ -1,3 +1,1 @@
-﻿Add formating for Nessus.Server.Policyfamily to show only Name, PluginCount and Status in Table
-add remove-nessusreport
-add option to Get-NessusReportPluginAudit to pull audit for all plugins
+Add formating for Nessus.Server.Policyfamily to show only Name, PluginCount and Status in Table

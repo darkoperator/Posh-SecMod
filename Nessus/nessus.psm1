@@ -1,5 +1,7 @@
-﻿
-$Global:nessusconn = New-Object System.Collections.ArrayList
+﻿if (!(Test-Path variable:Global:NessusConn ))
+{
+    $Global:NessusConn = New-Object System.Collections.ArrayList
+}
  
 
 ##################################
@@ -13,9 +15,7 @@ $Global:nessusconn = New-Object System.Collections.ArrayList
 .DESCRIPTION
    Create a session to a given Nessus 5.x Server.
 .EXAMPLE
-   Connect to a given Nessus 5.x server ignoring SSL certificate validation
-
-    PS C:\> New-NessusSession -ComputerName 192.168.10.3 -Credentials (Get-Credential) -IgnoreSSL
+    New-NessusSession -ComputerName 192.168.10.3 -Credentials (Get-Credential) -IgnoreSSL
     cmdlet Get-Credential at command pipeline position 1
     Supply values for the following parameters:
 
@@ -440,7 +440,6 @@ function Get-NessusServerFeedInfo
         }
     }
 }
-
 
 
 <#
@@ -1913,17 +1912,6 @@ function Get-NessusPolicyXML
 }
 
 
-<#
-.Synopsis
-   Short description
-.DESCRIPTION
-   Long description
-.EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
-#>
-
 function Get-NessusPolicyPluginFamilies
 {
     [CmdletBinding()]
@@ -2006,6 +1994,98 @@ function Get-NessusPolicyPluginFamilies
         }
     }
 }
+
+
+function Publish-NessusPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true,
+        Position=0,
+        ParameterSetName = "Index")]
+        [int32[]]$Index,
+
+        [Parameter(Mandatory=$true,
+        Position=0,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Nessus.Server.Session]$Session,
+
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=1)]
+        [ValidateScript({Test-Path $_})]
+        [string]$File
+    )
+    Begin {
+        # Random number for sequence request
+        $rand = New-Object System.Random
+        
+        $FileProps = Get-ItemProperty $File
+        $FullPath = $FileProps.FullName
+        $FileName = $FileProps.Name
+
+        # Options for XMLRPC request
+        $ops = @{
+            seq  = $rand.Next()
+            file = $FileName 
+        }
+
+    }
+    Process {
+        if ($Index.Length -gt 0)
+        {
+            foreach($conn in $Global:nessusconn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $NSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null)
+        {
+                $NSession = $Session
+        }
+
+        Try {
+            #add token to options
+            $ops.Add("token",$NSession.token)
+            $request_reply = $NSession.SessionState.upload("/file/upload", $FullPath)
+        }
+        Catch [Net.WebException] {
+           
+            write-verbose "The session has expired, Re-authenticating"
+            $reauth = $ns.SessionManager.Login(
+                $ns.SessionState.Username, 
+                $ns.SessionState.Password, 
+                [ref]$true)
+            if ($reauth.reply.status -eq "OK")
+            {
+                $request_reply = $NSession.SessionState.upload("/file/upload", $FullPath)
+            }
+            else{
+                throw "Session expired could not Re-Authenticate"
+            }
+
+            
+            
+        }
+            
+        if ($request_reply.reply.status -eq "OK")
+        {
+            $import_reply = $NSession.SessionState.executecommand("/file/policy/import",$ops)
+            if ($import_reply.reply.status -eq "OK")
+            {
+                return $true
+            }
+            else
+            {
+                return $false
+            }
+        }
+    }
+}  
 
 
 function Update-NessusPolicyGeneralSettings
@@ -2476,7 +2556,7 @@ function New-NessusPolicy
         $Policyobj
 
     }
-}
+}  
 
 
 <#
@@ -2780,6 +2860,98 @@ function Get-NessusReports
 }
 
 
+function Publish-NessusReport
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true,
+        Position=0,
+        ParameterSetName = "Index")]
+        [int32[]]$Index,
+
+        [Parameter(Mandatory=$true,
+        Position=0,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Nessus.Server.Session]$Session,
+
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=1)]
+        [ValidateScript({Test-Path $_})]
+        [string]$File
+    )
+    Begin {
+        # Random number for sequence request
+        $rand = New-Object System.Random
+        
+        $FileProps = Get-ItemProperty $File
+        $FullPath = $FileProps.FullName
+        $FileName = $FileProps.Name
+
+        # Options for XMLRPC request
+        $ops = @{
+            seq  = $rand.Next()
+            file = $FileName 
+        }
+
+    }
+    Process {
+        if ($Index.Length -gt 0)
+        {
+            foreach($conn in $Global:nessusconn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $NSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null)
+        {
+                $NSession = $Session
+        }
+
+        Try {
+            #add token to options
+            $ops.Add("token",$NSession.token)
+            $request_reply = $NSession.SessionState.upload("/file/upload", $FullPath)
+        }
+        Catch [Net.WebException] {
+           
+            write-verbose "The session has expired, Re-authenticating"
+            $reauth = $ns.SessionManager.Login(
+                $ns.SessionState.Username, 
+                $ns.SessionState.Password, 
+                [ref]$true)
+            if ($reauth.reply.status -eq "OK")
+            {
+                $request_reply = $NSession.SessionState.upload("/file/upload", $FullPath)
+            }
+            else{
+                throw "Session expired could not Re-Authenticate"
+            }
+
+            
+            
+        }
+            
+        if ($request_reply.reply.status -eq "OK")
+        {
+            $import_reply = $NSession.SessionState.executecommand("/file/report/import",$ops)
+            if ($import_reply.reply.status -eq "OK")
+            {
+                return $true
+            }
+            else
+            {
+                return $false
+            }
+        }
+    }
+}  
+
+
 <#
 .Synopsis
    Gets Nessus Report as a XML Object in Nessus v2 Format
@@ -2881,6 +3053,96 @@ function Get-NessusV2ReportXML
             }
          }
         $request_reply}
+    END {}
+}
+
+
+<#
+.Synopsis
+   Removes a specified report from a Nessus Server
+.DESCRIPTION
+   Removes a specified report from a Nessus Server given the Report ID.
+.EXAMPLE
+   Remove-NessusReport -Index 0 -ReportID a50ecb7d-f847-9e77-dd3c-9791ed31222ea16bfde21c223641 -Verbose
+   True
+
+   Removes a specified report from a Nessus Server
+
+#>
+
+function Remove-NessusReport
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true,
+        Position=0,
+        ParameterSetName = "Index")]
+        [int32[]]$Index,
+
+        [Parameter(Mandatory=$true,
+        Position=0,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Nessus.Server.Session]$Session,
+
+        [Parameter(Mandatory=$true,
+        Position=1,
+        ParameterSetName = "Session")]
+        [Parameter(ParameterSetName = "Index")]
+        $ReportID
+
+    )
+    BEGIN 
+    {
+    }
+    PROCESS 
+    {
+        if ($Index.Length -gt 0)
+        {
+            foreach($conn in $Global:nessusconn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $NSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null)
+        {
+                $NSession = $Session
+        }
+
+        try {
+            $request_reply = $NSession.SessionManager.DeleteReport($ReportID)
+        }
+        Catch [Net.WebException] {
+           if ($_.exception -match ".*403.*") {
+                write-verbose "The session has expired, Re-authenticating"
+                $reauth = $ns.SessionManager.Login(
+                    $ns.SessionState.Username, 
+                    $ns.SessionState.Password, 
+                    [ref]$true)
+                if ($reauth.reply.status -eq "OK"){
+                    $request_reply = $NSession.SessionManager.DeleteReport($ReportID)
+                }
+                else{
+                    throw "Session expired could not Re-Authenticate"
+                }
+            }
+            elseif ($_.exception -match ".*404.*") {
+                throw "A report with that ID was not found on Nessus Server"
+            } 
+        }
+
+        if ($request_reply.reply.status -eq "OK")
+        {
+            $true
+        }
+        else
+        {
+            $false
+        }
+    }
     END {}
 }
 
@@ -3177,7 +3439,7 @@ function Get-NessusReportHostsDetailed
                 CVSSBase             = $reportitem.cvss_base_score
                 CVSSTemporal         = $reportitem.cvss_temporal_score
                 PluginType           = $reportitem.plugin_type
-                PluginVersion        = $reportitem.plugin_version
+                PluginVersion        = $reportitem.script_version
                 }
                     
                    
@@ -3386,7 +3648,7 @@ function Get-NessusReportItems
                     CVSSBase             = $reportitem.cvss_base_score
                     CVSSTemporal         = $reportitem.cvss_temporal_score
                     PluginType           = $reportitem.plugin_type
-                    PluginVersion        = $reportitem.plugin_version
+                    PluginVersion        = $reportitem.script_version
                     }
                 }
             }
@@ -3634,7 +3896,7 @@ function Get-NessusReportPluginAudit
         Position=3,
         ParameterSetName = "Session")]
         [Parameter(ParameterSetName = "Index")]
-        [int]$PluginID
+        [int[]]$PluginID
     )
     BEGIN 
     {
@@ -3656,54 +3918,61 @@ function Get-NessusReportPluginAudit
                 $NSession = $Session
         }
 
-        try {
-            $request_reply = $NSession.SessionManager.GetAuditTrail($ReportID, $host, $PluginID)
-        }
-        Catch [Net.WebException] {
-           if ($_.exception -match ".*403.*") {
-                write-verbose "The session has expired, Re-authenticating"
-                $reauth = $ns.SessionManager.Login(
-                    $ns.SessionState.Username, 
-                    $ns.SessionState.Password, 
-                    [ref]$true)
-                if ($reauth.reply.status -eq "OK"){
-                    $request_reply = $NSession.SessionManager.GetAuditTrail($ReportID, $host, $PluginID)
-                }
-                else{
-                    throw "Session expired could not Re-Authenticate"
-                }
+        foreach ($Id in $PluginID)
+        {
+            try 
+            {
+                $request_reply = $NSession.SessionManager.GetAuditTrail($ReportID, $host, $PluginID)
             }
-            elseif ($_.exception -match ".*404.*") {
-                throw "A report with that ID was not found on Nessus Server"
-            } 
-        }
+        
+            Catch [Net.WebException] 
+            {
+               if ($_.exception -match ".*403.*") {
+                    write-verbose "The session has expired, Re-authenticating"
+                    $reauth = $ns.SessionManager.Login(
+                        $ns.SessionState.Username, 
+                        $ns.SessionState.Password, 
+                        [ref]$true)
+                    if ($reauth.reply.status -eq "OK"){
+                        $request_reply = $NSession.SessionManager.GetAuditTrail($ReportID, $host, $PluginID)
+                    }
+                    else{
+                        throw "Session expired could not Re-Authenticate"
+                    }
+                }
+                elseif ($_.exception -match ".*404.*") {
+                    throw "A report with that ID was not found on Nessus Server"
+                } 
+            }
 
-        # Check if scan still running
-        $report_reply = $NSession.SessionManager.ListReports().reply
-        foreach ($report in $report_reply.contents.reports.report){
-            if (($report.name -eq $ReportID) -and ($report.status -ne "completed")) {
-                Write-Warning "The report has not finished running, it has a status of $($report.status)"
+            # Check if scan still running
+            $report_reply = $NSession.SessionManager.ListReports().reply
+            foreach ($report in $report_reply.contents.reports.report){
+                if (($report.name -eq $ReportID) -and ($report.status -ne "completed")) {
+                    Write-Warning "The report has not finished running, it has a status of $($report.status)"
+                }
+             }
+            if ($request_reply.reply.contents.audit_trail)
+            {
+                $trail = $request_reply.reply.contents.audit_trail.trail
+                $trail_props = @{
+                    Host = $trail.hostname
+                    PluginID = $trail.plugin_id
+                    ExitCode = $trail.exit_code
+                    Reason = $trail.reason
+                }
+                $trailobj = [pscustomobject]$trail_props
+                $trailobj.pstypenames.insert(0,'Nessus.Server.AuditTrail')
+                $trailobj
             }
-         }
-        if ($request_reply.reply.contents.audit_trail)
-        {
-            $trail = $request_reply.reply.contents.audit_trail.trail
-            $trail_props = @{
-                Host = $trail.hostname
-                PluginID = $trail.plugin_id
-                ExitCode = $trail.exit_code
-                Reason = $trail.reason
+            else
+            {
+                Write-Warning "Audit Trail for $($PluginID) for $($Host) was not found."
             }
-            $trailobj = [pscustomobject]$trail_props
-            $trailobj.pstypenames.insert(0,'Nessus.Server.AuditTrail')
-            $trailobj
         }
-        else
-        {
-            Write-Warning "Audit Trail for $($PluginID) for $($Host) was not found."
-        }
-        }
-    END {}
+    }
+    END 
+    {}
 }
 
 
@@ -3824,7 +4093,7 @@ function Import-NessusV2Report
                     CVSSBase             = $reportitem.cvss_base_score
                     CVSSTemporal         = $reportitem.cvss_temporal_score
                     PluginType           = $reportitem.plugin_type
-                    PluginVersion        = $reportitem.plugin_version
+                    PluginVersion        = $reportitem.script_version
                     }
                     
                    
@@ -5044,7 +5313,6 @@ function New-NessusScanTemplate
 }
 
 
-
 <#
 .Synopsis
   Removes a Nessus Scan Template from a Nessus Server
@@ -5152,7 +5420,6 @@ function Remove-NessusScanTemplate
     END
     {}
 }
-
 
 
 <#
@@ -5453,3 +5720,4 @@ function Update-NessusScanTemplate
 
     )
 } #>
+
