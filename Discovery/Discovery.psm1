@@ -846,7 +846,8 @@ public static class NetUtils
             $record_progress = [int][Math]::Ceiling((($i / $record_count) * 100))
             Write-Progress -Activity "Performing ARP Scan" -PercentComplete $record_progress -Status "Addresses Queried - $record_progress%" -Id 1;
 
-            while ($($pool.GetAvailableRunspaces()) -le 0) {
+            while ($($pool.GetAvailableRunspaces()) -le 0) 
+            {
                 Start-Sleep -milliseconds 500
             }
     
@@ -873,23 +874,28 @@ public static class NetUtils
 
         $waitTimeout = get-date
 
-        while ($($jobs | ? {$_.IsCompleted -eq $false}).count -gt 0 -or $($($(get-date) - $waitTimeout).totalSeconds) -gt 60) {
+        while ($($jobs | ? {$_.IsCompleted -eq $false}).count -gt 0 -or $($($(get-date) - $waitTimeout).totalSeconds) -gt 60) 
+        {
                 Start-Sleep -milliseconds 500
-            } 
+        } 
   
         # end async call   
         for ($y = 0; $y -lt $i; $y++) {     
   
-            try {   
+            try 
+            {   
                 # complete async job   
                 $ScanResults += $ps[$y].EndInvoke($jobs[$y])   
   
-            } catch {   
+            } 
+            catch 
+            {   
        
                 write-warning "error: $_"  
             }
     
-            finally {
+            finally 
+            {
                 $ps[$y].Dispose()
             }    
         }
@@ -903,3 +909,459 @@ public static class NetUtils
     }
 }
 
+
+
+<#
+.Synopsis
+   Enumerates the DNS Servers used by a system
+.DESCRIPTION
+   Enumerates the DNS Servers used by a system returning an IP Address .Net object for each.
+.EXAMPLE
+   C:\> Get-SystemDNSServer
+
+
+    Address            : 16885952
+    AddressFamily      : InterNetwork
+    ScopeId            :
+    IsIPv6Multicast    : False
+    IsIPv6LinkLocal    : False
+    IsIPv6SiteLocal    : False
+    IsIPv6Teredo       : False
+    IsIPv4MappedToIPv6 : False
+    IPAddressToString  : 192.168.1.1
+#>
+
+function Get-SystemDNSServer
+{
+    $DNSServerAddresses = @()
+    $interfaces = [System.Net.NetworkInformation.NetworkInterface]::GetAllNetworkInterfaces()
+    foreach($interface in $interfaces)
+    {
+        if($interface.OperationalStatus -eq "Up")
+        {
+            $DNSConfig = $interface.GetIPProperties().DnsAddresses
+            if (!$DNSConfig.IsIPv6SiteLocal)
+            {
+                $DNSServerAddresses += $DNSConfig
+            }
+        }
+    }
+    $DNSServerAddresses
+}
+
+
+<#
+.Synopsis
+   Enumerates common DNS SRV Records for a given domain.
+.DESCRIPTION
+   Enumerates common DNS SRV Records for a given domain.
+.EXAMPLE
+   PS C:\> Invoke-EnumSRVRecords -Domain microsoft.com
+
+
+    Type     : SRV
+    Name     : _sip._tls.microsoft.com
+    Port     : 443
+    Priority : 0
+    Target   : sip.microsoft.com.
+    Address   : @{Name=sip.microsoft.com; Type=A; Address=65.55.30.130}
+
+    Type     : SRV
+    Name     : _sipfederationtls._tcp.microsoft.com
+    Port     : 5061
+    Priority : 0
+    Target   : sipfed.microsoft.com.
+    Address   : @{Name=sipfed.microsoft.com; Type=A; Address=65.55.30.130}
+
+    Type     : SRV
+    Name     : _xmpp-server._tcp.microsoft.com
+    Port     : 5269
+    Priority : 0
+    Target   : sipdog3.microsoft.com.
+    Address   : @{Name=sipdog3.microsoft.com; Type=A; Address=131.107.1.47}
+#>
+
+function Invoke-EnumSRVRecords
+{
+    Param(
+        [Parameter(Mandatory = $true)]
+        [string]$Domain,
+
+        [Parameter(Mandatory = $false)]
+        [string]$NameServer,
+
+        [Parameter(Mandatory = $false)]
+        [int32]$TimeOut,
+
+        [Parameter(Mandatory = $false)]
+        [int32]$Retries
+        )
+    Begin 
+    {
+        
+        # Records to test against
+        $srv_rcds = @('_gc._tcp.', '_kerberos._tcp.', '_kerberos._udp.', '_ldap._tcp.',
+        '_test._tcp.', '_sips._tcp.', '_sip._udp.', '_sip._tcp.', '_aix._tcp.',
+        '_aix._tcp.', '_finger._tcp.', '_ftp._tcp.', '_http._tcp.', '_nntp._tcp.',
+        '_telnet._tcp.', '_whois._tcp.', '_h323cs._tcp.', '_h323cs._udp.',
+        '_h323be._tcp.', '_h323be._udp.', '_h323ls._tcp.', '_https._tcp.',
+        '_h323ls._udp.', '_sipinternal._tcp.', '_sipinternaltls._tcp.',
+        '_sip._tls.', '_sipfederationtls._tcp.', '_jabber._tcp.',
+        '_xmpp-server._tcp.', '_xmpp-client._tcp.', '_imap.tcp.',
+        '_certificates._tcp.', '_crls._tcp.', '_pgpkeys._tcp.',
+        '_pgprevokations._tcp.', '_cmp._tcp.', '_svcp._tcp.', '_crl._tcp.',
+        '_ocsp._tcp.', '_PKIXREP._tcp.', '_smtp._tcp.', '_hkp._tcp.',
+        '_hkps._tcp.', '_jabber._udp.', '_xmpp-server._udp.', '_xmpp-client._udp.',
+        '_jabber-client._tcp.', '_jabber-client._udp.', '_kerberos.tcp.dc._msdcs.',
+        '_ldap._tcp.ForestDNSZones.', '_ldap._tcp.dc._msdcs.', '_ldap._tcp.pdc._msdcs.',
+        '_ldap._tcp.gc._msdcs.', '_kerberos._tcp.dc._msdcs.', '_kpasswd._tcp.', '_kpasswd._udp.',
+        '_imap._tcp.')
+
+        $dnsopts = new-object JHSoftware.DnsClient+RequestOptions
+        # Set the NS Server if one givem
+        if ($nameserver)
+        {
+            try
+            {
+                # Check if what we got is an IP or a FQDN
+                $IPObj = [Net.IPAddress]::Parse($nameserver)
+                $IPCheck = [System.Net.IPAddress]::TryParse($nameserver,[ref]$IPObj)
+                if ($IPCheck)
+                {
+                    $dns = [System.Net.IPAddress]$nameserver
+                    $dnsopts.DnsServers += $dns
+                }
+                else
+                {
+                    Write-Error "$nameserver is not a valid IP Address"
+                }
+            }
+
+            catch
+            {
+                $nsip = [Net.Dns]::GetHostAddresses($nameserver)[0]
+                $dns = $nsip
+                $dnsopts.DnsServers += $dns
+            }
+         }
+         # Set the timeout
+         if ($TimeOut)
+         {
+            $dnsopts.TimeOut = New-TimeSpan -Seconds $TimeOut
+         }
+
+         # Set Retries
+         if ($Retries)
+         {
+            $dnsopts.RetryCount = $Retries
+         }
+         # Collection of records found
+         $found = @()
+    }
+    
+    Process
+    {
+        $i = 0
+        $record_count = $srv_rcds.Length
+        foreach($srv in  $srv_rcds)
+            {
+                $record_progress = [int][Math]::Ceiling((($i / $record_count) * 100))
+                Write-Progress -Activity "Enumerating Common SRV Records" -PercentComplete $record_progress -Status "Records  - $record_progress%" -Id 1;
+                $target = $srv+$domain
+
+                try 
+                {
+                    $found += [JHSoftware.DnsClient]::Lookup($target,[JHSoftware.DnsClient+RecordType]::SRV,$dnsopts).AnswerRecords
+                }
+                catch
+                {
+                }
+                $i++
+            }
+        foreach($recond in $found)
+        {
+            $data_info = $recond.Data.split(' ')
+            New-Object psobject -Property ([ordered]@{Type=$recond.Type;
+                Name =$recond.name;
+                Port=$data_info[2];Priority=$data_info[1];
+                Target=$data_info[3]
+                Address = & {
+                                if ($NameServer) 
+                                {
+                                    Resolve-HostRecord -Target $data_info[3] -NameServer $NameServer} 
+                                else 
+                                {
+                                    Resolve-HostRecord -Target $data_info[3] 
+                                }
+                            } 
+            })
+        }
+    }
+
+}
+
+
+
+<#
+.Synopsis
+   Resolve a given FQDN
+.DESCRIPTION
+   Resolves a given FQDN to its A, AAAA and CNAME record.
+.EXAMPLE
+
+   C:\> Resolve-HostRecord ipv6.google.com
+
+    Name                                                   Type Address
+    ----                                                   ---- -------
+    ipv6.google.com                                       CNAME ipv6.l.google.com.
+    ipv6.l.google.com                                      AAAA 2607:f8b0:4002:c02::93
+#>
+
+
+function Resolve-HostRecord
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Target,
+
+        [Parameter(Mandatory = $false)]
+        [string]$NameServer,
+
+        [Parameter(Mandatory = $false)]
+        [int32]$TimeOut,
+
+        [Parameter(Mandatory = $false)]
+        [int32]$Retries
+    )
+
+    begin 
+    {
+        $dnsopts = new-object JHSoftware.DnsClient+RequestOptions
+        # Set the NS Server if one givem
+        if ($nameserver)
+        {
+            try
+            {
+                # Check if what we got is an IP or a FQDN
+                $IPObj = [Net.IPAddress]::Parse($nameserver)
+                $IPCheck = [System.Net.IPAddress]::TryParse($nameserver,[ref]$IPObj)
+                if ($IPCheck)
+                {
+                    $dns = [System.Net.IPAddress]$nameserver
+                    $dnsopts.DnsServers += $dns
+                }
+                else
+                {
+                    Write-Error "$nameserver is not a valid IP Address"
+                }
+            }
+
+            catch
+            {
+                $nsip = [Net.Dns]::GetHostAddresses($nameserver)[0]
+                $dns = $nsip
+                $dnsopts.DnsServers += $dns
+            }
+         }
+         # Set the timeout
+         if ($TimeOut)
+         {
+            $dnsopts.TimeOut = New-TimeSpan -Seconds $TimeOut
+         }
+
+         # Set Retries
+         if ($Retries)
+         {
+            $dnsopts.RetryCount = $Retries
+         }
+    }
+    process
+    {
+        $ARecs = @()
+        # Resolve A Record
+        try 
+        {
+            $answer = [JHSoftware.DnsClient]::Lookup($target,[JHSoftware.DnsClient+RecordType]::A,$dnsopts).AnswerRecords
+            foreach ($A in $answer)
+            {
+            $ARecs += Select-Object -InputObject $A -Property Name,Type,@{Name='Address';Expression={$A.Data}}
+            }
+        }
+        catch {}
+        try
+        {
+            # Resolve AAAA Recod
+            $answer = [JHSoftware.DnsClient]::Lookup($target,[JHSoftware.DnsClient+RecordType]::AAAA,$dnsopts).AnswerRecords
+            foreach ($AAAA in $answer)
+            {
+               $ARecs += Select-Object -InputObject $AAAA -Property Name,Type,@{Name='Address';Expression={$AAAA.Data}}
+            }
+        }
+        catch {}
+    }
+
+    end
+    {
+        $ARecs
+    }
+}
+
+
+
+<#
+.Synopsis
+   Query for specific DNS Records against a Nameserver
+.DESCRIPTION
+   Query for specific DNS Records against a Nameserver
+.EXAMPLE
+    C:\> Resolve-DNSRecord -Target microsoft.com -Type MX
+
+    Name                                     Type                   TTL Data
+    ----                                     ----                   --- ----
+    microsoft.com                              MX                  1001 10 microsoft-com.m...
+
+.EXAMPLE
+
+    C:\> Resolve-DNSRecord -Target microsoft.com -Type NS
+
+    Name                                     Type                   TTL Data
+    ----                                     ----                   --- ----
+    microsoft.com                              NS                 14893 ns1.msft.net.
+    microsoft.com                              NS                 14893 ns2.msft.net.
+    microsoft.com                              NS                 14893 ns3.msft.net.
+    microsoft.com                              NS                 14893 ns4.msft.net.
+    microsoft.com                              NS                 14893 ns5.msft.net.
+#>
+
+function Resolve-DNSRecord
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Target,
+
+        [Parameter(Mandatory = $false)]
+        [string]$NameServer,
+
+        [Parameter(Mandatory = $false)]
+        [int32]$TimeOut,
+
+        [Parameter(Mandatory = $false)]
+        [int32]$Retries,
+        
+        [string]
+        [ValidateSet('A','A6','AAAA','AFSDB','ANY','APL','ATMA','CERT','CNAME',
+        'DHCID','DLV','DNAME','DNSKEY','DS','EID','GID','GPOS','HINFO',
+        'HIP','IPSECKEY','ISDN','KEY','KX','LOC','MB','MD','MF','MG',
+        'MINFO','MR','MX','NAPTR','NIMLOC','NS','NSAP','NSAPPTR','NSEC',
+        'NSEC3','NSEC3PARAM','NULL','NXT','OPT','PTR','PX','RP','RRSIG',
+        'RT','SRV','SINK','SIG','SOA','SPF','SSHFP','TA','TXT','UID',
+        'UINFO','UNSPEC','WKS','X25')]
+        $Type
+    )
+
+    begin
+    {
+        $dnsopts = new-object JHSoftware.DnsClient+RequestOptions
+        # Set the NS Server if one givem
+        if ($nameserver)
+        {
+            try
+            {
+                # Check if what we got is an IP or a FQDN
+                $IPObj = [Net.IPAddress]::Parse($nameserver)
+                $IPCheck = [System.Net.IPAddress]::TryParse($nameserver,[ref]$IPObj)
+                if ($IPCheck)
+                {
+                    $dns = [System.Net.IPAddress]$nameserver
+                    $dnsopts.DnsServers += $dns
+                }
+                else
+                {
+                    Write-Error "$nameserver is not a valid IP Address"
+                }
+            }
+
+            catch
+            {
+                $nsip = [Net.Dns]::GetHostAddresses($nameserver)[0]
+                $dns = $nsip
+                $dnsopts.DnsServers += $dns
+            }
+         }
+         # Set the timeout
+         if ($TimeOut)
+         {
+            $dnsopts.TimeOut = New-TimeSpan -Seconds $TimeOut
+         }
+
+         # Set Retries
+         if ($Retries)
+         {
+            $dnsopts.RetryCount = $Retries
+         }
+         
+    }
+    
+    process
+    {
+        # Resolve A Record
+        $answer = [JHSoftware.DnsClient]::Lookup($target,[JHSoftware.DnsClient+RecordType]::$Type,$dnsopts).AnswerRecords
+        foreach ($A in $answer)
+        {
+           $A
+        }
+    }
+
+    end
+    {
+    }
+}
+
+<#
+.Synopsis
+   Convert a string representation of an IPV4 IP to In-Addr-ARPA format.
+.DESCRIPTION
+   Convert a string representation of an IPV4 IP to In-Addr-ARPA format for performing PTR Lookups.
+.EXAMPLE
+    ConvertTo-InAddrARPA -IPAddress 192.168.1.10
+    10.1.168.192.in-addr.arpa
+
+#>
+function ConvertTo-InAddrARPA
+{
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param
+    (
+        # Param1 help description
+        [Parameter(Mandatory=$true, 
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true, 
+                   ValueFromRemainingArguments=$false, 
+                   Position=0)]
+        [ValidateNotNull()]
+        [ValidateNotNullOrEmpty()]
+        [Alias("IP")] 
+        $IPAddress
+    )
+
+    Begin
+    {
+    }
+    Process
+    {
+        try
+        {
+            $IPObj = [System.Net.IPAddress]::Parse($IPAddress)
+            $ipIpaddressSplit = $IPAddress.Split(".")
+	        "$($ipIpaddressSplit.GetValue(3)).$($ipIpaddressSplit.GetValue(2)).$($ipIpaddressSplit.GetValue(1)).$($ipIpaddressSplit.GetValue(0)).in-addr.arpa"
+        }
+        catch 
+        {
+            Write-Host "Value provided is not an IP Address"
+        }
+    }
+    End
+    {
+    }
+}

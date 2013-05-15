@@ -1125,3 +1125,322 @@ function Copy-NessusPolicy
         }
     }
 }
+
+<#
+.Synopsis
+   Sets on a given policy the Windows Credential to Try
+.DESCRIPTION
+   Sets on a given policy the Windows credentials to try for those plugins
+   that use Windows credentials to perform authenticated checks. Up to 4
+   credential combination can be set. The NTLMv2 and Password type will apply
+   to all credentials. Text password, LM Hash or NTML Hash can be used to 
+   authenticate with Windows hosts.
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Set-NessusPolicyWindowsCredential
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true,
+        Position=0,
+        ParameterSetName = "Index")]
+        [int32[]]$Index,
+
+        [Parameter(Mandatory=$true,
+        Position=0,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Nessus.Server.Session]$Session,
+
+        # Numeric ID of the Policy to update.
+        [Parameter(Mandatory=$false,
+        Position=1,
+        ParameterSetName = "Session")]
+        [Parameter(ParameterSetName = "Index")]
+        [int]$PolicyID,
+
+        # A index value from 0 to 3 for the credentials. Nessus can have up to 4 credentials to try.
+        [Parameter(Mandatory=$true,
+        Position=2)]
+        [ValidateRange(0,3)] 
+        $UserIndex,
+
+        # Credential object with credentials that will be set.
+        [Parameter(Mandatory=$true,
+        Position=3)]
+        [Management.Automation.PSCredential]$Credential,
+
+        # Sets if NTLMv2 will be used to transmit the credentials
+        [Parameter(Mandatory=$false,
+        Position=4)]
+        [switch]$NTLMv2 = $true,
+
+        # Type of password format, text password, LM Hash or NTML Hash.
+        [Parameter(Mandatory=$false,
+        Position=5)]
+        [ValidateSet("Password","NTLMHash","LMHash")]
+        [String]$PasswordType = "Password"
+
+    )
+
+    Begin
+    {
+        # Random number for sequence request
+        $rand = New-Object System.Random
+
+        # Options for XMLRPC request
+        $opt = @{ 
+            seq  = $rand.Next()
+            policy_id = $PolicyID
+        }
+        switch ($UserIndex)
+        {
+            0 {
+                $opt.add("credentials.Windows+credentials.265", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.266", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.Windows+credentials.267",$Credential.GetNetworkCredential().Domain)
+              }
+
+            1 {
+                $opt.add("credentials.Windows+credentials.269", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.270", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.Windows+credentials.271",$Credential.GetNetworkCredential().Domain)
+            }
+
+            2 {
+                $opt.add("credentials.Windows+credentials.272", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.273", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.Windows+credentials.274",$Credential.GetNetworkCredential().Domain)
+            }
+
+            3 {
+                $opt.add("credentials.Windows+credentials.275", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.276", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.Windows+credentials.277",$Credential.GetNetworkCredential().Domain)
+            }
+        }
+
+        switch ($PasswordType)
+        {
+            "Password" {$opt.add("credentials.Windows+credentials.268",'Password')}
+            "NTLMHash" {$opt.add("credentials.Windows+credentials.268",'NTLM+Hash')}
+            "LMHash"   {$opt.add("credentials.Windows+credentials.268",'LM+Hash')}
+        }
+
+        if ($NTLMv2)
+        {
+            $opt.add("credentials.Windows+credentials.279",'yes')
+        }
+        else
+        {
+            $opt.add("credentials.Windows+credentials.279",'no')
+        }
+
+        # Make sure the credentials are never sent in as cleartext
+        $opt.add("credentials.Windows+credentials.148",'yes')
+    }
+    Process
+    {
+        if ($Index.Length -gt 0)
+        {
+            foreach($conn in $Global:nessusconn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $NSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null)
+        {
+                $NSession = $Session
+        }
+
+        try 
+        {
+            Write-Verbose "Setting credentia on policy $($PolicyID)"
+            $request_reply = $NSession.SessionState.ExecuteCommand("/policy/update", $opt)
+            
+        }
+        Catch [Net.WebException] 
+        {
+           if ($_.exception -match ".*403.*") 
+           {
+                write-verbose "The session has expired, Re-authenticating"
+                $reauth = $ns.SessionManager.Login(
+                    $ns.SessionState.Username, 
+                    $ns.SessionState.Password, 
+                    [ref]$true)
+                if ($reauth.reply.status -eq "OK")
+                {
+                    $request_reply = $NSession.SessionState.ExecuteCommand("/policy/update", $opt)
+                }
+                else
+                {
+                    throw "Session expired could not Re-Authenticate"
+                }
+            }
+            elseif ($_.exception -match ".*404.*") 
+            {
+                throw "A policy with that ID was not found on Nessus Server"
+            } 
+        }
+        
+        if ($request_reply.reply.status -eq "OK")
+        {
+            Write-Verbose "We got OK on request." 
+            $true
+        }
+        else
+        {
+            $false
+        }
+    }
+    End
+    {
+    }
+}
+
+function Set-NessusPolicySSHCredential
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true,
+        Position=0,
+        ParameterSetName = "Index")]
+        [int32[]]$Index,
+
+        [Parameter(Mandatory=$true,
+        Position=0,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Nessus.Server.Session]$Session,
+
+        # Numeric ID of the Policy to update.
+        [Parameter(Mandatory=$false,
+        Position=1,
+        ParameterSetName = "Session")]
+        [Parameter(ParameterSetName = "Index")]
+        [int]$PolicyID,
+
+        # A index value from 0 to 5 for the credentials. Nessus can have up to 4 credentials to try.
+        [Parameter(Mandatory=$true,
+        Position=2)]
+        [ValidateRange(0,5)] 
+        $UserIndex,
+
+        # Credential object with credentials that will be set.
+        [Parameter(Mandatory=$true,
+        Position=3)]
+        [Management.Automation.PSCredential]$Credential
+
+    )
+
+    Begin
+    {
+        # Random number for sequence request
+        $rand = New-Object System.Random
+
+        # Options for XMLRPC request
+        $opt = @{ 
+            seq  = $rand.Next()
+            policy_id = $PolicyID
+        }
+        switch ($UserIndex)
+        {
+            0 {
+                $opt.add("credentials.Windows+credentials.215", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.216", $Credential.GetNetworkCredential().Password)
+              }
+
+            1 {
+                $opt.add("credentials.Windows+credentials.227", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.228", $Credential.GetNetworkCredential().Password)
+            }
+
+            2 {
+                $opt.add("credentials.Windows+credentials.229", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.230", $Credential.GetNetworkCredential().Password)
+            }
+
+            3 {
+                $opt.add("credentials.Windows+credentials.231", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.232", $Credential.GetNetworkCredential().Password)
+            }
+
+            4 {
+                $opt.add("credentials.Windows+credentials.233", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.234", $Credential.GetNetworkCredential().Password)
+            }
+
+            5 {
+                $opt.add("credentials.Windows+credentials.235", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.236", $Credential.GetNetworkCredential().Password)
+            }
+        }
+    }
+    Process
+    {
+        if ($Index.Length -gt 0)
+        {
+            foreach($conn in $Global:nessusconn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $NSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null)
+        {
+                $NSession = $Session
+        }
+
+        try 
+        {
+            Write-Verbose "Setting credentia on policy $($PolicyID)"
+            $request_reply = $NSession.SessionState.ExecuteCommand("/policy/update", $opt)
+            
+        }
+        Catch [Net.WebException] 
+        {
+           if ($_.exception -match ".*403.*") 
+           {
+                write-verbose "The session has expired, Re-authenticating"
+                $reauth = $ns.SessionManager.Login(
+                    $ns.SessionState.Username, 
+                    $ns.SessionState.Password, 
+                    [ref]$true)
+                if ($reauth.reply.status -eq "OK")
+                {
+                    $request_reply = $NSession.SessionState.ExecuteCommand("/policy/update", $opt)
+                }
+                else
+                {
+                    throw "Session expired could not Re-Authenticate"
+                }
+            }
+            elseif ($_.exception -match ".*404.*") 
+            {
+                throw "A policy with that ID was not found on Nessus Server"
+            } 
+        }
+        
+        if ($request_reply.reply.status -eq "OK")
+        {
+            Write-Verbose "We got OK on request." 
+            $true
+        }
+        else
+        {
+            $false
+        }
+    }
+    End
+    {
+    }
+}
+
