@@ -731,7 +731,7 @@ function Start-NessusServerFeedUpdate
     xmlrpc_listen_port               : 8834
 #>
 
-function Get-NessusServerAdvancesSettings
+function Get-NessusServerAdvancedSettings
 {
     [CmdletBinding()]
     param(

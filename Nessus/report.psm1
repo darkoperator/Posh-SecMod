@@ -159,7 +159,7 @@ function Get-NessusReports
                                                             Get-NessusV2ReportXML -session $this.session -ReportID $this.ReportID
                                                             }
                         Add-Member -InputObject $reportobj -MemberType ScriptMethod GetReportItems {
-                                                            Get-NessusReportItemsL -session $this.session -ReportID $this.ReportID
+                                                            Get-NessusReportItems -session $this.session -ReportID $this.ReportID
                                                             }
                         $reportobj
 
@@ -182,7 +182,7 @@ function Get-NessusReports
                                                                 Get-NessusV2ReportXML -session $this.session -ReportID $this.ReportID
                                                                 }
                             Add-Member -InputObject $reportobj -MemberType ScriptMethod GetReportItems {
-                                                                Get-NessusReportItemsL -session $this.session -ReportID $this.ReportID
+                                                                Get-NessusReportItems -session $this.session -ReportID $this.ReportID
                                                                 }
                             $reportobj
                         }
@@ -1807,7 +1807,7 @@ function Import-NessusKB
                     }
                 }
 
-                "Failed"
+                "Passed"
                 {
                     foreach ($plugin in $launched)
                     {
