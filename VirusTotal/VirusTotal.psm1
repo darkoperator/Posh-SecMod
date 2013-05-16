@@ -112,7 +112,6 @@ function Get-VirusTotalDomainReport
 }
 
 
-
 <#
 .Synopsis
    Get a VirusTotal Report for a given File
@@ -176,6 +175,7 @@ function Get-VirusTotalFileReport
     {
     }
 }
+
 
 <#
 .Synopsis
@@ -327,3 +327,82 @@ function Submit-VirusTotalURL
     }
 }
 
+<#
+.Synopsis
+   Submit a File for scanning by VirusTotal
+.DESCRIPTION
+   Submit a File for scanning by VirusTotal. File size is limited to 20MB.
+.EXAMPLE
+   Submit-VirusTotalFile -File C:\backdoor.dll -APIKey $Key
+.LINK
+    http://www.darkoperator.com
+    https://www.virustotal.com/en/documentation/public-api/
+#>
+function Submit-VirusTotalFile
+{
+    [CmdletBinding()]
+    Param
+    (
+        # URL or ScanID to query.
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+        [ValidateScript({Test-Path $_ -PathType Leaf})]
+        [string]$File,
+
+        # VirusToral API Key.
+        [Parameter(Mandatory=$true)]
+        [string]$APIKey
+    )
+
+    Begin
+    {
+        $URI = "http://www.virustotal.com/vtapi/v2/file/scan"
+    }
+    Process
+    {
+        $fileinfo = Get-ItemProperty -Path $File
+
+        # Check the file size
+        if ($fileinfo.length -gt 20mb)
+        {
+            Write-Error "VirusTotal has a limit of 20MB per file submited"
+        }
+
+        # Set parameters for request
+        $boundary = [System.Guid]::NewGuid().ToString()
+        $contents = Get-Content $File
+        $body = @"
+--$boundary
+Content-Disposition: form-data; name="apikey"
+
+$APIKey
+--$boundary
+Content-Disposition: form-data; name="file"; filename="$($fileinfo.Name)"
+
+$contents
+--$boundary--
+"@
+        
+
+        Try
+        {
+            Invoke-RestMethod -Uri $URI -method Post -header @{'apikey'= $APIKey} -ContentType "multipart/form-data;boundary=$boundary" -Body $body
+           
+        }
+        Catch [Net.WebException]
+        {
+            if ($Error[0].ToString() -like "*403*")
+            {
+                Write-Error "API key is not valid."
+            }
+            elseif ($Error[0].ToString() -like "*204*")
+            {
+                Write-Error "API key rate has been reached."
+            }
+        }
+    }
+    End
+    {
+    }
+}
