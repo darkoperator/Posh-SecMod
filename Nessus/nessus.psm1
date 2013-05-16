@@ -103,8 +103,14 @@ function New-NessusSession
                 {
                     Write-Verbose "Was able to pull certificate information from host."
                     $Cert = [Security.Cryptography.X509Certificates.X509Certificate2]$WebRequest.ServicePoint.Certificate.Handle
-                    try {$SAN = ($Cert.Extensions | Where-Object {$_.Oid.Value -eq "2.5.29.17"}).Format(0) -split ", "}
-                    catch {$SAN = $null}
+                    try 
+                    {
+                        $SAN = ($Cert.Extensions | Where-Object {$_.Oid.Value -eq "2.5.29.17"}).Format(0) -split ", "
+                    }
+                    catch 
+                    {
+                        $SAN = $null
+                    }
                     $chain = New-Object Security.Cryptography.X509Certificates.X509Chain -ArgumentList (!$UseUserContext)
                     [void]$chain.ChainPolicy.ApplicationPolicy.Add("1.3.6.1.5.5.7.3.1")
                     $Status = $chain.Build($Cert)
@@ -225,10 +231,12 @@ function Remove-NessusSession
         ValueFromPipeline=$True)]
         [Nessus.Server.Session]$Session
     )
-    BEGIN {
+    BEGIN 
+    {
         
     }
-    PROCESS {
+    PROCESS 
+    {
         if ($Index.Length -gt 0)
         {
             foreach($conn in $Global:nessusconn)
@@ -378,10 +386,12 @@ function Get-NessusServerFeedInfo
         Position=0)]
         [Nessus.Server.Session]$Session
     )
-    BEGIN {
+    BEGIN 
+    {
         
     }
-    PROCESS {    
+    PROCESS 
+    {    
         if ($Index.Count -gt 0)
         {
             foreach($conn in $Global:nessusconn)
@@ -396,30 +406,36 @@ function Get-NessusServerFeedInfo
         {
                 $NSession = $Session
         }
-        else {
+        else 
+        {
             throw "No Nessus.Server.Session was provided"
         }
-        Try {
+        Try 
+        {
             $request_reply = $NSession.SessionManager.GetFeedInformation().reply
         }
-        Catch [Net.WebException] {
+        Catch [Net.WebException] 
+        {
            
             write-verbose "The session has expired, Re-authenticating"
             $reauth = $NSession.SessionManager.Login(
                 $NSession.SessionState.Username, 
                 $NSession.SessionState.Password, 
                 [ref]$true)
-            if ($reauth.reply.status -eq "OK"){
+            if ($reauth.reply.status -eq "OK")
+            {
                 $request_reply = $NSession.SessionManager.GetFeedInformation().reply
             }
-            else{
+            else
+            {
                 throw "Session expired could not Re-Authenticate"
             }
             
         }
     
         # Check that we got the proper response
-        if ($request_reply.status -eq "OK"){
+        if ($request_reply.status -eq "OK")
+        {
             # Returns epoch time so we need to tranform it
             $origin = New-Object -Type DateTime -ArgumentList 1970, 1, 1, 0, 0, 0, 0
             Write-Verbose -Message "We got an OK reply from the session."
@@ -435,7 +451,8 @@ function Get-NessusServerFeedInfo
             # Retun the feed object
             $feedinfoobj
         }
-        else {
+        else 
+        {
             $request_reply
         }
     }
@@ -481,7 +498,8 @@ function Get-NessusServerLoad
         Position=0)]
         [Nessus.Server.Session]$Session
     )
-    BEGIN {
+    BEGIN 
+    {
         # Random number for sequence request
         $rand = New-Object System.Random
         # Options for XMLRPC request
@@ -489,7 +507,8 @@ function Get-NessusServerLoad
             seq = $rand.Next()
         }
     }
-    PROCESS {    
+    PROCESS 
+    {    
         if ($Index.Count -gt 0)
         {
             foreach($conn in $Global:nessusconn)
@@ -504,30 +523,37 @@ function Get-NessusServerLoad
         {
                 $NSession = $Session
         }
-        else {
+        else 
+        {
             throw "No Nessus.Server.Session was provided"
         }
-        Try {
+        
+        Try 
+        {
             $request_reply = $NSession.SessionState.ExecuteCommand("/server/load", $ops)
         }
-        Catch [Net.WebException] {
+        Catch [Net.WebException] 
+        {
            
             write-verbose "The session has expired, Re-authenticating"
             $reauth = $NSession.SessionManager.Login(
                 $NSession.SessionState.Username, 
                 $NSession.SessionState.Password, 
                 [ref]$true)
-            if ($reauth.reply.status -eq "OK"){
+            if ($reauth.reply.status -eq "OK")
+            {
                 $request_reply = $NSession.SessionState.ExecuteCommand("/server/load", $ops)
             }
-            else{
+            else
+            {
                 throw "Session expired could not Re-Authenticate"
             }
             
         }
     
         # Check that we got the proper response
-        if ($request_reply.reply.status -eq "OK"){
+        if ($request_reply.reply.status -eq "OK")
+        {
             Write-Verbose -Message "We got an OK reply from the session."
             $load_props = [ordered]@{
                 ServerHost      = $NSession.ServerHost
@@ -542,7 +568,8 @@ function Get-NessusServerLoad
             $srvload.pstypenames.insert(0,'Nessus.Server.Load')
             $srvload
         }
-        else {
+        else 
+        {
             $request_reply
         }
     }
@@ -578,7 +605,8 @@ function Start-NessusServerFeedUpdate
         Position=0)]
         [Nessus.Server.Session]$Session
     )
-    BEGIN {
+    BEGIN 
+    {
         # Random number for sequence request
         $rand = New-Object System.Random
         # Options for XMLRPC request
@@ -586,7 +614,8 @@ function Start-NessusServerFeedUpdate
             seq = $rand.Next()
         }
     }
-    PROCESS {    
+    PROCESS 
+    {    
         if ($Index.Count -gt 0)
         {
             foreach($conn in $Global:nessusconn)
@@ -601,7 +630,8 @@ function Start-NessusServerFeedUpdate
         {
                 $NSession = $Session
         }
-        else {
+        else 
+        {
             throw "No Nessus.Server.Session was provided"
         }
         
@@ -611,10 +641,12 @@ function Start-NessusServerFeedUpdate
             throw "Session does not have Administrative privelages."
         }
 
-        Try {
+        Try 
+        {
             $request_reply = $NSession.SessionState.ExecuteCommand("/server/update", $ops)
         }
-        Catch [Net.WebException] {
+        Catch [Net.WebException] 
+        {
            
             write-verbose "The session has expired, Re-authenticating"
             $reauth = $NSession.SessionManager.Login(

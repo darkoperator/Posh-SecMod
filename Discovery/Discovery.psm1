@@ -43,6 +43,7 @@ function Get-Whois
     }
 }
 
+
 <#
 .Synopsis
    Enumerates all mDNS records in the local subnet.
@@ -59,7 +60,6 @@ function Get-Whois
 
    Get-MDNSRecords | where name -like "*_http._tcp*"
 #>
-
 function Get-MDNSRecords
 {
     [CmdletBinding()]
@@ -85,6 +85,7 @@ function Get-MDNSRecords
 }
 
 
+
 <#
 .Synopsis
     Generates a IP Address Objects for IPv4 and IPv6 Ranges.
@@ -101,7 +102,6 @@ function Get-MDNSRecords
 
    Get a list of IPv4 Addresses in a given range as a list for use in another tool.
 #>
-
 function New-IPRange
 {
     [CmdletBinding(DefaultParameterSetName="CIDR")]
@@ -139,6 +139,7 @@ function New-IPRange
         [IPHelper.IP.IPAddressAnalysis]::GetIPRange($StartIP, $EndIP)
     }
 }
+
 
 <#
 .Synopsis
@@ -185,6 +186,7 @@ function New-IPv4Range
     }
 }
 
+
 <#
 .Synopsis
     Generates a list of IPv4 IP Addresses given a CIDR.
@@ -201,7 +203,8 @@ function New-IPv4Range
     192.168.1.6
     192.168.1.7
 #>
-function New-IPv4RangeFromCIDR {
+function New-IPv4RangeFromCIDR 
+{
     param(
 		[Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
@@ -232,6 +235,7 @@ function New-IPv4RangeFromCIDR {
     $EndIP = ([System.Net.IPAddress]$EndIP).IPAddressToString
     New-IPv4Range $StartIP $EndIP
 }
+
 
 <#
 .Synopsis
@@ -323,7 +327,8 @@ function Invoke-ReverseDNSLookup
             $record_progress = [int][Math]::Ceiling((($i / $record_count) * 100))
             Write-Progress -Activity "Performing DNS Reverse Lookup Discovery" -PercentComplete $record_progress -Status "Reverse Lookup - $record_progress%" -Id 1;
 
-            while ($($pool.GetAvailableRunspaces()) -le 0) {
+            while ($($pool.GetAvailableRunspaces()) -le 0) 
+            {
                 Start-Sleep -milliseconds 500
             }
     
@@ -355,17 +360,21 @@ function Invoke-ReverseDNSLookup
         # end async call   
         for ($y = 0; $y -lt $i; $y++) {     
   
-            try {   
+            try 
+            {   
                 # complete async job   
                 $ScanResults += $ps[$y].EndInvoke($jobs[$y])   
   
-            } catch {   
+            } 
+            catch 
+            {   
        
                 # oops-ee!   
                 write-warning "error: $_"  
             }
     
-            finally {
+            finally 
+            {
                 $ps[$y].Dispose()
             }    
         }
@@ -378,6 +387,7 @@ function Invoke-ReverseDNSLookup
         $ScanResults
     }
 }
+
 
 <#
 .Synopsis
@@ -528,6 +538,7 @@ function Invoke-PingScan
         $ScanResults
     }
 }
+
 
 <#
 .Synopsis
@@ -706,6 +717,7 @@ function Invoke-PortScan
     {
     }
 }
+
 
 <#
 .Synopsis
@@ -910,7 +922,6 @@ public static class NetUtils
 }
 
 
-
 <#
 .Synopsis
    Enumerates the DNS Servers used by a system
@@ -1101,7 +1112,6 @@ function Invoke-EnumSRVRecords
 }
 
 
-
 <#
 .Synopsis
    Resolve a given FQDN
@@ -1116,7 +1126,6 @@ function Invoke-EnumSRVRecords
     ipv6.google.com                                       CNAME ipv6.l.google.com.
     ipv6.l.google.com                                      AAAA 2607:f8b0:4002:c02::93
 #>
-
 
 function Resolve-HostRecord
 {
@@ -1205,7 +1214,6 @@ function Resolve-HostRecord
         $ARecs
     }
 }
-
 
 
 <#
@@ -1316,6 +1324,7 @@ function Resolve-DNSRecord
     {
     }
 }
+
 
 <#
 .Synopsis
