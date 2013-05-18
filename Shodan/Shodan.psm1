@@ -585,12 +585,15 @@ function Search-ShodanMSF
    Performs a Search of the Shodan Database
 .DESCRIPTION
    Performs a Search of the Shodan Database. All filtering advanced parameters are available
-   as options to make advancd searches and filtering simpler.
+   as options to make advancd searches and filtering simpler. Some filtering Options depend on 
+   API license level. More information on filter use can be found at http://www.shodanhq.com/help/filters
 .EXAMPLE
     (Search-Shodan -APIKey $apikey -Query "cisco" -City "Buenos Aires").matches | where {$_.data -like "*level_15_access*"} 
 
    Find all Cisco Routers in Buenos Aires that allow login via web with level 15 privilages
-
+.LINK
+    http://www.darkoperator.com
+    http://www.shodanhq.com/help/filters
 #>
 function Search-Shodan
 {
