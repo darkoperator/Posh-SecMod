@@ -438,6 +438,7 @@ function Search-ShodanExploitDB
     }
 }
 
+
 <#
 .Synopsis
    Search Metasploit
@@ -572,6 +573,222 @@ function Search-ShodanMSF
     {
         $result = Invoke-RestMethod -Uri $URI -Method Get -Body @{'q'= $Query;'key'= $APIKey}
         $result.pstypenames.insert(0,'Shodan.MSF.Search')
+        $result
+    }
+    End
+    {
+    }
+}
+
+<#
+.Synopsis
+   Performs a Search of the Shodan Database
+.DESCRIPTION
+   Performs a Search of the Shodan Database. All filtering advanced parameters are available
+   as options to make advancd searches and filtering simpler.
+.EXAMPLE
+    (Search-Shodan -APIKey $apikey -Query "cisco" -City "Buenos Aires").matches | where {$_.data -like "*level_15_access*"} 
+
+   Find all Cisco Routers in Buenos Aires that allow login via web with level 15 privilages
+
+#>
+function Search-Shodan
+{
+    [CmdletBinding()]
+
+    Param
+    (
+        # Text to query for.
+        [Parameter(Mandatory=$false)]
+        [string]$Query,
+
+        # Shodan API Key
+        [Parameter(Mandatory=$true)]
+        [string]$APIKey,
+        #  Find devices located in the given city. It's best combined with the 'Country' filter to make sure you get the city in the country you want (city names are not always unique).
+        [Parameter(Mandatory=$false)]
+        [string]$City,
+
+        # Narrow results down by country.
+        [Parameter(Mandatory=$false)]
+        [string]$Country,
+
+        # Latitude and longitude.
+        [Parameter(Mandatory=$false)]
+        [string]$Geo,
+
+        # Search for hosts that contain the value in their hostname.
+        [Parameter(Mandatory=$false)]
+        [string]$Hostname,
+        
+        # Limit the search results to a specific IP or subnet. It uses CIDR notation to designate the subnet range.
+        [Parameter(Mandatory=$false)]
+        [string]$Net,
+
+        # Specific operating systems. Common possible values are: windows, linux and cisco.
+        [Parameter(Mandatory=$false)]
+        [string]$OS,
+
+        # Port number  to narrow the search to specific services.
+        [Parameter(Mandatory=$false)]
+        [string]$Port,
+
+        # Limit search for data that was collected before the given date in format day/month/year.
+        [Parameter(Mandatory=$false)]
+        [string]$Before,
+
+        # Limit search for data that was collected after the given date in format day/month/year.
+        [Parameter(Mandatory=$false)]
+        [string]$After,
+
+        # Search based on the SSL certificate version
+        [Parameter(Mandatory=$false)]
+        [Validateset('SSLv2', 'Original', 'SSLv3', 'TLSv1')]
+        [string]$CertVersion,
+
+        # Search based on the SSL certificate public key bit length
+        [Parameter(Mandatory=$false)]
+        [Validateset('ADH-AES128-SHA', 'ADH-AES256-SHA', 'ADH-DES-CBC-SHA', 'ADH-DES-CBC3-SHA', 'ADH-RC4-MD5',
+        'AES128-SHA','AES256-SHA','DES-CBC-MD5','DES-CBC-SHA','DES-CBC3-MD5','DES-CBC3-SHA','DHE-DSS-AES128-SHA',
+        'DHE-DSS-AES256-SHA','DHE-RSA-AES128-SHA','DHE-RSA-AES256-SHA','EDH-DSS-DES-CBC-SHA','EDH-DSS-DES-CBC3-SHA',
+        'EDH-RSA-DES-CBC-SHA','EDH-RSA-DES-CBC3-SHA','EXP-ADH-DES-CBC-SHA','EXP-ADH-RC4-MD5','EXP-DES-CBC-SHA',
+        'EXP-EDH-DSS-DES-CBC-SHA','EXP-EDH-RSA-DES-CBC-SHA','EXP-RC2-CBC-MD5','EXP-RC4-MD5','NULL-MD5','NULL-SHA',
+        'RC2-CBC-MD5','RC4-MD5','RC4-SHA')]
+        [string]$CipherName,
+
+        # Accepted ciphers the server allows using the cipher bit length
+        [Parameter(Mandatory=$false)]
+        [Validateset(0, 40, 56, 128, 168, 256)]
+        [int]$CipherBits,
+
+        # Filter based on the accepted ciphers the server allows using the cipher protoco
+        [Parameter(Mandatory=$false)]
+        [Validateset('SSLv2','SSLv3', 'TLSv1')]
+        [string]$CipherProtocol,
+
+        # Information about the organisation that issued the SSL certificate.
+        [Parameter(Mandatory=$false)]
+        [string]$CertIssuer,
+
+        # Information about the organisation receiving the SSL certificate.
+        [Parameter(Mandatory=$false)]
+        [string]$CertSubject,
+
+        # Search based on the SSL certificate public key bit length.
+        [Parameter(Mandatory=$false)]
+        [int]$CertBits,
+
+        # Page number of the search results
+        [Parameter(Mandatory=$false)]
+        [int]$Page = 1,
+
+        # number of results to return
+        [Parameter(Mandatory=$false)]
+        [int]$Limit
+    )
+        
+
+    Begin
+    {
+        $CertVersionList = @{
+            'Original' = 0
+            'SSLv2' = 1
+            'SSLv3' = 2
+            'TLSv1' = 3
+        }
+
+        if ($City)
+        {
+            $Query += " city:'$($City.Trim())'"   
+        }
+
+        if ($Country)
+        {
+            $Query += " country_name:$($Country.Trim())"   
+        }
+
+        if ($Geo)
+        {
+            $Query += " geo:$($Geo.Trim())"   
+        }
+
+        if ($Hostname)
+        {
+            $Query += " hostname:$($Hostname.Trim())"   
+        }
+
+        if ($Net)
+        {
+            $Query += " net:$($Net.Trim())"   
+        }
+
+        if ($OS)
+        {
+            $Query += " os:$($OS.Trim())"   
+        }
+
+        if ($Port)
+        {
+            $Query += " port:$($Port.Trim())"   
+        }
+
+        if ($Before)
+        {
+            $Query += " before:$($Before.Trim())"   
+        }
+
+        if ($After)
+        {
+            $Query += " after:$($After.Trim())"   
+        }
+
+        if ($CertVersion)
+        {
+            $Query += " cert_version:$($CertVersionList.get_item($CertVersion))"   
+        }
+
+        if ($CertBits)
+        {
+            $Query += " cert_bits:$($CertBits)"   
+        }
+
+        if ($CertIssuer)
+        {
+            $Query += " cert_issuer:'$($CertIssuer)'"   
+        }
+
+        if ($CertSubject)
+        {
+            $Query += " cert_subject:'$($CertSubject)'"   
+        }
+
+        if ($CipherName)
+        {
+            $Query += " cipher_name:'$($CipherName)'"   
+        }
+
+        if ($CipherBits)
+        {
+            $Query += " cipher_bits:'$($CipherBits)'"   
+        }
+
+        if ($CipherProtocol)
+        {
+            $Query += " cipher_protocol:'$($CipherProtocol)'"   
+        }
+
+        $URI = 'http://www.shodanhq.com/api/search'
+    }
+    Process
+    {
+        $Params = @{q = $Query; p = $Page; 'key'= $APIKey}
+        if ($limit)
+        {
+            $Params.add('l',$Limit)
+        }
+
+        $result = Invoke-RestMethod -Uri $URI -Method Get -Body $Params
+        $result.pstypenames.insert(0,'Shodan.General.Search')
         $result
     }
     End
