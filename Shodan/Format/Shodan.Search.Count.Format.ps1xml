@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-16"?>
+<Configuration>
+    <ViewDefinitions>
+        <View>
+          <Name>Shodan.Search.Count</Name>
+          <ViewSelectedBy>
+            <TypeName>Shodan.Search.Count</TypeName>
+          </ViewSelectedBy>
+          <TableControl>
+            <TableHeaders>
+              <TableColumnHeader>
+                <Width>16</Width>
+              </TableColumnHeader>
+            </TableHeaders>
+            <TableRowEntries>
+              <TableRowEntry>
+                <TableColumnItems>
+                  <TableColumnItem>
+                   <PropertyName>Total</PropertyName>
+                  </TableColumnItem>
+                </TableColumnItems>
+              </TableRowEntry>
+            </TableRowEntries>
+          </TableControl>
+        </View>
+    </ViewDefinitions>
+</Configuration>

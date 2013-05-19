@@ -184,7 +184,9 @@ function Get-ShodanCount
     }
     Process
     {
-        Invoke-RestMethod -Uri $URI -Method Get -Body @{'q'= $Query;'key'= $APIKey}
+        $result = Invoke-RestMethod -Uri $URI -Method Get -Body @{'q'= $Query;'key'= $APIKey}
+        $result.pstypenames.insert(0,'Shodan.Search.Count')
+        $result
     }
     End
     {

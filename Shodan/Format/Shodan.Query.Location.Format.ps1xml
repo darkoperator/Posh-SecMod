@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-16"?>
+<Configuration>
+    <ViewDefinitions>
+        <View>
+            <Name>Shodan.Query.Location</Name>
+            <ViewSelectedBy>
+                <TypeName>Shodan.Query.Location</TypeName>
+            </ViewSelectedBy>
+            <ListControl>
+                <ListEntries>
+                <ListEntry>
+                <ListItems>
+                    <ListItem> 
+                        <Label>Total</Label>
+                        <PropertyName>total</PropertyName>
+                    </ListItem>
+                    <ListItem>
+                        <Label>Countries</Label>
+                        <PropertyName>countries</PropertyName>
+                    </ListItem>
+                    <ListItem> 
+                        <Label>Cities</Label>
+                        <PropertyName>cities</PropertyName>
+                    </ListItem>
+                </ListItems>
+            </ListEntry>
+            </ListEntries>
+            </ListControl>
+        </View>
+    </ViewDefinitions>
+</Configuration>

@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-16"?>
+<Configuration>
+<ViewDefinitions>
+<View>
+    <Name>Shodan.MSF.Search</Name>
+    <ViewSelectedBy>
+        <TypeName>Shodan.MSF.Search</TypeName>
+    </ViewSelectedBy>
+    <ListControl>
+        <ListEntries>
+            <ListEntry>
+                <ListItems>
+                    <ListItem> 
+                        <Label>Total</Label>
+                        <PropertyName>total</PropertyName>
+                    </ListItem>
+                    <ListItem>
+                        <Label>Matches</Label>
+                        <PropertyName>Matches</PropertyName>
+                    </ListItem>
+                    </ListItems>
+            </ListEntry>
+        </ListEntries>
+    </ListControl>
+</View>
+</ViewDefinitions>
+</Configuration>
