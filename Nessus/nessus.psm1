@@ -821,16 +821,15 @@ function Get-NessusServerAdvancedSettings
 
 <#
 .Synopsis
-   Gets a Nessus Server local or remote session general configuration settings
+   Gets a Nessus Server Web Proxy settings
 .DESCRIPTION
    Gets a Nessus Server local or remote session general configuration settings. These
    settings are used by the Nessus Server for the proxy configuration for updating the
-   Nessus Feed. To retive the configuretion a Nessus Server Session Index or Session Object
+   Nessus Feed. To retive the configuration a Nessus Server Session Index or Session Object
    must be specified.
 .EXAMPLE
-   Get a Nessus Server General Settings for a given session
 
-    PS C:\> Get-NessusServerGeneralSettings -Index 0
+    PS C:\> Get-NessusServerWebProxySettings -Index 0
 
 
     proxy          : 
@@ -841,32 +840,32 @@ function Get-NessusServerAdvancedSettings
     custom_host    : 
 #>
 
-function Get-NessusServerGeneralSettings
+function Get-NessusServerWebProxySettings
 {
     [CmdletBinding()]
     param(
-        # Nessus server session index.
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0)]
-        [int32[]]$Index = @(),
+        ParameterSetName = "Index")]
+        [int32[]]$Index,
 
-        # Nessus Server Session Object.
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        Position=0)]
+        ValueFromPipeline=$True)]
         [Nessus.Server.Session]$Session
-    )
-    BEGIN {
+     )
+
+     BEGIN 
+     {
         # Random number for sequence request
         $rand = New-Object System.Random
         # Options for XMLRPC request
         $ops = @{
             seq = $rand.Next()
+            json = 1
         }
-    }
-    PROCESS {    
+     }
+     PROCESS 
+     {    
         if ($Index.Count -gt 0)
         {
             foreach($conn in $Global:nessusconn)
@@ -892,8 +891,10 @@ function Get-NessusServerGeneralSettings
         }
 
 
-        Try {
-            $request_reply = $NSession.SessionState.ExecuteCommand("/server/securesettings/list", $ops)
+        Try 
+        {
+            $ops.Add('token', $NSession.Token)
+            $request_reply = $NSession.SessionState.ExecuteCommand2("/server/settings/list", $ops)
         }
         Catch [Net.WebException] {
            
@@ -903,7 +904,8 @@ function Get-NessusServerGeneralSettings
                 $NSession.SessionState.Password, 
                 [ref]$true)
             if ($reauth.reply.status -eq "OK"){
-                $request_reply = $NSession.SessionState.ExecuteCommand("/server/securesettings/list", $ops)
+                $ops['token'] = $NSession.Token
+                $request_reply = $NSession.SessionState.ExecuteCommand2("/server/settings/list", $ops)
             }
             else{
                 throw "Session expired could not Re-Authenticate"
@@ -912,21 +914,450 @@ function Get-NessusServerGeneralSettings
         }
     
         # Check that we got the proper response
-        if ($request_reply.reply.status -eq "OK"){
+        $reply = ConvertFrom-Json $request_reply
+        if ($reply.reply.status -eq "OK"){
             Write-Verbose -Message "We got an OK reply from the session."
-            $prefs = $request_reply.reply.contents.SecureSettings.ProxySettings.childnodes
-            $prefopts = [ordered]@{}
-            foreach($pref in $prefs)
+            foreach ($setting in $reply.reply.contents.settings)
             {
-                $prefopts.add($pref.name,$pref.value)
+                if ($setting.name -eq 'Web Proxy')
+                {
+                    $prefopts = [ordered]@{}
+                    $setting.values | ForEach-Object {
+                        $prefopts.add($_.name,$_.pvalues)
+                    }
+                    $srvprefs = [pscustomobject]$prefopts
+                    $srvprefs.pstypenames.insert(0,'Nessus.Server.WebProxy.Settings')
+                    $srvprefs
+                }
             }
-            $srvprefs = [pscustomobject]$prefopts
-            $srvprefs.pstypenames.insert(0,'Nessus.Server.Settings.General')
-            $srvprefs
         }
     }
 }
 
+function Get-NessusServerSMTPSettings
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index")]
+        [int32[]]$Index,
+
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Nessus.Server.Session]$Session
+     )
+
+     BEGIN 
+     {
+        # Random number for sequence request
+        $rand = New-Object System.Random
+        # Options for XMLRPC request
+        $ops = @{
+            seq = $rand.Next()
+            json = 1
+        }
+     }
+     PROCESS 
+     {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:nessusconn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $NSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Nessus.Server.Session")
+        {
+                $NSession = $Session
+        }
+        else {
+            throw "No Nessus.Server.Session was provided"
+        }
+
+        # Make sure we are admin since it is required for this command
+        if (!$NSession.SessionState.IsAdministrator)
+        {
+            throw "Session does not have Administrative privelages."
+        }
+
+
+        Try 
+        {
+            $ops.Add('token', $NSession.Token)
+            $request_reply = $NSession.SessionState.ExecuteCommand2("/server/settings/list", $ops)
+        }
+        Catch [Net.WebException] {
+           
+            write-verbose "The session has expired, Re-authenticating"
+            $reauth = $NSession.SessionManager.Login(
+                $NSession.SessionState.Username, 
+                $NSession.SessionState.Password, 
+                [ref]$true)
+            if ($reauth.reply.status -eq "OK"){
+                $ops['token'] = $NSession.Token
+                $request_reply = $NSession.SessionState.ExecuteCommand2("/server/settings/list", $ops)
+            }
+            else{
+                throw "Session expired could not Re-Authenticate"
+            }
+            
+        }
+    
+        # Check that we got the proper response
+        $reply = ConvertFrom-Json $request_reply
+        if ($reply.reply.status -eq "OK"){
+            Write-Verbose -Message "We got an OK reply from the session."
+            foreach ($setting in $reply.reply.contents.settings)
+            {
+                if ($setting.name -eq 'SMTP Server')
+                {
+                    $prefopts = [ordered]@{}
+                    $setting.values | ForEach-Object {
+                        if ($_.name -like "From*")
+                        {
+                            $prefopts.add("From",$_.pvalues)
+                        }
+                        elseif ($_.name -like "*Auth*")
+                        {
+                            $prefopts.add("AuthMethod",$_.svalue)
+                        }
+                        elseif ($_.name -like "*Nessus*")
+                        {
+                            $prefopts.add("NessusServer",$_.pvalues)
+                        }
+                        else
+                        {
+                            $prefopts.add($_.name,$_.pvalues)
+                        }
+                    }
+                    $srvsmtpprefs = [pscustomobject]$prefopts
+                    $srvsmtpprefs.pstypenames.insert(0,'Nessus.Server.SMTPServer.Settings')
+                    $srvsmtpprefs
+                }
+            }
+        }
+    }
+}
+
+function Set-NessusServerSMTPSettingss
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index")]
+        [int32[]]$Index,
+
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Nessus.Server.Session]$Session,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [int]$Port,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [string]$SMTPServer,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [string]$From,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [ValidateSet('PLAIN', 'CRAM-MD5', 'LOGIN', 'NTLM', 'NONE')]
+        [string]$AuthMethod,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [string]$NessusServer,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Index")]
+        [Parameter(ParameterSetName = "Session")]
+        [Management.Automation.PSCredential]$Credentials
+     )
+
+     BEGIN 
+     {
+        # Random number for sequence request
+        $rand = New-Object System.Random
+        # Options for XMLRPC request
+        $ops = @{
+            seq = $rand.Next()
+            json = 1
+        }
+
+        if ($SMTPServer)
+        {
+            $ops.Add('SMTP+Server.0',$SMTPServer)
+        }
+
+        if ($Port)
+        {
+            $ops.Add('SMTP+Server.1', $Port)
+        }
+
+        if ($From)
+        {
+            $ops.Add('SMTP+Server.2', $From)
+        }
+
+        if ($AuthMethod)
+        {
+            $ops.Add('SMTP+Server.3', $AuthMethod)
+        }
+
+        if ($Credentials)
+        {
+            $ops.Add('SMTP+Server.4', $Credentials.UserName)
+            $ops.Add('SMTP+Server.5', $Credentials.GetNetworkCredential().Password)
+        }
+
+        if ($NessusServer)
+        {
+            $ops.Add('SMTP+Server.6', $NessusServer)
+        }
+
+     }
+     PROCESS 
+     {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:nessusconn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $NSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Nessus.Server.Session")
+        {
+                $NSession = $Session
+        }
+        else {
+            throw "No Nessus.Server.Session was provided"
+        }
+
+        # Make sure we are admin since it is required for this command
+        if (!$NSession.SessionState.IsAdministrator)
+        {
+            throw "Session does not have Administrative privelages."
+        }
+
+
+        Try 
+        {
+            $ops.Add('token', $NSession.Token)
+            $request_reply = $NSession.SessionState.ExecuteCommand2("/server/settings/update", $ops)
+        }
+        Catch [Net.WebException] {
+           
+            write-verbose "The session has expired, Re-authenticating"
+            $reauth = $NSession.SessionManager.Login(
+                $NSession.SessionState.Username, 
+                $NSession.SessionState.Password, 
+                [ref]$true)
+            if ($reauth.reply.status -eq "OK"){
+                $ops['token'] = $NSession.Token
+                $request_reply = $NSession.SessionState.ExecuteCommand2("/server/settings/update", $ops)
+            }
+            else{
+                throw "Session expired could not Re-Authenticate"
+            }
+            
+        }
+    
+        # Check that we got the proper response
+        $reply = ConvertFrom-Json $request_reply
+        if ($reply.reply.status -eq "OK"){
+            Write-Verbose -Message "We got an OK reply from the session."
+            foreach ($setting in $reply.reply.contents.settings)
+            {
+                if ($setting.name -eq 'SMTP Server')
+                {
+                    $prefopts = [ordered]@{}
+                    $setting.values | ForEach-Object {
+                        if ($_.name -like "From*")
+                        {
+                            $prefopts.add("From",$_.pvalues)
+                        }
+                        elseif ($_.name -like "*Auth*")
+                        {
+                            $prefopts.add("AuthMethod",$_.svalue)
+                        }
+                        elseif ($_.name -like "*Nessus*")
+                        {
+                            $prefopts.add("NessusServer",$_.pvalues)
+                        }
+                        else
+                        {
+                            $prefopts.add($_.name,$_.pvalues)
+                        }
+                    }
+                    $srvsmtpprefs = [pscustomobject]$prefopts
+                    $srvsmtpprefs.pstypenames.insert(0,'Nessus.Server.SMTPServer.Settings')
+                    $srvsmtpprefs
+                }
+            }
+        }
+    }
+}
+
+function Set-NessusServerWebProxySettingss
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index")]
+        [int32[]]$Index,
+
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Nessus.Server.Session]$Session,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [int]$Port,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [string]$ProxyServer,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [string]$UserAgent,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Index")]
+        [Parameter(ParameterSetName = "Session")]
+        [Management.Automation.PSCredential]$Credentials
+     )
+
+     BEGIN 
+     {
+        # Random number for sequence request
+        $rand = New-Object System.Random
+        # Options for XMLRPC request
+        $ops = @{
+            seq = $rand.Next()
+            json = 1
+        }
+
+        if ($ProxyServer)
+        {
+            $ops.Add('Web+Proxy.0',$ProxyServer)
+        }
+
+        if ($Port)
+        {
+            $ops.Add('Web+Proxy.1', $Port)
+        }
+
+        if ($UserAgent)
+        {
+            $ops.Add('Web+Proxy.4', $UserAgent)
+        }
+
+        if ($Credentials)
+        {
+            $ops.Add('Web+Proxy.2', $Credentials.UserName)
+            $ops.Add('Web+Proxy.3', $Credentials.GetNetworkCredential().Password)
+        }
+
+     }
+     PROCESS 
+     {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:nessusconn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $NSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Nessus.Server.Session")
+        {
+                $NSession = $Session
+        }
+        else {
+            throw "No Nessus.Server.Session was provided"
+        }
+
+        # Make sure we are admin since it is required for this command
+        if (!$NSession.SessionState.IsAdministrator)
+        {
+            throw "Session does not have Administrative privelages."
+        }
+
+
+        Try 
+        {
+            $ops.Add('token', $NSession.Token)
+            $request_reply = $NSession.SessionState.ExecuteCommand2("/server/settings/update", $ops)
+        }
+        Catch [Net.WebException] {
+           
+            write-verbose "The session has expired, Re-authenticating"
+            $reauth = $NSession.SessionManager.Login(
+                $NSession.SessionState.Username, 
+                $NSession.SessionState.Password, 
+                [ref]$true)
+            if ($reauth.reply.status -eq "OK"){
+                $ops['token'] = $NSession.Token
+                $request_reply = $NSession.SessionState.ExecuteCommand2("/server/settings/update", $ops)
+            }
+            else{
+                throw "Session expired could not Re-Authenticate"
+            }
+            
+        }
+    
+        # Check that we got the proper response
+        $reply = ConvertFrom-Json $request_reply
+        if ($reply.reply.status -eq "OK"){
+            Write-Verbose -Message "We got an OK reply from the session."
+            foreach ($setting in $reply.reply.contents.settings)
+            {
+                if ($setting.name -eq 'Web Proxy')
+                {
+                    $prefopts = [ordered]@{}
+                    $setting.values | ForEach-Object {
+                        $prefopts.add($_.name,$_.pvalues)
+                    }
+                    $srvprefs = [pscustomobject]$prefopts
+                    $srvprefs.pstypenames.insert(0,'Nessus.Server.WebProxy.Settings')
+                    $srvprefs
+                }
+            }
+        }
+    }
+}
 
 <#
 .Synopsis
@@ -938,98 +1369,264 @@ function Get-NessusServerGeneralSettings
    Server Session Index or Session Object
    must be specified.
 .EXAMPLE
-   Get a list of all the mobile settings for a given Nessus Server Session
-
-    PS C:\> Get-NessusServerMobileSettings -Index 0 | fl
-
-
-    Platform : Apple Profile Manager API Settings
-    Name     : Apple Profile Manager server 
-    PValue   : 
-    SValue   : 
-
-    Platform : Apple Profile Manager API Settings
-    Name     : Apple Profile Manager port 
-    PValue   : 443
-    SValue   : 
-
-    Platform : Apple Profile Manager API Settings
-    Name     : Apple Profile Manager username 
-    PValue   : 
-    SValue   : 
-
-    Platform : Apple Profile Manager API Settings
-    Name     : Apple Profile Manager password 
-    PValue   : 
-    SValue   : 
-
-    Platform : Apple Profile Manager API Settings
-    Name     : SSL 
-    PValue   : yes
-    SValue   : 
-
-    Platform : Apple Profile Manager API Settings
-    Name     : Verify SSL Certificate 
-    PValue   : no
-    SValue   : 
-
-    Platform : Apple Profile Manager API Settings
-    Name     : Force Device Updates 
-    PValue   : yes
-    SValue   : 
-
-    Platform : Apple Profile Manager API Settings
-    Name     : Device Update Timeout (Minutes) 
-    PValue   : 5
-    SValue   : 
-
-    Platform : ADSI Settings
-    Name     : Domain Controller 
-    PValue   : 
-    SValue   : 192.168.10.10
-
-    Platform : ADSI Settings
-    Name     : Domain 
-    PValue   : 
-    SValue   : acmelabs.com
-
-    Platform : ADSI Settings
-    Name     : Domain Username 
-    PValue   : 
-    SValue   : administrator
-
-    Platform : ADSI Settings
-    Name     : Domain Password 
-    PValue   : 
-    SValue   : *********
+  
 #>
 
 function Get-NessusServerMobileSettings
 {
     [CmdletBinding()]
     param(
-        # Nessus server session index.
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
-        Position=0)]
-        [int32[]]$Index = @(),
+        ParameterSetName = "Index")]
+        [int32[]]$Index,
 
-        # Nessus Server Session Object.
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
-        ValueFromPipeline=$true,
-        Position=0)]
-        [Nessus.Server.Session]$Session
-    )
-    BEGIN {
+        ValueFromPipeline=$True)]
+        [Nessus.Server.Session]$Session,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session")]
+        [Parameter(ParameterSetName = "Index")]
+        [switch]$Apple,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session")]
+        [Parameter(ParameterSetName = "Index")]
+        [switch]$ADSI
+     )
+
+     BEGIN 
+     {
         # Random number for sequence request
         $rand = New-Object System.Random
         # Options for XMLRPC request
         $ops = @{
             seq = $rand.Next()
+            json = 1
+        }
+     }
+     PROCESS 
+     {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:nessusconn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $NSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Nessus.Server.Session")
+        {
+                $NSession = $Session
+        }
+        else 
+        {
+            throw "No Nessus.Server.Session was provided"
+        }
+
+        # Make sure we are admin since it is required for this command
+        if (!$NSession.SessionState.IsAdministrator)
+        {
+            throw "Session does not have Administrative privelages."
+        }
+
+
+        Try 
+        {
+            $ops.Add('token', $NSession.Token)
+            $request_reply = $NSession.SessionState.ExecuteCommand2("/mobile/settings/list", $ops)
+        }
+        Catch [Net.WebException] {
+           
+            write-verbose "The session has expired, Re-authenticating"
+            $reauth = $NSession.SessionManager.Login(
+                $NSession.SessionState.Username, 
+                $NSession.SessionState.Password, 
+                [ref]$true)
+            if ($reauth.reply.status -eq "OK"){
+                $ops['token'] = $NSession.Token
+                $request_reply = $NSession.SessionState.ExecuteCommand2("/mobile/settings/list", $ops)
+            }
+            else{
+                throw "Session expired could not Re-Authenticate"
+            }
+            
+        }
+    
+        # Check that we got the proper response
+        $reply = ConvertFrom-Json $request_reply
+        if ($reply.reply.status -eq "OK")
+        {
+            Write-Verbose -Message "We got an OK reply from the session."
+            foreach ($setting in $reply.reply.contents.settings.setting)
+            {
+                if ($Apple)
+                {
+                    if ($setting.name -eq 'Apple Profile Manager API Settings')
+                    {
+                        $prefopts = [ordered]@{}
+                        $setting.values | ForEach-Object {
+                            if ($_.name -like "*server*")
+                            {
+                                $prefopts.add("Server",$_.svalue)
+                            }
+                            elseif ($_.name -like "*port*")
+                            {
+                                if ($_.svalue)
+                                {
+                                    $prefopts.add("Port",$_.svalue)
+                                }
+                                else
+                                {
+                                    $prefopts.add("Port",$_.pvalues)
+                                }
+                            }
+                            elseif ($_.name -eq "SSL :")
+                            {
+                                if ($_.svalue)
+                                {
+                                    $prefopts.add("UseSSL",$_.svalue)
+                                }
+                                else
+                                {
+                                    $prefopts.add("UseSSL",$_.pvalues)
+                                }
+                            }
+
+                            elseif ($_.name -eq "Verify SSL Certificate :")
+                            {
+                                if ($_.svalue)
+                                {
+                                    $prefopts.add("VerifySSL",$_.svalue)
+                                }
+                                else
+                                {
+                                    $prefopts.add("VerifySSL",$_.pvalues)
+                                }
+                            }
+                            elseif ($_.name -eq "*timeout*")
+                            {
+                                if ($_.svalue)
+                                {
+                                    $prefopts.add("UpdateTimeout",$_.svalue)
+                                }
+                                else
+                                {
+                                    $prefopts.add("UpdateTimeout",$_.pvalues)
+                                }
+                            }
+                            if ($_.name -like "*username*")
+                            {
+                                $prefopts.add("Username",$_.svalue)
+                            }
+                            if ($_.name -like "*password*")
+                            {
+                                $prefopts.add("Password",$_.svalue)
+                            }
+                        }
+                        $srvsmtpprefs = [pscustomobject]$prefopts
+                        $srvsmtpprefs.pstypenames.insert(0,'Nessus.Server.MobileApple.Settings')
+                        $srvsmtpprefs
+                     }
+                }
+
+                if ($ADSI)
+                {
+                    if ($setting.name -eq 'ADSI Settings')
+                    {
+                        $prefopts = [ordered]@{}
+                        $setting.values | ForEach-Object {
+                            if ($_.name -like "*Domain Controller*")
+                            {
+                                $prefopts.add("DomainController",$_.svalue)
+                            }
+                            elseif ($_.name -like "Domain :")
+                            {
+                                $prefopts.add("Domain",$_.svalue)   
+                            }
+                            elseif ($_.name -like "*username*")
+                            {
+                                $prefopts.add("Username",$_.svalue)   
+                            }
+                            elseif ($_.name -like "*password*")
+                            {
+                                $prefopts.add("PAssword",$_.svalue)
+                            }
+                        }
+                        $srvsmtpprefs = [pscustomobject]$prefopts
+                        $srvsmtpprefs.pstypenames.insert(0,'Nessus.Server.MobileADSI.Settings')
+                        $srvsmtpprefs
+                     }
+                }
+            }
         }
     }
-    PROCESS {    
+}
+
+
+function Set-NessusServerADSISettings
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index")]
+        [int32[]]$Index,
+
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Nessus.Server.Session]$Session,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [string]$DomainController,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [string]$Domain,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Index")]
+        [Parameter(ParameterSetName = "Session")]
+        [Management.Automation.PSCredential]$Credentials
+     )
+
+     BEGIN 
+     {
+        # Random number for sequence request
+        $rand = New-Object System.Random
+        # Options for XMLRPC request
+        $ops = @{
+            seq = $rand.Next()
+            json = 1
+        }
+
+        if ($DomainController)
+        {
+            $ops.Add('plugins_preferences.adsi.152',$DomainController)
+        }
+
+        if ($Domain)
+        {
+            $ops.Add('plugins_preferences.adsi.153', $Domain)
+        }
+
+        if ($Credentials)
+        {
+            $ops.Add('plugins_preferences.adsi.154', $Credentials.UserName)
+            $ops.Add('plugins_preferences.adsi.155', $Credentials.GetNetworkCredential().Password)
+        }
+
+     }
+     PROCESS 
+     {    
         if ($Index.Count -gt 0)
         {
             foreach($conn in $Global:nessusconn)
@@ -1055,8 +1652,10 @@ function Get-NessusServerMobileSettings
         }
 
 
-        Try {
-            $request_reply = $NSession.SessionState.ExecuteCommand("/mobile/settings/list", $ops)
+        Try 
+        {
+            $ops.Add('token', $NSession.Token)
+            $request_reply = $NSession.SessionState.ExecuteCommand2("/mobile/settings/update", $ops)
         }
         Catch [Net.WebException] {
            
@@ -1066,7 +1665,8 @@ function Get-NessusServerMobileSettings
                 $NSession.SessionState.Password, 
                 [ref]$true)
             if ($reauth.reply.status -eq "OK"){
-                $request_reply = $NSession.SessionState.ExecuteCommand("/mobile/settings/list", $ops)
+                $ops['token'] = $NSession.Token
+                $request_reply = $NSession.SessionState.ExecuteCommand2("/mobile/settings/update", $ops)
             }
             else{
                 throw "Session expired could not Re-Authenticate"
@@ -1075,25 +1675,181 @@ function Get-NessusServerMobileSettings
         }
     
         # Check that we got the proper response
-        if ($request_reply.reply.status -eq "OK")
+        $reply = ConvertFrom-Json $request_reply
+        if ($reply.reply.status -eq "OK")
         {
             Write-Verbose -Message "We got an OK reply from the session."
-            $platforms = $request_reply.reply.contents.settings.setting
-            foreach ($platform in $platforms)
+        }
+    }
+}
+
+function Set-NessusServerAppleSettings
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index")]
+        [int32[]]$Index,
+
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Nessus.Server.Session]$Session,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [string]$Server,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [int]$Port,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [bool]$UseSSL,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [bool]$VerifySSL,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [bool]$ForceUpdate,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$True)]
+        [Parameter(ParameterSetName = "Index")]
+        [int]$Timeout,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Index")]
+        [Parameter(ParameterSetName = "Session")]
+        [Management.Automation.PSCredential]$Credentials
+     )
+
+     BEGIN 
+     {
+        # Random number for sequence request
+        $rand = New-Object System.Random
+        # Options for XMLRPC request
+        $ops = @{
+            seq = $rand.Next()
+            json = 1
+        }
+
+        if ($Server)
+        {
+            $ops.Add('plugins_preferences.apple.245',$Server)
+        }
+
+        if ($Port)
+        {
+            $ops.Add('plugins_preferences.apple.246', $Port)
+        }
+
+        if ($Credentials)
+        {
+            $ops.Add('plugins_preferences.apple.247', $Credentials.UserName)
+            $ops.Add('plugins_preferences.apple.248', $Credentials.GetNetworkCredential().Password)
+        }
+        if ($UseSSL -eq $true)
+        {
+            $ops.Add('plugins_preferences.apple.249', 'yes')
+        }
+        elseif ($UseSSL -eq $false)
+        {
+            $ops.Add('plugins_preferences.apple.249', 'no')
+        }
+
+        if ($VerifySSL -eq $true)
+        {
+            $ops.Add('plugins_preferences.apple.250', 'yes')
+        }
+        elseif ($VerifySSL -eq $false)
+        {
+            $ops.Add('plugins_preferences.apple.250', 'no')
+        }
+
+        if ($ForceUpdate -eq $true)
+        {
+            $ops.Add('plugins_preferences.apple.251', 'yes')
+        }
+        elseif ($ForceUpdate -eq $false)
+        {
+            $ops.Add('plugins_preferences.apple.251', 'no')
+        }
+
+        if ($Timeout)
+        {
+            $ops.Add('plugins_preferences.apple.252', $Timeout)
+        }
+
+     }
+     PROCESS 
+     {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:nessusconn)
             {
-                foreach($pref in $platform.values)
+                if ($conn.index -in $Index)
                 {
-                    $prefopts = [ordered]@{}
-                    $prefopts.add('Platform',$pref.plugin_name)
-                    $prefopts.add('Name',$pref.name.Substring(0,$pref.name.Length-1))
-                    $prefopts.add('PValue',$pref.pvalues)
-                    $prefopts.add('SValue',$pref.svalue)
-                    $srvprefs = [pscustomobject]$prefopts
-                    $srvprefs.pstypenames.insert(0,'Nessus.Server.Settings.Mobile')
-                    $srvprefs
+                    $NSession = $conn
                 }
-                
             }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Nessus.Server.Session")
+        {
+                $NSession = $Session
+        }
+        else {
+            throw "No Nessus.Server.Session was provided"
+        }
+
+        # Make sure we are admin since it is required for this command
+        if (!$NSession.SessionState.IsAdministrator)
+        {
+            throw "Session does not have Administrative privelages."
+        }
+
+
+        Try 
+        {
+            $ops.Add('token', $NSession.Token)
+            $request_reply = $NSession.SessionState.ExecuteCommand2("/mobile/settings/update", $ops)
+        }
+        Catch [Net.WebException] {
+           
+            write-verbose "The session has expired, Re-authenticating"
+            $reauth = $NSession.SessionManager.Login(
+                $NSession.SessionState.Username, 
+                $NSession.SessionState.Password, 
+                [ref]$true)
+            if ($reauth.reply.status -eq "OK"){
+                $ops['token'] = $NSession.Token
+                $request_reply = $NSession.SessionState.ExecuteCommand2("/mobile/settings/update", $ops)
+            }
+            else{
+                throw "Session expired could not Re-Authenticate"
+            }
+            
+        }
+    
+        # Check that we got the proper response
+        $reply = ConvertFrom-Json $request_reply
+        if ($reply.reply.status -eq "OK")
+        {
+            Write-Verbose -Message "We got an OK reply from the session."
         }
     }
 }
@@ -1500,10 +2256,12 @@ function Update-NessusUserPassword
         [Parameter(ParameterSetName = "Session")]
         [Management.Automation.PSCredential]$Credentials
      )
-    BEGIN {
+    BEGIN 
+    {
         
     }
-    PROCESS{
+    PROCESS
+    {
         
         # Process the session information
         if ($Index.Length -gt 0)
@@ -1526,20 +2284,30 @@ function Update-NessusUserPassword
             throw "The specified session does not exist"
         }
 
-        Try {
+        Try 
+        {
             $reply = $NSession.SessionManager.ChangeUserPassword($Credentials.GetNetworkCredential().UserName,
                                                             $Credentials.GetNetworkCredential().Password)
         }
-        Catch {
+        
+        Catch [Net.WebException]
+        {
             # Catch if it is that the session timedout
-            if ($Error[0].Exception -like "*403*Forbidden.") {
+            write-verbose "The session has expired, Re-authenticating"
+            $reauth = $NSession.SessionManager.Login(
+                $NSession.SessionState.Username, 
+                $NSession.SessionState.Password, 
+                [ref]$true)
+            if ($reauth.reply.status -eq "OK")
+            {
                 $reply = $NSession.SessionManager.ChangeUserPassword($Credentials.GetNetworkCredential().UserName,
                                                             $Credentials.GetNetworkCredential().Password)
             }
         }
 
         # We can get more than one reply when creating a user
-        if ($reply.count -gt 1){
+        if ($reply.count -gt 1)
+        {
             $request_reply = $reply[0]
         }
         else{
@@ -1564,3 +2332,4 @@ function Update-NessusUserPassword
         
     }
 }
+
