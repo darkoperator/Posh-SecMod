@@ -16,7 +16,20 @@ function Confirm-IsAdmin
 	   PS c:\> Confirm-IsAdmin
        True
 	#>
-    (whoami /all | Select-String S-1-16-12288) -ne $null
+    $sign = @"
+using System;
+using System.Runtime.InteropServices;
+public static class priv
+{
+    [DllImport("shell32.dll")]
+    public static extern bool IsUserAnAdmin();
+}
+
+"@
+
+    $adminasembly = Add-Type -TypeDefinition $sign -Language CSharp -PassThru
+
+    return [priv]::IsUserAnAdmin()
 }
 
 function Get-RegKeyLastWriteTime {            
