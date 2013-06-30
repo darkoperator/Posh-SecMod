@@ -320,3 +320,32 @@ function Update-SysinternalsTools
     {
     }
 }
+
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.NOTES
+    http://www.powershellmagazine.com/2013/06/27/pstip-get-a-list-of-all-com-objects-available/
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+
+function Get-ComObject {
+
+    param(
+        [Parameter(Position=0)]
+        [string]$Filter = "*"
+    )
+
+    $ListofObjects = Get-ChildItem HKLM:\Software\Classes -ErrorAction SilentlyContinue | Where-Object {
+        $_.PSChildName -match '^\w+\.\w+$' -and (Test-Path -Path "$($_.PSPath)\CLSID")
+    } | Select-Object -ExpandProperty PSChildName
+
+    $ListofObjects | Where-Object {$_ -like $Filter}
+}
+ 
