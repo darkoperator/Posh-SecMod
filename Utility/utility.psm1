@@ -324,15 +324,11 @@ function Update-SysinternalsTools
 
 <#
 .Synopsis
-   Short description
+   Gets a list of the COM Objects Available on the local system.
 .DESCRIPTION
-   Long description
+   Gets a list of the COM Objects Available on the local system.
 .NOTES
     http://www.powershellmagazine.com/2013/06/27/pstip-get-a-list-of-all-com-objects-available/
-.EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
 #>
 
 function Get-ComObject {
@@ -349,3 +345,62 @@ function Get-ComObject {
     $ListofObjects | Where-Object {$_ -like $Filter}
 }
  
+ <#
+ .Synopsis
+    Gets the current installed version and the latest version of Posh-SecMod.
+ .DESCRIPTION
+    Gets the current installed version and the latest version of Posh-SecMod.
+ .EXAMPLE
+     Get-PoshSecModVersion
+
+InstalledVersion                                                                                                     CurrentVersion                                                                                                      
+----------------                                                                                                     --------------                                                                                                      
+1.1                                                                                                                  1.1                                                                                                                 
+
+ #>
+ function Get-PoshSecModVersion
+ {
+     [CmdletBinding()]
+     [OutputType([pscustomobject])]
+     Param
+     ()
+ 
+     Begin
+     {
+        $currentversion = ""
+        $installed = Get-Module -Name "posh-secmod" -ListAvailable
+     }
+     Process
+     {
+        $webClient = New-Object System.Net.WebClient
+        Try
+        {
+            $current = Invoke-Expression  $webClient.DownloadString('https://raw.github.com/darkoperator/Posh-SecMod/master/Posh-SecMod.psd1')
+            $currentversion = $current.moduleversion
+        }
+        Catch
+        {
+            Write-Warning "Could not retrieve the current version."
+        }
+        $majorver,$minorver = $currentversion.split(".")
+
+        if ($majorver -gt $installed.Version.Major)
+        {
+            Write-Warning "You are running an outdated version of the module."
+        }
+        elseif ($minorver -gt $installed.Version.Minor)
+        {
+            Write-Warning "You are running an outdated version of the module."
+        } 
+        
+        $props = @{
+            InstalledVersion = $installed.Version.ToString()
+            CurrentVersion   = $currentversion
+        }
+        New-Object -TypeName psobject -Property $props
+     }
+     End
+     {
+          
+     }
+ }
