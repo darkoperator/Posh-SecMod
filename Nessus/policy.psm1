@@ -31,7 +31,7 @@
 #>
 function Show-NessusPolicy
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -143,7 +143,7 @@ function Show-NessusPolicy
 #>
 function Remove-NessusPolicy
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -298,7 +298,7 @@ function Remove-NessusPolicy
 #>
 function Get-NessusPolicyXML
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -376,7 +376,7 @@ function Get-NessusPolicyXML
 
 function Get-NessusPolicyPluginFamilies
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -460,7 +460,7 @@ function Get-NessusPolicyPluginFamilies
 
 function Publish-NessusPolicy
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -552,7 +552,7 @@ function Publish-NessusPolicy
 
 function Update-NessusPolicyGeneralSettings
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -670,7 +670,7 @@ function Update-NessusPolicyGeneralSettings
 
 function Update-NessusPolicyFamily
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -911,7 +911,7 @@ function Update-NessusPolicyFamily
 
 function New-NessusPolicy
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -1039,7 +1039,7 @@ function New-NessusPolicy
 #>
 function Copy-NessusPolicy
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -1138,7 +1138,7 @@ function Copy-NessusPolicy
 #>
 function Set-NessusPolicyWindowsCredential
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -1302,7 +1302,7 @@ function Set-NessusPolicyWindowsCredential
 
 function Set-NessusPolicySSHCredential
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,

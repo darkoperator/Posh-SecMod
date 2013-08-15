@@ -35,7 +35,6 @@
     ServerHost       : 192.168.10.3
 
 #>
-
 function New-NessusSession
 {
     [CmdletBinding()]
@@ -212,10 +211,9 @@ function New-NessusSession
    PS C:\> Remove-NessusSession -Index 0
 
 #>
-
 function Remove-NessusSession
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
         # Nessus session index
@@ -307,10 +305,9 @@ function Remove-NessusSession
     ServerHost       : 192.168.10.3
 
 #>
-
 function Get-NessusSession
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
         # Nessus session index.
@@ -367,10 +364,9 @@ function Get-NessusSession
     ServerHost       : 192.168.10.3
 
 #>
-
 function Get-NessusServerFeedInfo 
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
         # Nessus session index
@@ -479,10 +475,10 @@ function Get-NessusServerFeedInfo
     TCPSessionCount : 0
     LoadAverage     : 0.00
 #>
-   
+  
 function Get-NessusServerLoad 
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
         # Nessus session index
@@ -589,7 +585,7 @@ function Get-NessusServerLoad
 #>
 function Start-NessusServerFeedUpdate
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         # Nessus session index
         [Parameter(Mandatory=$true,
@@ -731,7 +727,7 @@ function Start-NessusServerFeedUpdate
 #>
 function Get-NessusServerAdvancedSettings
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
         # Nessus server session index.
@@ -839,7 +835,7 @@ function Get-NessusServerAdvancedSettings
 #>
 function Get-NessusServerWebProxySettings
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index")]
@@ -934,7 +930,7 @@ function Get-NessusServerWebProxySettings
 
 function Get-NessusServerSMTPSettings
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index")]
@@ -1044,7 +1040,7 @@ function Get-NessusServerSMTPSettings
 
 function Set-NessusServerSMTPSettingss
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index")]
@@ -1222,7 +1218,7 @@ function Set-NessusServerSMTPSettingss
 
 function Set-NessusServerWebProxySettingss
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index")]
@@ -1374,7 +1370,7 @@ function Set-NessusServerWebProxySettingss
 #>
 function Get-NessusServerMobileSettings
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index")]
@@ -1569,7 +1565,7 @@ function Get-NessusServerMobileSettings
 
 function Set-NessusServerADSISettings
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index")]
@@ -1686,7 +1682,7 @@ function Set-NessusServerADSISettings
 
 function Set-NessusServerAppleSettings
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index")]
@@ -1882,7 +1878,7 @@ function Set-NessusServerAppleSettings
 #>
 function Get-NessusUsers 
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -2005,7 +2001,7 @@ function Get-NessusUsers
 #>
 function New-NessusUser
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index")]
@@ -2129,7 +2125,7 @@ function New-NessusUser
 #>
 function Remove-NessusUser
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -2238,7 +2234,7 @@ function Remove-NessusUser
 
 function Update-NessusUserPassword
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index")]

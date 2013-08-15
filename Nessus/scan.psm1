@@ -23,7 +23,7 @@
 
 function Show-NessusScans
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -149,7 +149,7 @@ function Show-NessusScans
 
 function Invoke-NessusScan
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         # Nessus Session Index
         [Parameter(Mandatory=$true,
@@ -278,7 +278,7 @@ function Invoke-NessusScan
 
 function Stop-NessusScan
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -391,7 +391,7 @@ function Stop-NessusScan
 
 function Resume-NessusScan
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -501,10 +501,9 @@ function Resume-NessusScan
     Status   : paused
     Date     : 4/11/2013 4:19:01 AM
 #>
-
 function Suspend-NessusScan
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -620,10 +619,9 @@ function Suspend-NessusScan
     Owner      : carlos
     Targets    : 192.168.10.1-192.168.10.254
 #>
-
 function Show-NessusScanTemplate
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -746,10 +744,9 @@ function Show-NessusScanTemplate
     Date     : 4/11/2013 6:32:39 AM
 
 #>
-
 function Invoke-NessusScanTemplate
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -863,10 +860,9 @@ function Invoke-NessusScanTemplate
     Owner      : carlos
     Targets    : 192.168.10.1-192.168.10.254
 #>
-
 function New-NessusScanTemplate
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -971,10 +967,9 @@ function New-NessusScanTemplate
     PS C:\> Remove-NessusScanTemplate -Index 0 -TemplateID template-7e833a7b-ddc7-78a2-8e8c-a9e1105f4fa720181ca11c9ad9be
     True
 #>
-
 function Remove-NessusScanTemplate
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -1088,10 +1083,9 @@ function Remove-NessusScanTemplate
     Owner      : carlos
     Targets    : 192.168.10.1-192.168.10.254;192.168.1.1-192.168.1.254
 #>
-
 function Update-NessusScanTemplate
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
