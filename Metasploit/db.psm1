@@ -29,9 +29,9 @@ function Get-MetasploitDBHost
         [psobject]$Session,
 
         # Metasploit session object
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory=$false,
         ParameterSetName = "Session")]
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory=$false,
         ParameterSetName = "Index")]
         [switch]$OnlyUp,
 
@@ -2461,6 +2461,162 @@ function Set-MetasploitDBWorkspace
                     
                     # Get again the Optios
                     $request_reply = $sessionobj.Session.Execute('db.set_workspace', $Workspace)
+                    if ($request_reply.ContainsKey('result'))
+                    {
+                        $request_reply.add('MSHost', $MSession.Host)
+                        $connectobj = New-Object -TypeName psobject -Property $request_reply
+                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj 
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ($request_reply.ContainsKey('result'))
+            {
+                $request_reply.add('MSHost', $MSession.Host)
+                $connectobj = New-Object -TypeName psobject -Property $request_reply
+                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj 
+            }
+        }
+    }
+}
+
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Import-MetasploitDBData
+{
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
+    param(
+
+        # Metasploit session index
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index",
+        Position=0)]
+        [int32[]]$Index = @(),
+
+        # Metasploit session object
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$true,
+        Position=0)]
+        [psobject]$Session,
+
+         # Workspace to execute query against
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session")]
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Index")]
+        [string]$Workspace,
+
+        # File with data to import
+        [Parameter(Mandatory=$true,
+        ValueFromPipelineByPropertyName=$true,
+        Position=1)]
+        [ValidateScript({Test-Path $_})]
+        [string]$File
+
+       
+    )
+    BEGIN 
+    {
+        
+        
+    }
+    PROCESS 
+    {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:MetasploitConn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $MSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        {
+            if ($Global:MetasploitConn.Contains($Session))
+            {
+                $MSession = $Session
+            }
+            else
+            {
+                throw "The session object that was passed does not exists in `$Global:MetasploitConn"
+            }
+        }
+        else 
+        {
+            throw "No Metasploit server session was provided"
+        }
+
+        if ($MSession -eq $null)
+        {
+            throw "Specified session was not found"
+        }
+
+        Write-Verbose "Reading file $($File)"
+        $Data = Get-Content -Raw $File
+
+        # Parse connection options
+        $dbops = New-Object 'system.collections.generic.dictionary[string,object]'       
+        $dbops.Add('data',$Data)
+ 
+
+        $request_reply = $MSession.Session.Execute("db.import_data", $dbops)
+
+        if ($request_reply.ContainsKey("error_code"))
+        {
+            Write-Verbose "An error was reported with code $($request_reply.error_code)"
+            if ($request_reply.error_code -eq 401)
+            {
+                write-verbose "The session has expired, Re-authenticating"
+
+                $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
+                $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
+                $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
+                if ($msfsess)
+                {
+                    Write-Verbose "Authentication successful."
+                    # Select the correct session manager for the existing session
+                    if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitManager -ArgumentList $msfsess
+                    }
+                    else
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitProManager -ArgumentList $msfsess
+                    }
+
+                    # Build the session object
+                    $SessionProps.Add('Manager',$msfmng)
+                    $SessionProps.Add('URI',$MSession.URI)
+                    $SessionProps.add('Host',$MSession.host)
+                    $SessionProps.add('Session',$msfsess)
+                    $SessionProps.Add('Credentials',$MSession.Credentials)
+                    $SessionProps.Add('Index', $MSession.index)
+                    $sessionobj = New-Object -TypeName psobject -Property $SessionProps
+                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+
+                    # Update the session with the new information
+                    Write-Verbose "Updating session with new authentication token"
+                    [void]$Global:MetasploitConn.Remove($MSession)
+                    [void]$Global:MetasploitConn.Add($sessionobj)
+                    
+                    # Get again the Optios
+                    $request_reply = $sessionobj.Session.Execute("db.import_data", $dbops)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)

@@ -29,7 +29,6 @@
     --------                     ----------                   -----------                  ----------                  
     1                            Mobile Devices Audit         carlos                       private     
 #>
-
 function Show-NessusPolicy
 {
     [CmdletBinding()]
@@ -142,7 +141,6 @@ function Show-NessusPolicy
     PS C:\> Remove-NessusPolicy -Index 0 -PolicyID 0 -Verbose
     VERBOSE: Policy with ID 0 was successfully removed
 #>
-
 function Remove-NessusPolicy
 {
     [CmdletBinding()]
@@ -298,7 +296,6 @@ function Remove-NessusPolicy
     Scientific Linux Local Security Checks                    disabled                                                 
     AIX Local Security Checks                                 disabled                                                 
 #>
-
 function Get-NessusPolicyXML
 {
     [CmdletBinding()]
@@ -1040,7 +1037,6 @@ function New-NessusPolicy
 
     Creates a copy of a policy.
 #>
-
 function Copy-NessusPolicy
 {
     [CmdletBinding()]

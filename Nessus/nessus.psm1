@@ -587,7 +587,6 @@ function Get-NessusServerLoad
 
    PS C:\> Start-NessusServerFeedUpdate -Index 0 -Verbose
 #>
-
 function Start-NessusServerFeedUpdate
 {
     [CmdletBinding()]
@@ -730,7 +729,6 @@ function Start-NessusServerFeedUpdate
     xmlrpc_idle_session_timeout      : 30
     xmlrpc_listen_port               : 8834
 #>
-
 function Get-NessusServerAdvancedSettings
 {
     [CmdletBinding()]
@@ -839,7 +837,6 @@ function Get-NessusServerAdvancedSettings
     user_agent     : 
     custom_host    : 
 #>
-
 function Get-NessusServerWebProxySettings
 {
     [CmdletBinding()]
@@ -933,6 +930,7 @@ function Get-NessusServerWebProxySettings
         }
     }
 }
+
 
 function Get-NessusServerSMTPSettings
 {
@@ -1042,6 +1040,7 @@ function Get-NessusServerSMTPSettings
         }
     }
 }
+
 
 function Set-NessusServerSMTPSettingss
 {
@@ -1220,6 +1219,7 @@ function Set-NessusServerSMTPSettingss
     }
 }
 
+
 function Set-NessusServerWebProxySettingss
 {
     [CmdletBinding()]
@@ -1359,6 +1359,7 @@ function Set-NessusServerWebProxySettingss
     }
 }
 
+
 <#
 .Synopsis
    Gets a Nessus Server local or remote session Mobile configuration settings
@@ -1371,7 +1372,6 @@ function Set-NessusServerWebProxySettingss
 .EXAMPLE
   
 #>
-
 function Get-NessusServerMobileSettings
 {
     [CmdletBinding()]
@@ -1683,6 +1683,7 @@ function Set-NessusServerADSISettings
     }
 }
 
+
 function Set-NessusServerAppleSettings
 {
     [CmdletBinding()]
@@ -1879,7 +1880,6 @@ function Set-NessusServerAppleSettings
     Session     : Nessus.Server.Session
 
 #>
-
 function Get-NessusUsers 
 {
     [CmdletBinding()]
@@ -2003,7 +2003,6 @@ function Get-NessusUsers
     LastLogging : 1/1/0001 12:00:00 AM
     Session     : Nessus.Server.Session
 #>
-
 function New-NessusUser
 {
     [CmdletBinding()]
@@ -2128,7 +2127,6 @@ function New-NessusUser
     LastLogging : 12/31/1969 8:00:00 PM
     Session     : Nessus.Server.Session
 #>
-
 function Remove-NessusUser
 {
     [CmdletBinding()]
