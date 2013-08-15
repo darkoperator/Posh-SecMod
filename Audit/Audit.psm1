@@ -132,7 +132,7 @@ function Get-AuditDSComputerAccount
             $CompProps.Add('IPAddress',[System.Net.Dns]::GetHostAddresses("$($_.properties.dnshostname)"))
 
             [pscustomobject]$CompProps
-            }
+         }
         
     }
 
