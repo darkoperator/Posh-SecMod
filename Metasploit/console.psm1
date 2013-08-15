@@ -119,6 +119,10 @@ function Get-MetasploitConsole
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -251,6 +255,10 @@ function New-MetasploitConsole
                         $consoleobj   
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -390,6 +398,10 @@ function Remove-MetasploitConsole
                         $pluginobj
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -541,6 +553,10 @@ function Write-MetasploitConsole
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -680,6 +696,10 @@ function Read-MetasploitConsole
                         $writeobj
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else

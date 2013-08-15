@@ -157,6 +157,10 @@ function Get-MetasploitDBHost
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -382,6 +386,10 @@ function Get-MetasploitDBServcie
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -599,6 +607,10 @@ function Get-MetasploitDBVuln
                         }
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -832,6 +844,10 @@ function Get-MetasploitDBNote
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -997,6 +1013,10 @@ function Get-MetasploitDBEvent
                         }
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -1164,6 +1184,10 @@ function Get-MetasploitDBCred
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -1329,6 +1353,10 @@ function Get-MetasploitDBLoot
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -1469,6 +1497,10 @@ function Get-MetasploitDBStatus
                         
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -1645,6 +1677,10 @@ function Connect-MetasploitDB
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -1775,6 +1811,10 @@ function Disconnect-MetasploitDB
                         $connectobj 
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -1912,6 +1952,10 @@ function Get-MetasploitDBWorspace
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -2047,6 +2091,10 @@ function Get-MetasploitDBCurrentWorspace
                         $wsobj 
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -2187,6 +2235,10 @@ function New-MetasploitDBWorkspace
                         $connectobj 
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -2329,6 +2381,10 @@ function Remove-MetasploitDBWorkspace
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -2469,6 +2525,10 @@ function Set-MetasploitDBWorkspace
                         $connectobj 
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -2625,6 +2685,10 @@ function Import-MetasploitDBData
                         $connectobj 
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else

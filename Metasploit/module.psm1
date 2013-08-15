@@ -119,6 +119,10 @@ function Get-MetasploitModuleStats
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -249,6 +253,10 @@ function Invoke-MetasploitModuleReload
                         $consoleobj   
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -384,6 +392,10 @@ function Get-MetasploitAuxiliaryModule
                         }   
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -526,6 +538,10 @@ function Get-MetasploitPostModule
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -667,6 +683,10 @@ function Get-MetasploitExploitModule
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -807,6 +827,10 @@ function Get-MetasploitPayloadModule
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -946,6 +970,10 @@ function Get-MetasploitNOPS
                         }   
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -1104,6 +1132,10 @@ function Get-MetasploitModuleInfo
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -1249,6 +1281,10 @@ function Get-MetasploitExploitCompatiblePayloads
                         }  
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -1408,6 +1444,10 @@ function Get-MetasploitModuleOptions
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -1551,6 +1591,10 @@ function Get-MetasploitPostCompatiblePayloads
                         }  
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
@@ -1724,6 +1768,10 @@ function Invoke-MetasploitModule
                         $consoleobj 
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else

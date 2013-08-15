@@ -138,6 +138,10 @@ function Set-MetasploitGlobalVariable
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -278,6 +282,10 @@ function Remove-MetasploitGlobalVariable
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -408,6 +416,10 @@ function Save-MetasploitConfig
                         $consoleobj   
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else

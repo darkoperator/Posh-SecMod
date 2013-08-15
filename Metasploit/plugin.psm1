@@ -122,6 +122,10 @@ function Get-MetasploitLoadedPlugin
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -276,6 +280,10 @@ function Register-MetasploitPlugin
                     }
                 }
             }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
+            }
         }
         else
         {
@@ -416,6 +424,10 @@ function UnRegister-MetasploitPlugin
                         $pluginobj
                     }
                 }
+            }
+            else
+            {
+                Write-Error -Message "$($request_reply.error_message)"
             }
         }
         else
