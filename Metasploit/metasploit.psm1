@@ -1,7 +1,4 @@
-﻿#[void][System.Reflection.Assembly]::LoadFile('C:\Users\Carlos\Documents\metasploit-sharp\metasploit-sharp\bin\Release\metasploit-sharp.dll')
-#[void][System.Reflection.Assembly]::LoadFile('C:\Users\Carlos\Documents\msgpack\bin\net40-client\MsgPack.dll')
-
-if (!(Test-Path variable:Global:MetasploitConn ))
+﻿if (!(Test-Path variable:Global:MetasploitConn ))
 {
     $Global:MetasploitConn = New-Object System.Collections.ArrayList
 }

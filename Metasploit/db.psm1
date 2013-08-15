@@ -1345,3 +1345,1141 @@ function Get-MetasploitDBLoot
         }
     }
 }
+
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Get-MetasploitDBStatus
+{
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
+    param(
+
+        # Metasploit session index
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index",
+        Position=0)]
+        [int32[]]$Index = @(),
+
+        # Metasploit session object
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$true,
+        Position=0)]
+        [psobject]$Session
+    )
+    BEGIN 
+    {
+        
+        
+    }
+    PROCESS 
+    {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:MetasploitConn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $MSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        {
+            if ($Global:MetasploitConn.Contains($Session))
+            {
+                $MSession = $Session
+            }
+            else
+            {
+                throw "The session object that was passed does not exists in `$Global:MetasploitConn"
+            }
+        }
+        else 
+        {
+            throw "No Metasploit server session was provided"
+        }
+
+        if ($MSession -eq $null)
+        {
+            throw "Specified session was not found"
+        }
+
+        $request_reply = $MSession.Session.Execute("db.status")
+
+        if ($request_reply.ContainsKey("error_code"))
+        {
+            Write-Verbose "An error was reported with code $($request_reply.error_code)"
+            if ($request_reply.error_code -eq 401)
+            {
+                write-verbose "The session has expired, Re-authenticating"
+
+                $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
+                $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
+                $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
+                if ($msfsess)
+                {
+                    Write-Verbose "Authentication successful."
+                    # Select the correct session manager for the existing session
+                    if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitManager -ArgumentList $msfsess
+                    }
+                    else
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitProManager -ArgumentList $msfsess
+                    }
+
+                    # Build the session object
+                    $SessionProps.Add('Manager',$msfmng)
+                    $SessionProps.Add('URI',$MSession.URI)
+                    $SessionProps.add('Host',$MSession.host)
+                    $SessionProps.add('Session',$msfsess)
+                    $SessionProps.Add('Credentials',$MSession.Credentials)
+                    $SessionProps.Add('Index', $MSession.index)
+                    $sessionobj = New-Object -TypeName psobject -Property $SessionProps
+                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+
+                    # Update the session with the new information
+                    Write-Verbose "Updating session with new authentication token"
+                    [void]$Global:MetasploitConn.Remove($MSession)
+                    [void]$Global:MetasploitConn.Add($sessionobj)
+                    
+                    # Get again the Optios
+                    $request_reply = $sessionobj.Session.Execute("db.status")
+                    if ($request_reply.ContainsKey('driver'))
+                    {
+                        
+                        $request_reply.add('MSHost', $MSession.Host)
+                        if (!($request_reply.ContainsKey('db')))
+                        {
+                            $request_reply.add('db', "")
+                        }
+                        $dbstatobj = New-Object -TypeName psobject -Property $request_reply
+                        $dbstatobj.pstypenames[0] = "Metasploit.DBStatus"
+                        $dbstatobj 
+                        
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ($request_reply.ContainsKey('driver'))
+            {
+                        
+                $request_reply.add('MSHost', $MSession.Host)
+                if (!($request_reply.ContainsKey('db')))
+                {
+                    $request_reply.add('db', "")
+                }
+                $dbstatobj = New-Object -TypeName psobject -Property $request_reply
+                $dbstatobj.pstypenames[0] = "Metasploit.DBStatus"
+                $dbstatobj 
+                        
+            }
+        }
+    }
+}
+
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Connect-MetasploitDB
+{
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
+    param(
+
+        # Metasploit session index
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index",
+        Position=0)]
+        [int32[]]$Index = @(),
+
+        # Metasploit session object
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$true,
+        Position=0)]
+        [psobject]$Session,
+
+        # DB Port
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Session")]
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Index")]
+        [int]$Port = 5432,
+
+        # Database Host
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session")]
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index")]
+        [string]$DBHost,
+
+        # Database name
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session")]
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index")]
+        [string]$DatabaseName,
+
+        # Credentials for connecting to the Database
+        [Parameter(Mandatory=$true)]
+        [Management.Automation.PSCredential]$Credentials
+
+       
+    )
+    BEGIN 
+    {
+        
+        
+    }
+    PROCESS 
+    {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:MetasploitConn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $MSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        {
+            if ($Global:MetasploitConn.Contains($Session))
+            {
+                $MSession = $Session
+            }
+            else
+            {
+                throw "The session object that was passed does not exists in `$Global:MetasploitConn"
+            }
+        }
+        else 
+        {
+            throw "No Metasploit server session was provided"
+        }
+
+        if ($MSession -eq $null)
+        {
+            throw "Specified session was not found"
+        }
+
+        # Parse connection options
+        $dbops = New-Object 'system.collections.generic.dictionary[string,object]'
+        
+        $dbops.Add('database',$DatabaseName)
+        $dbops.Add('host', $DBHost)
+        $dbops.Add('adapter','postgresql')
+        $dbops.Add('username',$Credentials.GetNetworkCredential().UserName)
+        $dbops.Add('password',$Credentials.GetNetworkCredential().Password)
+        $dbops.Add('port',$Port)
+
+        $request_reply = $MSession.Session.Execute("db.connect", $dbops)
+
+        if ($request_reply.ContainsKey("error_code"))
+        {
+            Write-Verbose "An error was reported with code $($request_reply.error_code)"
+            if ($request_reply.error_code -eq 401)
+            {
+                write-verbose "The session has expired, Re-authenticating"
+
+                $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
+                $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
+                $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
+                if ($msfsess)
+                {
+                    Write-Verbose "Authentication successful."
+                    # Select the correct session manager for the existing session
+                    if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitManager -ArgumentList $msfsess
+                    }
+                    else
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitProManager -ArgumentList $msfsess
+                    }
+
+                    # Build the session object
+                    $SessionProps.Add('Manager',$msfmng)
+                    $SessionProps.Add('URI',$MSession.URI)
+                    $SessionProps.add('Host',$MSession.host)
+                    $SessionProps.add('Session',$msfsess)
+                    $SessionProps.Add('Credentials',$MSession.Credentials)
+                    $SessionProps.Add('Index', $MSession.index)
+                    $sessionobj = New-Object -TypeName psobject -Property $SessionProps
+                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+
+                    # Update the session with the new information
+                    Write-Verbose "Updating session with new authentication token"
+                    [void]$Global:MetasploitConn.Remove($MSession)
+                    [void]$Global:MetasploitConn.Add($sessionobj)
+                    
+                    # Get again the Optios
+                    $request_reply = $sessionobj.Session.Execute("db.connect", $dbops)
+                    if ($request_reply.ContainsKey('result'))
+                    {
+                        $request_reply.add('MSHost', $MSession.Host)
+                        $connectobj = New-Object -TypeName psobject -Property $request_reply
+                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj 
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ($request_reply.ContainsKey('result'))
+            {
+                $request_reply.add('MSHost', $MSession.Host)
+                $connectobj = New-Object -TypeName psobject -Property $request_reply
+                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj 
+            }
+        }
+    }
+}
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Disconnect-MetasploitDB
+{
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
+    param(
+
+        # Metasploit session index
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index",
+        Position=0)]
+        [int32[]]$Index = @(),
+
+        # Metasploit session object
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$true,
+        Position=0)]
+        [psobject]$Session
+    )
+    BEGIN 
+    {
+        
+        
+    }
+    PROCESS 
+    {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:MetasploitConn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $MSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        {
+            if ($Global:MetasploitConn.Contains($Session))
+            {
+                $MSession = $Session
+            }
+            else
+            {
+                throw "The session object that was passed does not exists in `$Global:MetasploitConn"
+            }
+        }
+        else 
+        {
+            throw "No Metasploit server session was provided"
+        }
+
+        if ($MSession -eq $null)
+        {
+            throw "Specified session was not found"
+        }
+
+        $request_reply = $MSession.Session.Execute("db.disconnect")
+
+        if ($request_reply.ContainsKey("error_code"))
+        {
+            Write-Verbose "An error was reported with code $($request_reply.error_code)"
+            if ($request_reply.error_code -eq 401)
+            {
+                write-verbose "The session has expired, Re-authenticating"
+
+                $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
+                $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
+                $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
+                if ($msfsess)
+                {
+                    Write-Verbose "Authentication successful."
+                    # Select the correct session manager for the existing session
+                    if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitManager -ArgumentList $msfsess
+                    }
+                    else
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitProManager -ArgumentList $msfsess
+                    }
+
+                    # Build the session object
+                    $SessionProps.Add('Manager',$msfmng)
+                    $SessionProps.Add('URI',$MSession.URI)
+                    $SessionProps.add('Host',$MSession.host)
+                    $SessionProps.add('Session',$msfsess)
+                    $SessionProps.Add('Credentials',$MSession.Credentials)
+                    $SessionProps.Add('Index', $MSession.index)
+                    $sessionobj = New-Object -TypeName psobject -Property $SessionProps
+                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+
+                    # Update the session with the new information
+                    Write-Verbose "Updating session with new authentication token"
+                    [void]$Global:MetasploitConn.Remove($MSession)
+                    [void]$Global:MetasploitConn.Add($sessionobj)
+                    
+                    # Get again the Optios
+                    $request_reply = $sessionobj.Session.Execute("db.disconnect", $dbops)
+                    if ($request_reply.ContainsKey('result'))
+                    {
+                        $request_reply.add('MSHost', $MSession.Host)
+                        $connectobj = New-Object -TypeName psobject -Property $request_reply
+                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj 
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ($request_reply.ContainsKey('result'))
+            {
+                $request_reply.add('MSHost', $MSession.Host)
+                $connectobj = New-Object -TypeName psobject -Property $request_reply
+                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj 
+            }
+        }
+    }
+}
+
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Get-MetasploitDBWorspace
+{
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
+    param(
+
+        # Metasploit session index
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index",
+        Position=0)]
+        [int32[]]$Index = @(),
+
+        # Metasploit session object
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$true,
+        Position=0)]
+        [psobject]$Session
+       
+    )
+    BEGIN 
+    {
+        
+        
+    }
+    PROCESS 
+    {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:MetasploitConn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $MSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        {
+            if ($Global:MetasploitConn.Contains($Session))
+            {
+                $MSession = $Session
+            }
+            else
+            {
+                throw "The session object that was passed does not exists in `$Global:MetasploitConn"
+            }
+        }
+        else 
+        {
+            throw "No Metasploit server session was provided"
+        }
+
+        if ($MSession -eq $null)
+        {
+            throw "Specified session was not found"
+        }
+
+        $request_reply = $MSession.Session.Execute("db.workspaces")
+
+        if ($request_reply.ContainsKey("error_code"))
+        {
+            Write-Verbose "An error was reported with code $($request_reply.error_code)"
+            if ($request_reply.error_code -eq 401)
+            {
+                write-verbose "The session has expired, Re-authenticating"
+
+                $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
+                $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
+                $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
+                if ($msfsess)
+                {
+                    Write-Verbose "Authentication successful."
+                    # Select the correct session manager for the existing session
+                    if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitManager -ArgumentList $msfsess
+                    }
+                    else
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitProManager -ArgumentList $msfsess
+                    }
+
+                    # Build the session object
+                    $SessionProps.Add('Manager',$msfmng)
+                    $SessionProps.Add('URI',$MSession.URI)
+                    $SessionProps.add('Host',$MSession.host)
+                    $SessionProps.add('Session',$msfsess)
+                    $SessionProps.Add('Credentials',$MSession.Credentials)
+                    $SessionProps.Add('Index', $MSession.index)
+                    $sessionobj = New-Object -TypeName psobject -Property $SessionProps
+                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+
+                    # Update the session with the new information
+                    Write-Verbose "Updating session with new authentication token"
+                    [void]$Global:MetasploitConn.Remove($MSession)
+                    [void]$Global:MetasploitConn.Add($sessionobj)
+                    
+                    # Get again the Optios
+                    $request_reply = $sessionobj.Session.Execute("db.workspaces")
+                    if ($request_reply.ContainsKey('workspaces'))
+                    {
+                        foreach ($workspace in $request_reply['workspaces'])
+                        {
+                            $workspace.add('MSHost', $MSession.Host)
+                            $wsobj = New-Object -TypeName psobject -Property $workspace
+                            $wsobj.pstypenames[0] = "Metasploit.Workspace"
+                            $wsobj 
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ($request_reply.ContainsKey('workspaces'))
+            {
+                foreach ($workspace in $request_reply['workspaces'])
+                {
+                    $workspace.add('MSHost', $MSession.Host)
+                    $wsobj = New-Object -TypeName psobject -Property $workspace
+                    $wsobj.pstypenames[0] = "Metasploit.Workspace"
+                    $wsobj 
+                }
+            }
+        }
+    }
+}
+
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Get-MetasploitDBCurrentWorspace
+{
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
+    param(
+
+        # Metasploit session index
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index",
+        Position=0)]
+        [int32[]]$Index = @(),
+
+        # Metasploit session object
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$true,
+        Position=0)]
+        [psobject]$Session
+       
+    )
+    BEGIN 
+    {
+        
+        
+    }
+    PROCESS 
+    {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:MetasploitConn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $MSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        {
+            if ($Global:MetasploitConn.Contains($Session))
+            {
+                $MSession = $Session
+            }
+            else
+            {
+                throw "The session object that was passed does not exists in `$Global:MetasploitConn"
+            }
+        }
+        else 
+        {
+            throw "No Metasploit server session was provided"
+        }
+
+        if ($MSession -eq $null)
+        {
+            throw "Specified session was not found"
+        }
+
+        $request_reply = $MSession.Session.Execute("db.current_workspace")
+
+        if ($request_reply.ContainsKey("error_code"))
+        {
+            Write-Verbose "An error was reported with code $($request_reply.error_code)"
+            if ($request_reply.error_code -eq 401)
+            {
+                write-verbose "The session has expired, Re-authenticating"
+
+                $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
+                $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
+                $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
+                if ($msfsess)
+                {
+                    Write-Verbose "Authentication successful."
+                    # Select the correct session manager for the existing session
+                    if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitManager -ArgumentList $msfsess
+                    }
+                    else
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitProManager -ArgumentList $msfsess
+                    }
+
+                    # Build the session object
+                    $SessionProps.Add('Manager',$msfmng)
+                    $SessionProps.Add('URI',$MSession.URI)
+                    $SessionProps.add('Host',$MSession.host)
+                    $SessionProps.add('Session',$msfsess)
+                    $SessionProps.Add('Credentials',$MSession.Credentials)
+                    $SessionProps.Add('Index', $MSession.index)
+                    $sessionobj = New-Object -TypeName psobject -Property $SessionProps
+                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+
+                    # Update the session with the new information
+                    Write-Verbose "Updating session with new authentication token"
+                    [void]$Global:MetasploitConn.Remove($MSession)
+                    [void]$Global:MetasploitConn.Add($sessionobj)
+                    
+                    # Get again the Optios
+                    $request_reply = $sessionobj.Session.Execute("db.current_workspace")
+                    if ($request_reply.ContainsKey('workspace'))
+                    {
+                        $request_reply.add('MSHost', $MSession.Host)
+                        $wsobj = New-Object -TypeName psobject -Property $request_reply
+                        $wsobj.pstypenames[0] = "Metasploit.Workspace"
+                        $wsobj 
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ($request_reply.ContainsKey('workspace'))
+            {
+                $request_reply.add('MSHost', $MSession.Host)
+                $wsobj = New-Object -TypeName psobject -Property $request_reply
+                $wsobj.pstypenames[0] = "Metasploit.Workspace"
+                $wsobj 
+            }
+        }
+    }
+}
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function New-MetasploitDBWorkspace
+{
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
+    param(
+
+        # Metasploit session index
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index",
+        Position=0)]
+        [int32[]]$Index = @(),
+
+        # Metasploit session object
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$true,
+        Position=0)]
+        [psobject]$Session,
+
+        # Workspace name
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        Position=0)]
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index",
+        Position=0)]
+        [string]$Workspace
+    )
+    BEGIN 
+    {
+        
+        
+    }
+    PROCESS 
+    {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:MetasploitConn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $MSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        {
+            if ($Global:MetasploitConn.Contains($Session))
+            {
+                $MSession = $Session
+            }
+            else
+            {
+                throw "The session object that was passed does not exists in `$Global:MetasploitConn"
+            }
+        }
+        else 
+        {
+            throw "No Metasploit server session was provided"
+        }
+
+        if ($MSession -eq $null)
+        {
+            throw "Specified session was not found"
+        }
+
+        $request_reply = $MSession.Session.Execute('db.add_workspace', $Workspace)
+
+        if ($request_reply.ContainsKey("error_code"))
+        {
+            Write-Verbose "An error was reported with code $($request_reply.error_code)"
+            if ($request_reply.error_code -eq 401)
+            {
+                write-verbose "The session has expired, Re-authenticating"
+
+                $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
+                $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
+                $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
+                if ($msfsess)
+                {
+                    Write-Verbose "Authentication successful."
+                    # Select the correct session manager for the existing session
+                    if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitManager -ArgumentList $msfsess
+                    }
+                    else
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitProManager -ArgumentList $msfsess
+                    }
+
+                    # Build the session object
+                    $SessionProps.Add('Manager',$msfmng)
+                    $SessionProps.Add('URI',$MSession.URI)
+                    $SessionProps.add('Host',$MSession.host)
+                    $SessionProps.add('Session',$msfsess)
+                    $SessionProps.Add('Credentials',$MSession.Credentials)
+                    $SessionProps.Add('Index', $MSession.index)
+                    $sessionobj = New-Object -TypeName psobject -Property $SessionProps
+                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+
+                    # Update the session with the new information
+                    Write-Verbose "Updating session with new authentication token"
+                    [void]$Global:MetasploitConn.Remove($MSession)
+                    [void]$Global:MetasploitConn.Add($sessionobj)
+                    
+                    # Get again the Optios
+                    $request_reply = $sessionobj.Session.Execute('db.add_workspace', $Workspace)
+                    if ($request_reply.ContainsKey('result'))
+                    {
+                        $request_reply.add('MSHost', $MSession.Host)
+                        $connectobj = New-Object -TypeName psobject -Property $request_reply
+                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj 
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ($request_reply.ContainsKey('result'))
+            {
+                $request_reply.add('MSHost', $MSession.Host)
+                $connectobj = New-Object -TypeName psobject -Property $request_reply
+                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj 
+            }
+        }
+    }
+}
+
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Remove-MetasploitDBWorkspace
+{
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
+    param(
+
+        # Metasploit session index
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index",
+        Position=0)]
+        [int32[]]$Index = @(),
+
+        # Metasploit session object
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$true,
+        Position=0)]
+        [psobject]$Session,
+
+        # Workspace name
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        Position=0)]
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index",
+        Position=0)]
+        [string]$Workspace
+    )
+    BEGIN 
+    {
+        
+        
+    }
+    PROCESS 
+    {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:MetasploitConn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $MSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        {
+            if ($Global:MetasploitConn.Contains($Session))
+            {
+                $MSession = $Session
+            }
+            else
+            {
+                throw "The session object that was passed does not exists in `$Global:MetasploitConn"
+            }
+        }
+        else 
+        {
+            throw "No Metasploit server session was provided"
+        }
+
+        if ($MSession -eq $null)
+        {
+            throw "Specified session was not found"
+        }
+
+        $request_reply = $MSession.Session.Execute('db.del_workspace', $Workspace)
+
+        if ($request_reply.ContainsKey("error_code"))
+        {
+            Write-Verbose "An error was reported with code $($request_reply.error_code)"
+            if ($request_reply.error_code -eq 401)
+            {
+                write-verbose "The session has expired, Re-authenticating"
+
+                $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
+                $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
+                $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
+                if ($msfsess)
+                {
+                    Write-Verbose "Authentication successful."
+                    # Select the correct session manager for the existing session
+                    if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitManager -ArgumentList $msfsess
+                    }
+                    else
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitProManager -ArgumentList $msfsess
+                    }
+
+                    # Build the session object
+                    $SessionProps.Add('Manager',$msfmng)
+                    $SessionProps.Add('URI',$MSession.URI)
+                    $SessionProps.add('Host',$MSession.host)
+                    $SessionProps.add('Session',$msfsess)
+                    $SessionProps.Add('Credentials',$MSession.Credentials)
+                    $SessionProps.Add('Index', $MSession.index)
+                    $sessionobj = New-Object -TypeName psobject -Property $SessionProps
+                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+
+                    # Update the session with the new information
+                    Write-Verbose "Updating session with new authentication token"
+                    [void]$Global:MetasploitConn.Remove($MSession)
+                    [void]$Global:MetasploitConn.Add($sessionobj)
+                    
+                    # Get again the Optios
+                    $request_reply = $sessionobj.Session.Execute('db.del_workspace', $Workspace)
+                    if ($request_reply.ContainsKey('result'))
+                    {
+                        $request_reply.add('MSHost', $MSession.Host)
+                        $connectobj = New-Object -TypeName psobject -Property $request_reply
+                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj 
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ($request_reply.ContainsKey('result'))
+            {
+                $request_reply.add('MSHost', $MSession.Host)
+                $connectobj = New-Object -TypeName psobject -Property $request_reply
+                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj 
+            }
+        }
+    }
+}
+
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Set-MetasploitDBWorkspace
+{
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
+    param(
+
+        # Metasploit session index
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index",
+        Position=0)]
+        [int32[]]$Index = @(),
+
+        # Metasploit session object
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        ValueFromPipeline=$true,
+        Position=0)]
+        [psobject]$Session,
+
+        # Workspace name
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Session",
+        Position=0)]
+        [Parameter(Mandatory=$true,
+        ParameterSetName = "Index",
+        Position=0)]
+        [string]$Workspace
+    )
+    BEGIN 
+    {
+        
+        
+    }
+    PROCESS 
+    {    
+        if ($Index.Count -gt 0)
+        {
+            foreach($conn in $Global:MetasploitConn)
+            {
+                if ($conn.index -in $Index)
+                {
+                    $MSession = $conn
+                }
+            }
+        }
+        elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
+        {
+            if ($Global:MetasploitConn.Contains($Session))
+            {
+                $MSession = $Session
+            }
+            else
+            {
+                throw "The session object that was passed does not exists in `$Global:MetasploitConn"
+            }
+        }
+        else 
+        {
+            throw "No Metasploit server session was provided"
+        }
+
+        if ($MSession -eq $null)
+        {
+            throw "Specified session was not found"
+        }
+
+        $request_reply = $MSession.Session.Execute('db.set_workspace', $Workspace)
+
+        if ($request_reply.ContainsKey("error_code"))
+        {
+            Write-Verbose "An error was reported with code $($request_reply.error_code)"
+            if ($request_reply.error_code -eq 401)
+            {
+                write-verbose "The session has expired, Re-authenticating"
+
+                $SessionProps = New-Object System.Collections.Specialized.OrderedDictionary
+                $sessparams   = $MSession.Credentials.GetNetworkCredential().UserName,$MSession.Credentials.GetNetworkCredential().Password,$MSession.URI
+                $msfsess = New-Object metasploitsharp.MetasploitSession -ArgumentList $sessparams
+                if ($msfsess)
+                {
+                    Write-Verbose "Authentication successful."
+                    # Select the correct session manager for the existing session
+                    if ($MSession.Manager.GetType().tostring() -eq 'metasploitsharp.MetasploitManager')
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitManager -ArgumentList $msfsess
+                    }
+                    else
+                    {
+                        $msfmng = New-Object metasploitsharp.MetasploitProManager -ArgumentList $msfsess
+                    }
+
+                    # Build the session object
+                    $SessionProps.Add('Manager',$msfmng)
+                    $SessionProps.Add('URI',$MSession.URI)
+                    $SessionProps.add('Host',$MSession.host)
+                    $SessionProps.add('Session',$msfsess)
+                    $SessionProps.Add('Credentials',$MSession.Credentials)
+                    $SessionProps.Add('Index', $MSession.index)
+                    $sessionobj = New-Object -TypeName psobject -Property $SessionProps
+                    $sessionobj.pstypenames[0] = "Metasploit.Session"
+
+                    # Update the session with the new information
+                    Write-Verbose "Updating session with new authentication token"
+                    [void]$Global:MetasploitConn.Remove($MSession)
+                    [void]$Global:MetasploitConn.Add($sessionobj)
+                    
+                    # Get again the Optios
+                    $request_reply = $sessionobj.Session.Execute('db.set_workspace', $Workspace)
+                    if ($request_reply.ContainsKey('result'))
+                    {
+                        $request_reply.add('MSHost', $MSession.Host)
+                        $connectobj = New-Object -TypeName psobject -Property $request_reply
+                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj 
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ($request_reply.ContainsKey('result'))
+            {
+                $request_reply.add('MSHost', $MSession.Host)
+                $connectobj = New-Object -TypeName psobject -Property $request_reply
+                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj 
+            }
+        }
+    }
+}
