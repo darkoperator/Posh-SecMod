@@ -282,7 +282,7 @@ function Invoke-MetasploitModuleReload
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitAuxiliaryModule
+function Get-MSFAuxiliaryModule
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -427,7 +427,7 @@ function Get-MetasploitAuxiliaryModule
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitPostModule
+function Get-MSFPostModule
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -572,7 +572,7 @@ function Get-MetasploitPostModule
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitExploitModule
+function Get-MSFExploitModule
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -716,7 +716,7 @@ function Get-MetasploitExploitModule
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitPayloadModule
+function Get-MSFPayloadModule
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -860,7 +860,7 @@ function Get-MetasploitPayloadModule
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitNOPS
+function Get-MSFNOPS
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1004,7 +1004,7 @@ function Get-MetasploitNOPS
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitModuleInfo
+function Get-MSFModuleInfo
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1161,7 +1161,7 @@ function Get-MetasploitModuleInfo
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitExploitCompatiblePayloads
+function Get-MSFExploitCompatiblePayloads
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1316,7 +1316,7 @@ function Get-MetasploitExploitCompatiblePayloads
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitModuleOptions
+function Get-MSFModuleOptions
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1472,7 +1472,7 @@ function Get-MetasploitModuleOptions
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitPostCompatiblePayloads
+function Get-MSFPostCompatiblePayloads
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1625,7 +1625,7 @@ function Get-MetasploitPostCompatiblePayloads
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Invoke-MetasploitModule
+function Invoke-MSFModule
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(

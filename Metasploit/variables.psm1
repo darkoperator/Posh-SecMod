@@ -13,7 +13,7 @@
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Set-MetasploitGlobalVariable
+function Set-MSFGlobalVariable
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -167,7 +167,7 @@ function Set-MetasploitGlobalVariable
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Remove-MetasploitGlobalVariable
+function Remove-MSFGlobalVariable
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -311,7 +311,7 @@ function Remove-MetasploitGlobalVariable
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Save-MetasploitConfig
+function Save-MSFConfig
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(

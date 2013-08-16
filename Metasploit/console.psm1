@@ -11,7 +11,7 @@
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitConsole
+function Get-MSFConsole
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -151,7 +151,7 @@ function Get-MetasploitConsole
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function New-MetasploitConsole
+function New-MSFConsole
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -285,7 +285,7 @@ function New-MetasploitConsole
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Remove-MetasploitConsole
+function Remove-MSFConsole
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -428,7 +428,7 @@ function Remove-MetasploitConsole
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Write-MetasploitConsole
+function Write-MSFConsole
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -583,7 +583,7 @@ function Write-MetasploitConsole
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Read-MetasploitConsole
+function Read-MSFConsole
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(

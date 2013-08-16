@@ -18,7 +18,7 @@
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function New-MetasploitServerSession
+function New-MSFServerSession
 {
     [CmdletBinding()]
     Param
@@ -117,7 +117,7 @@ function New-MetasploitServerSession
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitServerSession
+function Get-MSFServerSession
 {
     [CmdletBinding()]
     param(
@@ -166,7 +166,7 @@ function Get-MetasploitServerSession
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Remove-MetasploitServerSession
+function Remove-MSFServerSession
 {
     [CmdletBinding()]
     param(
@@ -220,7 +220,7 @@ function Remove-MetasploitServerSession
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitCoreInfo 
+function Get-MSFCoreInfo 
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -348,7 +348,7 @@ function Get-MetasploitCoreInfo
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitAuthToken 
+function Get-MSFAuthToken 
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -486,7 +486,7 @@ function Get-MetasploitAuthToken
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function New-MetasploitAuthToken 
+function New-MSFAuthToken 
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -637,7 +637,7 @@ function New-MetasploitAuthToken
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Remove-MetasploitAuthToken 
+function Remove-MSFAuthToken 
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(

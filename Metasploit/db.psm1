@@ -10,7 +10,7 @@
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitDBHost
+function Get-MSFDBHost
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -189,7 +189,7 @@ function Get-MetasploitDBHost
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitDBServcie
+function Get-MSFDBServcie
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -418,7 +418,7 @@ function Get-MetasploitDBServcie
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitDBVuln
+function Get-MSFDBVuln
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -640,7 +640,7 @@ function Get-MetasploitDBVuln
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitDBNote
+function Get-MSFDBNote
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -876,7 +876,7 @@ function Get-MetasploitDBNote
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitDBEvent
+function Get-MSFDBEvent
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1046,7 +1046,7 @@ function Get-MetasploitDBEvent
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitDBCred
+function Get-MSFDBCred
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1215,7 +1215,7 @@ function Get-MetasploitDBCred
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitDBLoot
+function Get-MSFDBLoot
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1385,7 +1385,7 @@ function Get-MetasploitDBLoot
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitDBStatus
+function Get-MSFDBStatus
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1533,7 +1533,7 @@ function Get-MetasploitDBStatus
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Connect-MetasploitDB
+function Connect-MSFDB
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1705,7 +1705,7 @@ function Connect-MetasploitDB
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Disconnect-MetasploitDB
+function Disconnect-MSFDB
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1841,7 +1841,7 @@ function Disconnect-MetasploitDB
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitDBWorspace
+function Get-MSFDBWorspace
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1984,7 +1984,7 @@ function Get-MetasploitDBWorspace
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitDBCurrentWorspace
+function Get-MSFDBCurrentWorspace
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -2120,7 +2120,7 @@ function Get-MetasploitDBCurrentWorspace
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function New-MetasploitDBWorkspace
+function New-MSFDBWorkspace
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -2265,7 +2265,7 @@ function New-MetasploitDBWorkspace
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Remove-MetasploitDBWorkspace
+function Remove-MSFDBWorkspace
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -2410,7 +2410,7 @@ function Remove-MetasploitDBWorkspace
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Set-MetasploitDBWorkspace
+function Set-MSFDBWorkspace
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -2555,7 +2555,7 @@ function Set-MetasploitDBWorkspace
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Import-MetasploitDBData
+function Import-MSFDBData
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(

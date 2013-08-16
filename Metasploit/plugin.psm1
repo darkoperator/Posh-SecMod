@@ -12,7 +12,7 @@
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Get-MetasploitLoadedPlugin
+function Get-MSFLoadedPlugin
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -156,7 +156,7 @@ function Get-MetasploitLoadedPlugin
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function Register-MetasploitPlugin
+function Register-MSFPlugin
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -310,7 +310,7 @@ function Register-MetasploitPlugin
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
-function UnRegister-MetasploitPlugin
+function UnRegister-MSFPlugin
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
