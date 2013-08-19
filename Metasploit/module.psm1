@@ -18,11 +18,12 @@ function Get-MetasploitModuleStats
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -38,11 +39,11 @@ function Get-MetasploitModuleStats
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -99,7 +100,7 @@ function Get-MetasploitModuleStats
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -153,11 +154,12 @@ function Invoke-MetasploitModuleReload
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -173,11 +175,11 @@ function Invoke-MetasploitModuleReload
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -234,7 +236,7 @@ function Invoke-MetasploitModuleReload
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -287,11 +289,12 @@ function Get-MSFAuxiliaryModule
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -307,11 +310,11 @@ function Get-MSFAuxiliaryModule
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -368,7 +371,7 @@ function Get-MSFAuxiliaryModule
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -432,11 +435,12 @@ function Get-MSFPostModule
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -452,11 +456,11 @@ function Get-MSFPostModule
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -513,7 +517,7 @@ function Get-MSFPostModule
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -577,11 +581,12 @@ function Get-MSFExploitModule
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -597,11 +602,11 @@ function Get-MSFExploitModule
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -658,7 +663,7 @@ function Get-MSFExploitModule
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -721,11 +726,12 @@ function Get-MSFPayloadModule
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -741,11 +747,11 @@ function Get-MSFPayloadModule
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -802,7 +808,7 @@ function Get-MSFPayloadModule
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -865,11 +871,12 @@ function Get-MSFNOPS
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -885,11 +892,11 @@ function Get-MSFNOPS
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -946,7 +953,7 @@ function Get-MSFNOPS
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -1009,11 +1016,12 @@ function Get-MSFModuleInfo
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -1048,11 +1056,11 @@ function Get-MSFModuleInfo
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -1111,7 +1119,7 @@ function Get-MSFModuleInfo
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -1166,11 +1174,12 @@ function Get-MSFExploitCompatiblePayloads
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -1194,11 +1203,11 @@ function Get-MSFExploitCompatiblePayloads
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -1256,7 +1265,7 @@ function Get-MSFExploitCompatiblePayloads
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -1321,11 +1330,12 @@ function Get-MSFModuleOptions
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -1360,11 +1370,11 @@ function Get-MSFModuleOptions
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -1423,7 +1433,7 @@ function Get-MSFModuleOptions
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -1477,11 +1487,12 @@ function Get-MSFPostCompatiblePayloads
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -1505,11 +1516,11 @@ function Get-MSFPostCompatiblePayloads
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -1567,7 +1578,7 @@ function Get-MSFPostCompatiblePayloads
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -1630,11 +1641,12 @@ function Invoke-MSFModule
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -1679,11 +1691,11 @@ function Invoke-MSFModule
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -1748,7 +1760,7 @@ function Invoke-MSFModule
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 

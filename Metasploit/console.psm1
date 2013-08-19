@@ -16,18 +16,19 @@ function Get-MSFConsole
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
         Position=0)]
-        [psobject]$Session
+        [pscustomobject]$Session
     )
     BEGIN 
     {
@@ -35,11 +36,11 @@ function Get-MSFConsole
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -96,7 +97,7 @@ function Get-MSFConsole
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -156,18 +157,19 @@ function New-MSFConsole
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
         Position=0)]
-        [psobject]$Session
+        [pscustomobject]$Session
     )
     BEGIN 
     {
@@ -175,11 +177,11 @@ function New-MSFConsole
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -236,7 +238,7 @@ function New-MSFConsole
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -290,18 +292,19 @@ function Remove-MSFConsole
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
         Position=0)]
-        [psobject]$Session,
+        [pscustomobject]$Session,
 
         # Console Id
         [Parameter(Mandatory=$true,
@@ -310,7 +313,7 @@ function Remove-MSFConsole
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=1)]
-        [int]$Id
+        [int]$ConsoleId
     )
     BEGIN 
     {
@@ -318,11 +321,11 @@ function Remove-MSFConsole
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -348,7 +351,32 @@ function Remove-MSFConsole
         {
             throw "Specified session was not found"
         }
+        Write-Verbose "Checking existing consoles"
+       
+        $current_consoles = Get-MSFConsole -Session $MSession 
         
+        if ($current_consoles)
+        {
+            $present = $false
+            foreach ($con in $current_consoles)
+            {
+                if ($con.consoleid -eq $ConsoleId)
+                {
+                    $present = $true
+                }
+            }
+            if (!($present))
+            {
+                Write-Warning "A console with ID $($ConsoleId) is not present."
+                return
+            }
+        }
+        else
+        {
+            Write-Warning "There are no consoles to interact with."
+            return
+        }
+
         $request_reply = $MSession.Manager.DestroyConsole($Id)
 
         if ($request_reply.ContainsKey("error_code"))
@@ -379,7 +407,7 @@ function Remove-MSFConsole
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -433,11 +461,12 @@ function Write-MSFConsole
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -470,11 +499,11 @@ function Write-MSFConsole
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -499,6 +528,30 @@ function Write-MSFConsole
         if ($MSession -eq $null)
         {
             throw "Specified session was not found"
+        }
+
+        $current_consoles = Get-MSFConsole -Session $MSession 
+        
+        if ($current_consoles)
+        {
+            $present = $false
+            foreach ($con in $current_consoles)
+            {
+                if ($con.consoleid -eq $ConsoleId)
+                {
+                    $present = $true
+                }
+            }
+            if (!($present))
+            {
+                Write-Warning "A console with ID $($ConsoleId) is not present."
+                return
+            }
+        }
+        else
+        {
+            Write-Warning "There are no consoles to interact with."
+            return
         }
         
         Write-Verbose "Executing command $command"
@@ -532,7 +585,7 @@ function Write-MSFConsole
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
@@ -588,11 +641,12 @@ function Read-MSFConsole
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
 
-        # Metasploit session index
+        # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
         Position=0)]
-        [int32[]]$Index = @(),
+        [Alias("Index")]
+        [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
@@ -616,11 +670,11 @@ function Read-MSFConsole
     }
     PROCESS 
     {    
-        if ($Index.Count -gt 0)
+        if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
-                if ($conn.index -in $Index)
+                if ($conn.Id -eq $Id)
                 {
                     $MSession = $conn
                 }
@@ -645,6 +699,30 @@ function Read-MSFConsole
         if ($MSession -eq $null)
         {
             throw "Specified session was not found"
+        }
+
+        $current_consoles = Get-MSFConsole -Session $MSession 
+        
+        if ($current_consoles)
+        {
+            $present = $false
+            foreach ($con in $current_consoles)
+            {
+                if ($con.consoleid -eq $ConsoleId)
+                {
+                    $present = $true
+                }
+            }
+            if (!($present))
+            {
+                Write-Warning "A console with ID $($ConsoleId) is not present."
+                return
+            }
+        }
+        else
+        {
+            Write-Warning "There are no consoles to interact with."
+            return
         }
         
         $request_reply = $MSession.Manager.ReadConsole($ConsoleId)
@@ -677,7 +755,7 @@ function Read-MSFConsole
                     $SessionProps.add('Host',$MSession.host)
                     $SessionProps.add('Session',$msfsess)
                     $SessionProps.Add('Credentials',$MSession.Credentials)
-                    $SessionProps.Add('Index', $MSession.index)
+                    $SessionProps.Add('Id', $MSession.Id)
                     $sessionobj = New-Object -TypeName psobject -Property $SessionProps
                     $sessionobj.pstypenames[0] = "Metasploit.Session"
 
