@@ -18,14 +18,17 @@ function Get-MSFDBHost
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
@@ -37,14 +40,18 @@ function Get-MSFDBHost
         [switch]$OnlyUp,
 
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [int]$Limit,
 
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Workspace
        
@@ -151,6 +158,7 @@ function Get-MSFDBHost
                         foreach ($dbhost in $request_reply['hosts'])
                         {
                             $dbhost.add('MSHost', $MSession.Host)
+                            $dbhost.Add("MSSessionID", $MSession.Id)
                             $consoleobj = New-Object -TypeName psobject -Property $dbhost
                             $consoleobj.pstypenames[0] = "Metasploit.host"
                             $consoleobj 
@@ -170,6 +178,7 @@ function Get-MSFDBHost
                 foreach ($dbhost in $request_reply['hosts'])
                 {
                     $dbhost.add('MSHost', $MSession.Host)
+                    $dbhost.Add("MSSessionID", $MSession.Id)
                     $consoleobj = New-Object -TypeName psobject -Property $dbhost
                     $consoleobj.pstypenames[0] = "Metasploit.host"
                     $consoleobj 
@@ -198,14 +207,17 @@ function Get-MSFDBServcie
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
@@ -218,42 +230,54 @@ function Get-MSFDBServcie
 
         # Port list or range to filter
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Ports,
 
         # Filter services by protocol TCP or UDP
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [ValidateSet('TCP', 'UDP')]
         [string]$Protocol,
 
         # Filter services by name
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Name,
 
         # Filter services by Address
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Address,
 
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [int]$Limit,
 
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Workspace
        
@@ -381,6 +405,7 @@ function Get-MSFDBServcie
                         foreach ($dbhost in $request_reply['services'])
                         {
                             $dbhost.add('MSHost', $MSession.Host)
+                            $dbhost.Add("MSSessionID", $MSession.Id)
                             $consoleobj = New-Object -TypeName psobject -Property $dbhost
                             $consoleobj.pstypenames[0] = "Metasploit.Service"
                             $consoleobj 
@@ -400,6 +425,7 @@ function Get-MSFDBServcie
                 foreach ($dbhost in $request_reply['services'])
                 {
                     $dbhost.add('MSHost', $MSession.Host)
+                    $dbhost.Add("MSSessionID", $MSession.Id)
                     $consoleobj = New-Object -TypeName psobject -Property $dbhost
                     $consoleobj.pstypenames[0] = "Metasploit.Service"
                     $consoleobj 
@@ -428,55 +454,70 @@ function Get-MSFDBVuln
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Port list or range to filter
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Ports,
 
         # Filter services by protocol TCP or UDP
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [ValidateSet('TCP', 'UDP')]
         [string]$Protocol,
 
         # Filter services by name
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Name,
 
         # Filter services by Address
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Address,
 
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [int]$Limit,
 
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Workspace
        
@@ -603,7 +644,8 @@ function Get-MSFDBVuln
                     {
                         foreach ($vuln in $request_reply['vulns'])
                         {
-                            $vuln.add('MSHost', $MSession.Host)
+                            $vuln.Add('MSHost', $MSession.Host)
+                            $vuln.Add("MSSessionID", $MSession.Id)
                             $vulnobj = New-Object -TypeName psobject -Property $vuln
                             $vulnobj.pstypenames[0] = "Metasploit.Vuln"
                             $vulnobj 
@@ -623,6 +665,7 @@ function Get-MSFDBVuln
                 foreach ($vuln in $request_reply['vulns'])
                 {
                     $vuln.add('MSHost', $MSession.Host)
+                    $vuln.Add("MSSessionID", $MSession.Id)
                     $vulnobj = New-Object -TypeName psobject -Property $vuln
                     $vulnobj.pstypenames[0] = "Metasploit.Vuln"
                     $vulnobj 
@@ -651,64 +694,81 @@ function Get-MSFDBNote
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Port list or range to filter
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Ports,
 
         # Filter services by protocol TCP or UDP
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [ValidateSet('TCP', 'UDP')]
         [string]$Protocol,
 
         # Filter services by name
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Name,
 
         # Filter services by Address
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Address,
 
         # Maximun number of results to pull from server
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [int]$Limit,
 
         # Workspace to execute query against
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Workspace,
 
         # Note ntype
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Type
        
@@ -841,6 +901,7 @@ function Get-MSFDBNote
                         foreach ($note in $request_reply['notes'])
                         {
                             $note.add('MSHost', $MSession.Host)
+                            $note.Add("MSSessionID", $MSession.Id)
                             $notenobj = New-Object -TypeName psobject -Property $note
                             $notenobj.pstypenames[0] = "Metasploit.Note"
                             $notenobj 
@@ -860,6 +921,7 @@ function Get-MSFDBNote
                 foreach ($note in $request_reply['notes'])
                 {
                     $note.add('MSHost', $MSession.Host)
+                    $note.Add("MSSessionID", $MSession.Id)
                     $notenobj = New-Object -TypeName psobject -Property $note
                     $notenobj.pstypenames[0] = "Metasploit.Note"
                     $notenobj 
@@ -888,28 +950,35 @@ function Get-MSFDBEvent
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Maximun number of results to pull from server
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [int]$Limit,
 
         # Workspace to execute query against
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Workspace
        
@@ -1012,6 +1081,7 @@ function Get-MSFDBEvent
                         foreach ($event in $request_reply['events'])
                         {
                             $event.add('MSHost', $MSession.Host)
+                            $event.Add("MSSessionID", $MSession.Id)
                             $notenobj = New-Object -TypeName psobject -Property $event
                             $notenobj.pstypenames[0] = "Metasploit.Event"
                             $notenobj 
@@ -1031,6 +1101,7 @@ function Get-MSFDBEvent
                 foreach ($event in $request_reply['events'])
                 {
                     $event.add('MSHost', $MSession.Host)
+                    $event.Add("MSSessionID", $MSession.Id)
                     $notenobj = New-Object -TypeName psobject -Property $event
                     $notenobj.pstypenames[0] = "Metasploit.Event"
                     $notenobj 
@@ -1059,28 +1130,35 @@ function Get-MSFDBCred
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Maximun number of results to pull from server
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [int]$Limit,
 
         # Workspace to execute query against
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Workspace
        
@@ -1183,6 +1261,7 @@ function Get-MSFDBCred
                         foreach ($cred in $request_reply['creds'])
                         {
                             $cred.add('MSHost', $MSession.Host)
+                            $cred.Add("MSSessionID", $MSession.Id)
                             $notenobj = New-Object -TypeName psobject -Property $cred
                             $notenobj.pstypenames[0] = "Metasploit.Cred"
                             $notenobj 
@@ -1202,6 +1281,7 @@ function Get-MSFDBCred
                 foreach ($cred in $request_reply['creds'])
                 {
                     $cred.add('MSHost', $MSession.Host)
+                    $cred.Add("MSSessionID", $MSession.Id)
                     $notenobj = New-Object -TypeName psobject -Property $cred
                     $notenobj.pstypenames[0] = "Metasploit.Event"
                     $notenobj 
@@ -1229,28 +1309,35 @@ function Get-MSFDBLoot
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Maximun number of results to pull from server
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [int]$Limit,
 
         # Workspace to execute query against
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Workspace
        
@@ -1353,6 +1440,7 @@ function Get-MSFDBLoot
                         foreach ($loot in $request_reply['loots'])
                         {
                             $loot.add('MSHost', $MSession.Host)
+                            $loot.Add("MSSessionID", $MSession.Id)
                             $notenobj = New-Object -TypeName psobject -Property $loot
                             $notenobj.pstypenames[0] = "Metasploit.Loot"
                             $notenobj 
@@ -1372,6 +1460,7 @@ function Get-MSFDBLoot
                 foreach ($loot in $request_reply['loots'])
                 {
                     $loot.add('MSHost', $MSession.Host)
+                    $loot.Add("MSSessionID", $MSession.Id)
                     $notenobj = New-Object -TypeName psobject -Property $loot
                     $notenobj.pstypenames[0] = "Metasploit.Loot"
                     $notenobj 
@@ -1400,14 +1489,17 @@ function Get-MSFDBStatus
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session
     )
@@ -1495,6 +1587,7 @@ function Get-MSFDBStatus
                     {
                         
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         if (!($request_reply.ContainsKey('db')))
                         {
                             $request_reply.add('db', "")
@@ -1517,6 +1610,7 @@ function Get-MSFDBStatus
             {
                         
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 if (!($request_reply.ContainsKey('db')))
                 {
                     $request_reply.add('db', "")
@@ -1549,40 +1643,50 @@ function Connect-MSFDB
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # DB Port
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [int]$Port = 5432,
 
         # Database Host
         [Parameter(Mandatory=$true,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$true,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$DBHost,
 
         # Database name
         [Parameter(Mandatory=$true,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$true,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$DatabaseName,
 
         # Credentials for connecting to the Database
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,
+        ValueFromPipelineByPropertyName=$true)]
         [Management.Automation.PSCredential]$Credentials
 
        
@@ -1680,6 +1784,7 @@ function Connect-MSFDB
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
                         $connectobj.pstypenames[0] = "Metasploit.Action"
                         $connectobj 
@@ -1696,6 +1801,7 @@ function Connect-MSFDB
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
                 $connectobj.pstypenames[0] = "Metasploit.Action"
                 $connectobj 
@@ -1722,14 +1828,17 @@ function Disconnect-MSFDB
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session
     )
@@ -1816,6 +1925,7 @@ function Disconnect-MSFDB
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
                         $connectobj.pstypenames[0] = "Metasploit.Action"
                         $connectobj 
@@ -1832,6 +1942,7 @@ function Disconnect-MSFDB
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
                 $connectobj.pstypenames[0] = "Metasploit.Action"
                 $connectobj 
@@ -1859,14 +1970,17 @@ function Get-MSFDBWorspace
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session
        
@@ -1956,6 +2070,7 @@ function Get-MSFDBWorspace
                         foreach ($workspace in $request_reply['workspaces'])
                         {
                             $workspace.add('MSHost', $MSession.Host)
+                            $workspace.Add("MSSessionID", $MSession.Id)
                             $wsobj = New-Object -TypeName psobject -Property $workspace
                             $wsobj.pstypenames[0] = "Metasploit.Workspace"
                             $wsobj 
@@ -1975,6 +2090,7 @@ function Get-MSFDBWorspace
                 foreach ($workspace in $request_reply['workspaces'])
                 {
                     $workspace.add('MSHost', $MSession.Host)
+                    $workspace.Add("MSSessionID", $MSession.Id)
                     $wsobj = New-Object -TypeName psobject -Property $workspace
                     $wsobj.pstypenames[0] = "Metasploit.Workspace"
                     $wsobj 
@@ -2003,14 +2119,17 @@ function Get-MSFDBCurrentWorspace
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session
        
@@ -2098,6 +2217,7 @@ function Get-MSFDBCurrentWorspace
                     if ($request_reply.ContainsKey('workspace'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $wsobj = New-Object -TypeName psobject -Property $request_reply
                         $wsobj.pstypenames[0] = "Metasploit.Workspace"
                         $wsobj 
@@ -2114,6 +2234,7 @@ function Get-MSFDBCurrentWorspace
             if ($request_reply.ContainsKey('workspace'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $wsobj = New-Object -TypeName psobject -Property $request_reply
                 $wsobj.pstypenames[0] = "Metasploit.Workspace"
                 $wsobj 
@@ -2140,22 +2261,27 @@ function New-MSFDBWorkspace
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Workspace name
         [Parameter(Mandatory=$true,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session",
         Position=0)]
         [Parameter(Mandatory=$true,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index",
         Position=0)]
         [string]$Workspace
@@ -2243,6 +2369,7 @@ function New-MSFDBWorkspace
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
                         $connectobj.pstypenames[0] = "Metasploit.Action"
                         $connectobj 
@@ -2259,6 +2386,7 @@ function New-MSFDBWorkspace
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
                 $connectobj.pstypenames[0] = "Metasploit.Action"
                 $connectobj 
@@ -2286,22 +2414,27 @@ function Remove-MSFDBWorkspace
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Workspace name
         [Parameter(Mandatory=$true,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session",
         Position=0)]
         [Parameter(Mandatory=$true,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index",
         Position=0)]
         [string]$Workspace
@@ -2389,6 +2522,7 @@ function Remove-MSFDBWorkspace
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
                         $connectobj.pstypenames[0] = "Metasploit.Action"
                         $connectobj 
@@ -2405,6 +2539,7 @@ function Remove-MSFDBWorkspace
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
                 $connectobj.pstypenames[0] = "Metasploit.Action"
                 $connectobj 
@@ -2432,22 +2567,27 @@ function Set-MSFDBWorkspace
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Workspace name
         [Parameter(Mandatory=$true,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session",
         Position=0)]
         [Parameter(Mandatory=$true,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index",
         Position=0)]
         [string]$Workspace
@@ -2535,6 +2675,7 @@ function Set-MSFDBWorkspace
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
                         $connectobj.pstypenames[0] = "Metasploit.Action"
                         $connectobj 
@@ -2551,6 +2692,7 @@ function Set-MSFDBWorkspace
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
                 $connectobj.pstypenames[0] = "Metasploit.Action"
                 $connectobj 
@@ -2578,21 +2720,26 @@ function Import-MSFDBData
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
          # Workspace to execute query against
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [string]$Workspace,
 
@@ -2696,6 +2843,7 @@ function Import-MSFDBData
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
                         $connectobj.pstypenames[0] = "Metasploit.Action"
                         $connectobj 
@@ -2712,6 +2860,7 @@ function Import-MSFDBData
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
                 $connectobj.pstypenames[0] = "Metasploit.Action"
                 $connectobj 

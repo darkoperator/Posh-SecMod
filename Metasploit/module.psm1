@@ -21,14 +21,17 @@ function Get-MetasploitModuleStats
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session
        
@@ -114,6 +117,7 @@ function Get-MetasploitModuleStats
                     if ($request_reply.ContainsKey('post'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $consoleobj = New-Object -TypeName psobject -Property $request_reply
                         $consoleobj.pstypenames[0] = "Metasploit.Module.Stats"
                         $consoleobj   
@@ -130,6 +134,7 @@ function Get-MetasploitModuleStats
             if ($request_reply.ContainsKey('post'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $consoleobj = New-Object -TypeName psobject -Property $request_reply
                 $consoleobj.pstypenames[0] = "Metasploit.Module.Stats"
                 $consoleobj   
@@ -157,14 +162,17 @@ function Invoke-MetasploitModuleReload
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session
        
@@ -250,6 +258,7 @@ function Invoke-MetasploitModuleReload
                     if ($request_reply.ContainsKey('post'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $consoleobj = New-Object -TypeName psobject -Property $request_reply
                         $consoleobj.pstypenames[0] = "Metasploit.Module.Stats"
                         $consoleobj   
@@ -266,6 +275,7 @@ function Invoke-MetasploitModuleReload
             if ($request_reply.ContainsKey('post'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $consoleobj = New-Object -TypeName psobject -Property $request_reply
                 $consoleobj.pstypenames[0] = "Metasploit.Module.Stats"
                 $consoleobj   
@@ -292,14 +302,17 @@ function Get-MSFAuxiliaryModule
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session
        
@@ -389,6 +402,7 @@ function Get-MSFAuxiliaryModule
                             $moduleprops = @{}
                             $moduleprops.add('MSHost', $MSession.Host)
                             $moduleprops.Add('Name', $module)
+                            $moduleprops.Add("MSSessionID", $MSession.Id)
                             $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                             $consoleobj.pstypenames[0] = "Metasploit.Module.auxiliary"
                             $consoleobj
@@ -410,6 +424,7 @@ function Get-MSFAuxiliaryModule
                     $moduleprops = @{}
                     $moduleprops.add('MSHost', $MSession.Host)
                     $moduleprops.Add('Name', $module)
+                    $moduleprops.Add("MSSessionID", $MSession.Id)
                     $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                     $consoleobj.pstypenames[0] = "Metasploit.Module.auxiliary"
                     $consoleobj
@@ -438,14 +453,17 @@ function Get-MSFPostModule
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session
        
@@ -535,6 +553,7 @@ function Get-MSFPostModule
                             $moduleprops = @{}
                             $moduleprops.add('MSHost', $MSession.Host)
                             $moduleprops.Add('Name', $module)
+                            $moduleprops.Add("MSSessionID", $MSession.Id)
                             $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                             $consoleobj.pstypenames[0] = "Metasploit.Module.post"
                             $consoleobj
@@ -556,6 +575,7 @@ function Get-MSFPostModule
                     $moduleprops = @{}
                     $moduleprops.add('MSHost', $MSession.Host)
                     $moduleprops.Add('Name', $module)
+                    $moduleprops.Add("MSSessionID", $MSession.Id)
                     $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                     $consoleobj.pstypenames[0] = "Metasploit.Module.post"
                     $consoleobj
@@ -584,14 +604,17 @@ function Get-MSFExploitModule
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session
        
@@ -681,6 +704,7 @@ function Get-MSFExploitModule
                             $moduleprops = @{}
                             $moduleprops.add('MSHost', $MSession.Host)
                             $moduleprops.Add('Name', $module)
+                            $moduleprops.Add("MSSessionID", $MSession.Id)
                             $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                             $consoleobj.pstypenames[0] = "Metasploit.Module.exploit"
                             $consoleobj
@@ -702,6 +726,7 @@ function Get-MSFExploitModule
                     $moduleprops = @{}
                     $moduleprops.add('MSHost', $MSession.Host)
                     $moduleprops.Add('Name', $module)
+                    $moduleprops.Add("MSSessionID", $MSession.Id)
                     $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                     $consoleobj.pstypenames[0] = "Metasploit.Module.exploit"
                     $consoleobj
@@ -729,14 +754,17 @@ function Get-MSFPayloadModule
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session
        
@@ -826,6 +854,7 @@ function Get-MSFPayloadModule
                             $moduleprops = @{}
                             $moduleprops.add('MSHost', $MSession.Host)
                             $moduleprops.Add('Name', $module)
+                            $moduleprops.Add("MSSessionID", $MSession.Id)
                             $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                             $consoleobj.pstypenames[0] = "Metasploit.Module.payload"
                             $consoleobj
@@ -847,6 +876,7 @@ function Get-MSFPayloadModule
                     $moduleprops = @{}
                     $moduleprops.add('MSHost', $MSession.Host)
                     $moduleprops.Add('Name', $module)
+                    $moduleprops.Add("MSSessionID", $MSession.Id)
                     $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                     $consoleobj.pstypenames[0] = "Metasploit.Module.payload"
                     $consoleobj
@@ -874,14 +904,17 @@ function Get-MSFNOPS
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session
        
@@ -971,6 +1004,7 @@ function Get-MSFNOPS
                             $moduleprops = @{}
                             $moduleprops.add('MSHost', $MSession.Host)
                             $moduleprops.Add('Name', $module)
+                            $moduleprops.Add("MSSessionID", $MSession.Id)
                             $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                             $consoleobj.pstypenames[0] = "Metasploit.Module.NOP"
                             $consoleobj
@@ -992,6 +1026,7 @@ function Get-MSFNOPS
                     $moduleprops = @{}
                     $moduleprops.add('MSHost', $MSession.Host)
                     $moduleprops.Add('Name', $module)
+                    $moduleprops.Add("MSSessionID", $MSession.Id)
                     $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                     $consoleobj.pstypenames[0] = "Metasploit.Module.NOP"
                     $consoleobj
@@ -1019,32 +1054,39 @@ function Get-MSFModuleInfo
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Module name
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [string]$Name,
 
         # Module Type
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
+        ValueFromPipelineByPropertyName=$true,
         Position=2)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
+        ValueFromPipelineByPropertyName=$true,
         Position=2)]
         [ValidateSet('post','auxiliary','exploit', 'payload')]
         [string]$Type
@@ -1134,6 +1176,7 @@ function Get-MSFModuleInfo
                     if ($request_reply.ContainsKey('name'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $consoleobj = New-Object -TypeName psobject -Property $request_reply
                         $consoleobj.pstypenames[0] = "Metasploit.Module.Info"
                         $consoleobj 
@@ -1150,6 +1193,7 @@ function Get-MSFModuleInfo
             if ($request_reply.ContainsKey('name'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $consoleobj = New-Object -TypeName psobject -Property $request_reply
                 $consoleobj.pstypenames[0] = "Metasploit.Module.Info"
                 $consoleobj
@@ -1177,23 +1221,28 @@ function Get-MSFExploitCompatiblePayloads
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Exploit Module name
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [string]$Name
     )
@@ -1284,6 +1333,7 @@ function Get-MSFExploitCompatiblePayloads
                             $moduleprops = @{}
                             $moduleprops.add('MSHost', $MSession.Host)
                             $moduleprops.Add('Name', $payload)
+                            $moduleprops.Add("MSSessionID", $MSession.Id)
                             $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                             $consoleobj.pstypenames[0] = "Metasploit.Module.payload"
                             $consoleobj
@@ -1305,6 +1355,7 @@ function Get-MSFExploitCompatiblePayloads
                     $moduleprops = @{}
                     $moduleprops.add('MSHost', $MSession.Host)
                     $moduleprops.Add('Name', $payload)
+                    $moduleprops.Add("MSSessionID", $MSession.Id)
                     $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                     $consoleobj.pstypenames[0] = "Metasploit.Module.payload"
                     $consoleobj
@@ -1333,32 +1384,39 @@ function Get-MSFModuleOptions
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Module name
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [string]$Name,
 
         # Module Type
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
+        ValueFromPipelineByPropertyName=$true,
         Position=2)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
+        ValueFromPipelineByPropertyName=$true,
         Position=2)]
         [ValidateSet('post','auxiliary','exploit', 'payload')]
         [string]$Type
@@ -1448,6 +1506,7 @@ function Get-MSFModuleOptions
                     if ($request_reply.ContainsKey('type'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $consoleobj = New-Object -TypeName psobject -Property $request_reply
                         $consoleobj.pstypenames[0] = "Metasploit.Module.Option"
                         $consoleobj 
@@ -1464,6 +1523,7 @@ function Get-MSFModuleOptions
             if ($request_reply.ContainsKey('type'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $consoleobj = New-Object -TypeName psobject -Property $request_reply
                 $consoleobj.pstypenames[0] = "Metasploit.Module.Option"
                 $consoleobj
@@ -1490,23 +1550,28 @@ function Get-MSFPostCompatiblePayloads
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Post Module Name
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [string]$Name
     )
@@ -1596,6 +1661,7 @@ function Get-MSFPostCompatiblePayloads
                         {
                             $moduleprops = @{}
                             $moduleprops.add('MSHost', $MSession.Host)
+                            $moduleprops.Add("MSSessionID", $MSession.Id)
                             $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                             $consoleobj.pstypenames[0] = "Metasploit.Module.Session"
                             $consoleobj
@@ -1616,6 +1682,7 @@ function Get-MSFPostCompatiblePayloads
                 {
                     $moduleprops = @{}
                     $moduleprops.add('MSHost', $MSession.Host)
+                    $moduleprops.Add("MSSessionID", $MSession.Id)
                     $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                     $consoleobj.pstypenames[0] = "Metasploit.Module.Session"
                     $consoleobj
@@ -1644,32 +1711,39 @@ function Invoke-MSFModule
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Module name
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [string]$Name,
 
         # Module Type
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
+        ValueFromPipelineByPropertyName=$true,
         Position=2)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
+        ValueFromPipelineByPropertyName=$true,
         Position=2)]
         [ValidateSet('post','auxiliary','exploit', 'payload')]
         [string]$Type,
@@ -1677,9 +1751,11 @@ function Invoke-MSFModule
         # Module Options
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
+        ValueFromPipelineByPropertyName=$true,
         Position=3)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
+        ValueFromPipelineByPropertyName=$true,
         Position=3)]
         [hashtable]$Options
        
@@ -1775,6 +1851,7 @@ function Invoke-MSFModule
                     if ($request_reply.ContainsKey('job_id'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $consoleobj = New-Object -TypeName psobject -Property $request_reply
                         $consoleobj.pstypenames[0] = "Metasploit.Job"
                         $consoleobj 
@@ -1791,6 +1868,7 @@ function Invoke-MSFModule
             if ($request_reply.ContainsKey('job_id'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $consoleobj = New-Object -TypeName psobject -Property $request_reply
                 $consoleobj.pstypenames[0] = "Metasploit.Job"
                 $consoleobj

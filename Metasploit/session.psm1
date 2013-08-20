@@ -16,6 +16,7 @@
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session
     )
@@ -189,6 +190,7 @@ function Write-MSFMeterpreterConsole
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
@@ -394,6 +396,7 @@ function Read-MSFMeterpreterConsole
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
@@ -617,6 +620,7 @@ function Get-MSFSessionCompatPostModules
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
@@ -804,6 +808,7 @@ function Invoke-MSFMeterpreterCommand
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
@@ -1007,6 +1012,7 @@ function Write-MSFShellConsole
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
@@ -1227,6 +1233,7 @@ function Read-MSFShellConsole
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
@@ -1243,8 +1250,10 @@ function Read-MSFShellConsole
 
         # Shell buffer position
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Session")]
         [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
         ParameterSetName = "Index")]
         [int]$Position
     )
@@ -1412,6 +1421,7 @@ function Remove-MSFSession
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 

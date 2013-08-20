@@ -123,7 +123,7 @@ function Get-MSFServerSession
     param(
 
         # Metasploit session Id
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory=$false,
         ParameterSetName = "Index",
         Position=0)]
         [Alias("Index")]

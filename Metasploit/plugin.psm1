@@ -116,6 +116,7 @@ function Get-MSFLoadedPlugin
                             $pluginopt =  New-Object System.Collections.Specialized.OrderedDictionary
                             $pluginopt.add('MSHost', $MSession.Host)
                             $pluginopt.add('Name',$plugin)
+                            $pluginopt.Add("MSSessionID", $MSession.Id)
                             $pluginobj = New-Object -TypeName psobject -Property $pluginopt
                             $pluginobj.pstypenames[0] = "Metasploit.Plugin"
                             $pluginobj   
@@ -137,6 +138,7 @@ function Get-MSFLoadedPlugin
                     $pluginopt =  New-Object System.Collections.Specialized.OrderedDictionary
                     $pluginopt.add('MSHost', $MSession.Host)
                     $pluginopt.add('Name',$plugin)
+                    $pluginopt.Add("MSSessionID", $MSession.Id)
                     $pluginobj = New-Object -TypeName psobject -Property $pluginopt
                     $pluginobj.pstypenames[0] = "Metasploit.Plugin"
                     $pluginobj   
@@ -165,32 +167,39 @@ function Register-MSFPlugin
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Plugin Name
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [string]$Name,
 
         # Plugin Options
         [Parameter(Mandatory=$false,
         ParameterSetName = "Session",
+        ValueFromPipelineByPropertyName=$true,
         Position=2)]
         [Parameter(Mandatory=$false,
         ParameterSetName = "Index",
+        ValueFromPipelineByPropertyName=$true,
         Position=2)]
         [hashtable]$Options = @{}
     )
@@ -200,16 +209,8 @@ function Register-MSFPlugin
     }
     PROCESS 
     {    
-        if ($Id -ge 0)
-        {
-            foreach($conn in $Global:MetasploitConn)
-            {
-                if ($conn.Id -eq $Id)
-                {
-                    $MSession = $conn
-                }
-            }
-        }
+        
+
         elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
         {
             if ($Global:MetasploitConn.Contains($Session))
@@ -276,6 +277,7 @@ function Register-MSFPlugin
                     {
                         $request_reply.add('MSHost', $MSession.Host)
                         $request_reply.add('Name', $name)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $pluginobj = New-Object -TypeName psobject -Property $request_reply
                         $pluginobj.pstypenames[0] = "Metasploit.Plugin.Load"
                         $pluginobj
@@ -293,6 +295,7 @@ function Register-MSFPlugin
             {
                 $request_reply.add('MSHost', $MSession.Host)
                 $request_reply.add('Name', $name)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $pluginobj = New-Object -TypeName psobject -Property $request_reply
                 $pluginobj.pstypenames[0] = "Metasploit.Plugin.Load"
                 $pluginobj
@@ -320,23 +323,28 @@ function UnRegister-MSFPlugin
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Plugin Name
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
+        ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [string]$Name
     )
@@ -422,6 +430,7 @@ function UnRegister-MSFPlugin
                     {
                         $request_reply.add('MSHost', $MSession.Host)
                         $request_reply.add('Name', $name)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $pluginobj = New-Object -TypeName psobject -Property $request_reply
                         $pluginobj.pstypenames[0] = "Metasploit.Plugin.UnLoad"
                         $pluginobj
@@ -439,6 +448,7 @@ function UnRegister-MSFPlugin
             {
                 $request_reply.add('MSHost', $MSession.Host)
                 $request_reply.add('Name', $name)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $pluginobj = New-Object -TypeName psobject -Property $request_reply
                 $pluginobj.pstypenames[0] = "Metasploit.Plugin.UnLoad"
                 $pluginobj

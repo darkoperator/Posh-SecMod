@@ -1,6 +1,7 @@
 ﻿# Console
 #########################################################################################
 #region console
+
 <#
 .Synopsis
    Short description
@@ -19,16 +20,19 @@ function Get-MSFConsole
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
-        [pscustomobject]$Session
+        [psobject]$Session
     )
     BEGIN 
     {
@@ -112,8 +116,13 @@ function Get-MSFConsole
                     {
                         foreach ($console in $request_reply['consoles'])
                         {
-                            $console.add('MSHost', $MSession.Host)
-                            $consoleobj = New-Object -TypeName psobject -Property $console
+                            $consoleprops = @{}
+                            $consoleprops.add('MSHost', $MSession.Host)
+                            $consoleprops.Add('Propmpt', $console.prompt)
+                            $consoleprops.Add('ConsoleId', $console.id)
+                            $consoleprops.Add('Busy', $console.busy)
+                            $consoleprops.Add("MSSessionID", $MSession.Id)
+                            $consoleobj = New-Object -TypeName psobject -Property $consoleprops
                             $consoleobj.pstypenames[0] = "Metasploit.Console"
                             $consoleobj   
                         }
@@ -131,8 +140,13 @@ function Get-MSFConsole
             {
                 foreach ($console in $request_reply['consoles'])
                 {
-                    $console.add('MSHost', $MSession.Host)
-                    $consoleobj = New-Object -TypeName psobject -Property $console
+                    $consoleprops = @{}
+                    $consoleprops.add('MSHost', $MSession.Host)
+                    $consoleprops.Add('Propmpt', $console.prompt)
+                    $consoleprops.Add('ConsoleId', $console.id)
+                    $consoleprops.Add('Busy', $console.busy)
+                    $consoleprops.Add("MSSessionID", $MSession.Id)
+                    $consoleobj = New-Object -TypeName psobject -Property $consoleprops
                     $consoleobj.pstypenames[0] = "Metasploit.Console"
                     $consoleobj   
                 }
@@ -160,16 +174,19 @@ function New-MSFConsole
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
-        [pscustomobject]$Session
+        [psobject]$Session
     )
     BEGIN 
     {
@@ -251,10 +268,15 @@ function New-MSFConsole
                     $request_reply = $sessionobj.Manager.CreateConsole()
                     if ($request_reply.ContainsKey('id'))
                     {
-                        $request_reply.add('MSHost', $MSession.Host)
-                        $consoleobj = New-Object -TypeName psobject -Property $request_reply
+                        $consoleprops = @{}
+                        $consoleprops.add('MSHost', $MSession.Host)
+                        $consoleprops.Add('Propmpt', $request_reply.prompt)
+                        $consoleprops.Add('ConsoleId', $request_reply.id)
+                        $consoleprops.Add('Busy', $request_reply.busy)
+                        $consoleprops.Add("MSSessionID", $MSession.Id)
+                        $consoleobj = New-Object -TypeName psobject -Property $consoleprops
                         $consoleobj.pstypenames[0] = "Metasploit.Console"
-                        $consoleobj   
+                        $consoleobj     
                     }
                 }
             }
@@ -267,8 +289,13 @@ function New-MSFConsole
         {
             if ($request_reply.ContainsKey('id'))
             {
-                $request_reply.add('MSHost', $MSession.Host)
-                $consoleobj = New-Object -TypeName psobject -Property $request_reply
+                $consoleprops = @{}
+                $consoleprops.add('MSHost', $MSession.Host)
+                $consoleprops.Add('Propmpt', $request_reply.prompt)
+                $consoleprops.Add('ConsoleId', $request_reply.id)
+                $consoleprops.Add('Busy', $request_reply.busy)
+                $consoleprops.Add("MSSessionID", $MSession.Id)
+                $consoleobj = New-Object -TypeName psobject -Property $consoleprops
                 $consoleobj.pstypenames[0] = "Metasploit.Console"
                 $consoleobj   
             }
@@ -295,24 +322,29 @@ function Remove-MSFConsole
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
-        [pscustomobject]$Session,
+        [psobject]$Session,
 
         # Console Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
-        Position=1)]
+        Position=1,
+        ValueFromPipelineByPropertyName=$true)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=1)]
+        Position=1,
+        ValueFromPipelineByPropertyName=$true)]
         [int]$ConsoleId
     )
     BEGIN 
@@ -421,6 +453,7 @@ function Remove-MSFConsole
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $pluginobj = New-Object -TypeName psobject -Property $request_reply
                         $pluginobj.pstypenames[0] = "Metasploit.Console.Destroy"
                         $pluginobj
@@ -437,6 +470,7 @@ function Remove-MSFConsole
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $pluginobj = New-Object -TypeName psobject -Property $request_reply
                 $pluginobj.pstypenames[0] = "Metasploit.Console.Destroy"
                 $pluginobj
@@ -464,33 +498,40 @@ function Write-MSFConsole
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Console Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
-        Position=1)]
+        Position=1,
+        ValueFromPipelineByPropertyName=$true)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=1)]
+        Position=1,
+        ValueFromPipelineByPropertyName=$true)]
         [int]$ConsoleId,
 
         # Console Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
-        Position=2)]
+        Position=2,
+        ValueFromPipelineByPropertyName=$true)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=2)]
+        Position=2,
+        ValueFromPipelineByPropertyName=$true)]
         [string]$Command
     )
     BEGIN 
@@ -600,6 +641,7 @@ function Write-MSFConsole
                     {
                         $request_reply.add('MSHost', $MSession.Host)
                         $request_reply.add('Command', $Command)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $writeobj = New-Object -TypeName psobject -Property $request_reply
                         $writeobj.pstypenames[0] = "Metasploit.Console.Write"
                         $writeobj
@@ -617,6 +659,7 @@ function Write-MSFConsole
             {
                 $request_reply.add('MSHost', $MSession.Host)
                 $request_reply.add('Command', $Command)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $writeobj = New-Object -TypeName psobject -Property $request_reply
                 $writeobj.pstypenames[0] = "Metasploit.Console.write"
                 $writeobj
@@ -644,24 +687,29 @@ function Read-MSFConsole
         # Metasploit session Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=0)]
-        [Alias("Index")]
+        Position=0,
+        ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true)]
+        [Alias("Index","MSSessionID")]
         [int32]$Id,
 
         # Metasploit session object
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
         ValueFromPipeline=$true,
+        ValueFromPipelineByPropertyName=$true,
         Position=0)]
         [psobject]$Session,
 
         # Console Id
         [Parameter(Mandatory=$true,
         ParameterSetName = "Session",
-        Position=1)]
+        Position=1,
+        ValueFromPipelineByPropertyName=$true)]
         [Parameter(Mandatory=$true,
         ParameterSetName = "Index",
-        Position=1)]
+        Position=1,
+        ValueFromPipelineByPropertyName=$true)]
         [int]$ConsoleId
     )
     BEGIN 
@@ -708,7 +756,7 @@ function Read-MSFConsole
             $present = $false
             foreach ($con in $current_consoles)
             {
-                if ($con.consoleid -eq $ConsoleId)
+                if ($con.id -eq $ConsoleId)
                 {
                     $present = $true
                 }
@@ -769,6 +817,7 @@ function Read-MSFConsole
                     if ($request_reply.ContainsKey('data'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $request_reply.Add("MSSessionID", $MSession.Id)
                         $writeobj = New-Object -TypeName psobject -Property $request_reply
                         $writeobj.pstypenames[0] = "Metasploit.Console.Write"
                         $writeobj
@@ -785,6 +834,7 @@ function Read-MSFConsole
             if ($request_reply.ContainsKey('data'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $request_reply.Add("MSSessionID", $MSession.Id)
                 $writeobj = New-Object -TypeName psobject -Property $request_reply
                 $writeobj.pstypenames[0] = "Metasploit.Console.write"
                 $writeobj
