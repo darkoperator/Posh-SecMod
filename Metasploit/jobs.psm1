@@ -229,6 +229,28 @@ function Get-MSFJobInfo
             throw "Specified session was not found"
         }
         
+        $current_jobs = Get-MSFJob -Session $MSession
+        if ($current_jobs)
+        {
+            $found = $true
+            foreach ($cjob in $current_jobs)
+            {
+                if ($cjob.JobId -eq $JobId)
+                {
+                    $found = $false
+                }
+            }
+            if ($found)
+            {
+                Write-Warning "Job Id $($JobId) does not exist in server session $($MSession.Id)."
+                return
+            }
+        }
+        else
+        {
+            Write-Warning "No jobs where found for the server session."
+            return
+        }
         $request_reply = $MSession.Session.Execute("job.info", $JobId)
 
         if ($request_reply.ContainsKey("error_code"))
