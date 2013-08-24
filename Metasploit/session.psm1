@@ -128,6 +128,10 @@
                 Write-Error -Message "$($reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($reply)
@@ -196,22 +200,12 @@ function Write-MSFMeterpreterConsole
 
         # Meterpreter Session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         Position=1,
         ValueFromPipelineByPropertyName=$true)]
         [int]$SessionId,
 
         # Console command
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        Position=2,
-        ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         Position=2,
         ValueFromPipelineByPropertyName=$true)]
         [string]$Command
@@ -343,6 +337,10 @@ function Write-MSFMeterpreterConsole
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply.ContainsKey('result'))
@@ -402,11 +400,6 @@ function Read-MSFMeterpreterConsole
 
         # Meterpreter Session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         Position=1,
         ValueFromPipelineByPropertyName=$true)]
         [int]$SessionId
@@ -626,11 +619,6 @@ function Get-MSFSessionCompatPostModules
 
         # Session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         Position=1,
         ValueFromPipelineByPropertyName=$true)]
         [int]$SessionId
@@ -757,6 +745,10 @@ function Get-MSFSessionCompatPostModules
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply.ContainsKey('modules'))
@@ -814,22 +806,12 @@ function Invoke-MSFMeterpreterCommand
 
         # Meterpreter Session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         Position=1,
         ValueFromPipelineByPropertyName=$true)]
         [int]$SessionId,
 
         # Console command
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        Position=2,
-        ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         Position=2,
         ValueFromPipelineByPropertyName=$true)]
         [string]$Command
@@ -963,6 +945,10 @@ function Invoke-MSFMeterpreterCommand
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply.ContainsKey('result'))
@@ -1018,22 +1004,12 @@ function Write-MSFShellConsole
 
         # Shell Session Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         Position=1,
         ValueFromPipelineByPropertyName=$true)]
         [int]$SessionId,
 
         # Console command
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        Position=2,
-        ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         Position=2,
         ValueFromPipelineByPropertyName=$true)]
         [string]$Command
@@ -1167,6 +1143,10 @@ function Write-MSFShellConsole
             {
                 Write-Error -Message "$($request_reply.error_message)"
             }
+        }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
         }
         else
         {

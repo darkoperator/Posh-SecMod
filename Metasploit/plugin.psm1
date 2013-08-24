@@ -129,6 +129,10 @@ function Get-MSFLoadedPlugin
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply.ContainsKey('plugins'))
@@ -183,22 +187,12 @@ function Register-MSFPlugin
 
         # Plugin Name
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipelineByPropertyName=$true,
-        Position=1)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [string]$Name,
 
         # Plugin Options
         [Parameter(Mandatory=$false,
-        ParameterSetName = "Session",
-        ValueFromPipelineByPropertyName=$true,
-        Position=2)]
-        [Parameter(Mandatory=$false,
-        ParameterSetName = "Index",
         ValueFromPipelineByPropertyName=$true,
         Position=2)]
         [hashtable]$Options = @{}
@@ -289,6 +283,10 @@ function Register-MSFPlugin
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply.ContainsKey('result'))
@@ -339,11 +337,6 @@ function UnRegister-MSFPlugin
 
         # Plugin Name
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipelineByPropertyName=$true,
-        Position=1)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [string]$Name
@@ -441,6 +434,10 @@ function UnRegister-MSFPlugin
             {
                 Write-Error -Message "$($request_reply.error_message)"
             }
+        }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
         }
         else
         {

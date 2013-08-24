@@ -129,6 +129,10 @@ function Get-MetasploitModuleStats
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply.ContainsKey('post'))
@@ -269,6 +273,10 @@ function Invoke-MetasploitModuleReload
             {
                 Write-Error -Message "$($request_reply.error_message)"
             }
+        }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
         }
         else
         {
@@ -414,6 +422,10 @@ function Get-MSFAuxiliaryModule
             {
                 Write-Error -Message "$($request_reply.error_message)"
             }
+        }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
         }
         else
         {
@@ -566,6 +578,10 @@ function Get-MSFPostModule
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply.ContainsKey('modules'))
@@ -716,6 +732,10 @@ function Get-MSFExploitModule
             {
                 Write-Error -Message "$($request_reply.error_message)"
             }
+        }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
         }
         else
         {
@@ -1738,11 +1758,6 @@ function Invoke-MSFModule
 
         # Module Type
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipelineByPropertyName=$true,
-        Position=2)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         ValueFromPipelineByPropertyName=$true,
         Position=2)]
         [ValidateSet('post','auxiliary','exploit', 'payload')]

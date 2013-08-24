@@ -112,7 +112,7 @@ function Get-MSFJob
                     {
                         foreach ($job in $request_reply.keys)
                         {
-                            $jobprops = @{}
+                            $jobprops = [ordered]@{}
                             $jobprops.add("JobId", $job)
                             $jobprops.add("Name", $request_reply[$job])
                             $jobprops.add('MSHost', $MSession.Host)
@@ -129,6 +129,10 @@ function Get-MSFJob
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply)
@@ -136,7 +140,7 @@ function Get-MSFJob
                 foreach ($job in $request_reply.keys)
                 {
                     
-                    $jobprops = @{}
+                    $jobprops = [ordered]@{}
                     $jobprops.add("JobId", $job)
                     $jobprops.add("Name", $request_reply[$job])
                     $jobprops.add('MSHost', $MSession.Host)
@@ -183,11 +187,6 @@ function Get-MSFJobInfo
         [psobject]$Session,
 
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipelineByPropertyName=$true,
-        Position=1)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [Int]$JobId
@@ -294,7 +293,7 @@ function Get-MSFJobInfo
                     $request_reply = $sessionobj.Session.Execute("job.info", $JobId)
                     if ($request_reply)
                     {
-                        $jobprops = @{}
+                        $jobprops = [ordered]@{}
                         $jobprops.add("JobId", $request_reply.jid)
                         $jobprops.add("Name", $request_reply.name)
                         $jobprops.add("StartTime", $request_reply.start_time)
@@ -312,11 +311,15 @@ function Get-MSFJobInfo
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply)
             {  
-                $jobprops = @{}
+                $jobprops = [ordered]@{}
                 $jobprops.add("JobId", $request_reply.jid)
                 $jobprops.add("Name", $request_reply.name)
                 $jobprops.add("StartTime", $request_reply.start_time)
@@ -365,11 +368,6 @@ function Remove-MSFJob
         [psobject]$Session,
 
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipelineByPropertyName=$true,
-        Position=1)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [Int]$JobId
@@ -455,6 +453,7 @@ function Remove-MSFJob
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
+                        $jobprops.Add("MSSessionID", $MSession.Id)
                         $connectobj = New-Object -TypeName psobject -Property $request_reply
                         $connectobj.pstypenames[0] = "Metasploit.Action"
                         $connectobj 
@@ -466,11 +465,16 @@ function Remove-MSFJob
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
+                $jobprops.Add("MSSessionID", $MSession.Id)
                 $connectobj = New-Object -TypeName psobject -Property $request_reply
                 $connectobj.pstypenames[0] = "Metasploit.Action"
                 $connectobj 

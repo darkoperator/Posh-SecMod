@@ -1,7 +1,4 @@
-﻿# Console
-#########################################################################################
-#region console
-
+﻿
 <#
 .Synopsis
    Short description
@@ -823,6 +820,10 @@ function Invoke-MSFConsoleCommand
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply.ContainsKey('wrote'))
@@ -873,11 +874,6 @@ function Read-MSFConsole
 
         # Console Id
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        Position=1,
-        ValueFromPipelineByPropertyName=$true)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         Position=1,
         ValueFromPipelineByPropertyName=$true)]
         [int]$ConsoleId
@@ -999,6 +995,10 @@ function Read-MSFConsole
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply.ContainsKey('data'))
@@ -1012,5 +1012,3 @@ function Read-MSFConsole
         }
     }
 }
-
-#endregion

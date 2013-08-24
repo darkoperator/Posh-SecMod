@@ -37,22 +37,12 @@ function Set-MSFGlobalVariable
 
         # Variable name
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipelineByPropertyName=$true,
-        Position=1)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [string]$Name,
 
         # Variable Value
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipelineByPropertyName=$true,
-        Position=2)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         ValueFromPipelineByPropertyName=$true,
         Position=2)]
         [string]$Value
@@ -152,6 +142,10 @@ function Set-MSFGlobalVariable
                 Write-Error -Message "$($request_reply.error_message)"
             }
         }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
+        }
         else
         {
             if ($request_reply.ContainsKey('result'))
@@ -201,11 +195,6 @@ function Remove-MSFGlobalVariable
 
         # Variable name
         [Parameter(Mandatory=$true,
-        ParameterSetName = "Session",
-        ValueFromPipelineByPropertyName=$true,
-        Position=1)]
-        [Parameter(Mandatory=$true,
-        ParameterSetName = "Index",
         ValueFromPipelineByPropertyName=$true,
         Position=1)]
         [string]$Name
@@ -303,6 +292,10 @@ function Remove-MSFGlobalVariable
             {
                 Write-Error -Message "$($request_reply.error_message)"
             }
+        }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
         }
         else
         {
@@ -443,6 +436,10 @@ function Save-MSFConfig
             {
                 Write-Error -Message "$($request_reply.error_message)"
             }
+        }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
         }
         else
         {
