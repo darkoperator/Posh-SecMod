@@ -4,13 +4,21 @@
 #region plugin
 <#
 .Synopsis
-   Short description
+   Lists loaded plugins on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Lists loaded plugins on a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFLoadedPlugin -Id 0 | fl *
+
+
+MSHost      : 192.168.1.104
+Name        : nessus
+MSSessionID : 0
+
+MSHost      : 192.168.1.104
+Name        : msgrpc
+MSSessionID : 0
+
 #>
 function Get-MSFLoadedPlugin
 {
@@ -155,13 +163,32 @@ function Get-MSFLoadedPlugin
 
 <#
 .Synopsis
-   Short description
+   Load a plugin on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Load a plugin on a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Register-MSFPlugin -Id 0 -Name nessus | fl *
+
+
+result      : success
+MSHost      : 192.168.1.104
+Name        : nessus
+MSSessionID : 0
+
+
+
+
+PS C:\> Get-MSFLoadedPlugin -Id 0 | fl *
+
+
+MSHost      : 192.168.1.104
+Name        : nessus
+MSSessionID : 0
+
+MSHost      : 192.168.1.104
+Name        : msgrpc
+MSSessionID : 0
+
 #>
 function Register-MSFPlugin
 {
@@ -203,8 +230,16 @@ function Register-MSFPlugin
     }
     PROCESS 
     {    
-        
-
+        if ($Id -ge 0)
+        {
+            foreach($conn in $Global:MetasploitConn)
+            {
+                if ($conn.Id -eq $Id)
+                {
+                    $MSession = $conn
+                }
+            }
+        }
         elseif ($Session -ne $null -and $Session.pstypenames[0] -eq "Metasploit.Session")
         {
             if ($Global:MetasploitConn.Contains($Session))
@@ -305,13 +340,17 @@ function Register-MSFPlugin
 
 <#
 .Synopsis
-   Short description
+   Unloads a plugin from a Metasploit server.
 .DESCRIPTION
-   Long description
+   Unloads a plugin from a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   UnRegister-MSFPlugin 0 -Name nessus | fl *
+
+
+result      : success
+MSHost      : 192.168.1.104
+Name        : nessus
+MSSessionID : 0
 #>
 function UnRegister-MSFPlugin
 {

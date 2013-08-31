@@ -1,4 +1,23 @@
-﻿ 
+﻿<#
+.Synopsis
+   Downloads a file from a specified URL on the Internet.
+.DESCRIPTION
+   Function will download a single file from the Internet.  This cmdlet requires that an explicit URI is entered and that the destination file name and location is specified as well
+.PARAMETER URL
+	Target location to download a specified file from a remote location.
+.PARAMETER LocalFile
+	Local destination to store targeted file.
+.EXAMPLE
+   Get-WebFile -URL http://www.contoso.com/targetfile.txt -LocalFile .\destinationfile.txt
+   
+   Downloads targetfile.txt and saves it to the current working directory as destinationfile.txt
+.EXAMPLE
+   Get-WebFile http://www.contoso.com/install.exe C:\Downloads\install.exe
+   
+   Downloads install.exe from contoso.com and save it with an absolute path of C:\Downloads
+.LINK
+   https://www.github.com/darkoperator/Posh-SecMod/
+#> 
  Function Get-WebFile
  {
      Param(

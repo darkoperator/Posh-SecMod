@@ -1,17 +1,17 @@
-﻿# Variables
-#########################################################################################
-
-#region Variables
-
+﻿
 <#
 .Synopsis
-   Short description
+   Sets a Global Datastore Variable on the Metasploit Server.
 .DESCRIPTION
-   Long description
+   Sets a Global Datastore Variable on the Metasploit Server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Set-MSFGlobalVariable -Id 0 -Name LHOST -Value 192.168.1.104 | fl
+
+
+result      : success
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
 #>
 function Set-MSFGlobalVariable
 {
@@ -163,13 +163,15 @@ function Set-MSFGlobalVariable
 
 <#
 .Synopsis
-   Short description
+   Removes a Global Datastore Variable on the Metasploit Server.
 .DESCRIPTION
-   Long description
+   Removes a Global Datastore Variable on the Metasploit Server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Remove-MSFGlobalVariable -Id 0 -Name LHOST
+
+result      : success
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Remove-MSFGlobalVariable
 {
@@ -314,13 +316,16 @@ function Remove-MSFGlobalVariable
 
 <#
 .Synopsis
-   Short description
+   Saves the active Datastore to config file for the Metasploit Server.
 .DESCRIPTION
-   Long description
+   Saves the active Datastore to config file  at .msf4/config for the Metasploit Server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+    Save-MSFConfig -Id 0 | fl
+
+
+result      : success
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Save-MSFConfig
 {
@@ -454,5 +459,3 @@ function Save-MSFConfig
         }
     }
 }
-
-#endregion

@@ -1,12 +1,16 @@
 ﻿<#
 .Synopsis
-   Short description
+   Enumerates current jobs running on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Enumerates current jobs running on a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFJob -Id 0 | fl *
+
+
+JobId       : 1
+Name        : Exploit: multi/handler
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Get-MSFJob
 {
@@ -36,12 +40,14 @@ function Get-MSFJob
     }
     PROCESS 
     {    
+
         if ($Id -ge 0)
         {
             foreach($conn in $Global:MetasploitConn)
             {
                 if ($conn.Id -eq $Id)
                 {
+                    Write-Verbose "Using session $($conn.id)"
                     $MSession = $conn
                 }
             }
@@ -66,8 +72,13 @@ function Get-MSFJob
         {
             throw "Specified session was not found"
         }
-        
+        Write-Verbose "Enumerating list of hosts."
         $request_reply = $MSession.Session.Execute("job.list")
+        if (!($request_reply))
+        {
+            Write-Warning "No Jobs where found."
+            return
+        }
 
         if ($request_reply.ContainsKey("error_code"))
         {
@@ -150,19 +161,34 @@ function Get-MSFJob
                     $jobobj    
                 }
             }
+            else
+            {
+                Write-Warning "No Jobs where found"
+            }
         }
     }
 }
 
 <#
 .Synopsis
-   Short description
+   Gets more detailed information about a running jon on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Gets more detailed information about a running jon on a Metasploit server. 
+   It will also get all the Datastore parameters used to launch the module running 
+   as a job.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFJobInfo -Id 0 -JobId 1
+
+
+JobId       : 1
+Name        : Exploit: multi/handler
+StartTime   : 8/24/2013 5:25:15 PM
+Datastore   : @{VERBOSE=False; WfsDelay=0; EnableContextEncoding=False; DisablePayloadHandler=False; ExitOnSession=True; 
+              ListenerTimeout=0; LPORT=8080; LHOST=192.168.1.104; PAYLOAD=windows/meterpreter/reverse_tcp; ReverseConnectRetries=5; 
+              ReverseAllowProxy=False; EnableStageEncoding=False; PrependMigrate=False; EXITFUNC=process; AutoLoadStdapi=True; 
+              InitialAutoRunScript=; AutoRunScript=; AutoSystemInfo=True; EnableUnicodeEncoding=True; TARGET=0}
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Get-MSFJobInfo
 {
@@ -193,7 +219,8 @@ function Get-MSFJobInfo
     )
     BEGIN 
     {
-        
+        # Epoch time 
+        [datetime]$origin = '1970-01-01 00:00:00'
     }
     PROCESS 
     {    
@@ -296,7 +323,7 @@ function Get-MSFJobInfo
                         $jobprops = [ordered]@{}
                         $jobprops.add("JobId", $request_reply.jid)
                         $jobprops.add("Name", $request_reply.name)
-                        $jobprops.add("StartTime", $request_reply.start_time)
+                        $jobprops.add("StartTime", $origin.AddSeconds($request_reply.start_time))
                         $jobprops.add("Datastore", (New-Object -TypeName psobject -Property $request_reply.datastore))
                         $jobprops.add('MSHost', $MSession.Host)
                         $jobprops.Add("MSSessionID", $MSession.Id)
@@ -322,7 +349,7 @@ function Get-MSFJobInfo
                 $jobprops = [ordered]@{}
                 $jobprops.add("JobId", $request_reply.jid)
                 $jobprops.add("Name", $request_reply.name)
-                $jobprops.add("StartTime", $request_reply.start_time)
+                $jobprops.add("StartTime", $origin.AddSeconds($request_reply.start_time))
                 $jobprops.add("Datastore", (New-Object -TypeName psobject -Property $request_reply.datastore))
                 $jobprops.add('MSHost', $MSession.Host)
                 $jobprops.Add("MSSessionID", $MSession.Id)
@@ -337,13 +364,9 @@ function Get-MSFJobInfo
 
 <#
 .Synopsis
-   Short description
+   Stops and removes a running job on a Metasploit server.
 .DESCRIPTION
-   Long description
-.EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Stops and removes a running job on a Metasploit server.
 #>
 function Remove-MSFJob
 {

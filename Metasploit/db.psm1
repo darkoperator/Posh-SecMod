@@ -1819,13 +1819,9 @@ function Get-MSFDBVuln
 
 <#
 .Synopsis
-   Short description
+   Removes a specified vulnerability from the Metasploit Database.
 .DESCRIPTION
-   Long description
-.EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Removes a specified vulnerability from the Metasploit Database.
 #>
 function Remove-MSFDBVuln
 {
@@ -2030,13 +2026,76 @@ function Remove-MSFDBVuln
 
 <#
 .Synopsis
-   Short description
+   Gets notes stored in the Metasploit server Database
 .DESCRIPTION
-   Long description
+   Gets notes stored in the Metasploit server Database
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFDBNote -Id 0
+
+
+time        : 1377313198
+host        : 192.168.10.10
+service     : 
+type        : host.os.nessus_fingerprint
+data        : {:os=>"Microsoft Windows Server 2012 Standard"}
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+time        : 1377353992
+host        : 192.168.1.104
+service     : 
+type        : javascript_fingerprint
+data        : {:os_name=>"Mac OS X", :os_lang=>"en-US", :arch=>"x86"}
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+time        : 1377354063
+host        : 192.168.1.104
+service     : 
+type        : javascript_fingerprint
+data        : {:os_name=>"Microsoft Windows", :os_flavor=>"8", :os_lang=>"en-US", :arch=>"x86"}
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+time        : 1377793291
+host        : 192.168.1.239
+service     : 
+type        : host.os.session_fingerprint
+data        : {:name=>"WIN-VFAQ52MS90V", :os=>"Windows 7 (Build 7600).", :arch=>"x64 (Current Process is WOW64)"}
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+time        : 1377313193
+host        : 192.168.10.3
+service     : 
+type        : host.os.nessus_fingerprint
+data        : {:os=>"Linux Kernel 2.6.32-358.0.1.el6.x86_64 on CentOS release 6.4 (Final)"}
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+time        : 1377313194
+host        : 192.168.10.2
+service     : 
+type        : host.os.nessus_fingerprint
+data        : {:os=>"Microsoft Windows Server 2012 Standard"}
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+time        : 1377313195
+host        : 192.168.10.13
+service     : 
+type        : host.os.nessus_fingerprint
+data        : {:os=>"Microsoft Windows Server 2008 R2 Enterprise Service Pack 1"}
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+time        : 1377313197
+host        : 192.168.10.12
+service     : 
+type        : host.os.nessus_fingerprint
+data        : {:os=>"Microsoft Windows Server 2008 R2 Enterprise Service Pack 1"}
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Get-MSFDBNote
 {
@@ -2262,13 +2321,30 @@ function Get-MSFDBNote
 
 <#
 .Synopsis
-   Short description
+   Creates or modifies a note in the Metasploit Database.
 .DESCRIPTION
-   Long description
+   Creates or modifies a note in the Metasploit Database.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Set-MSFDBNote -Id 0 -Data "This is my test note" -Type "Text" -Port 9999 -IPAddress 8.8.8.8 -Protocol TCP | fl *
+
+
+result      : success
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+
+
+
+PS C:\> Get-MSFDBNote -Id 0 -Ports 9999 -Address 8.8.8.8
+
+
+time        : 1377917264
+host        : 8.8.8.8
+service     : 
+type        : Text
+data        : "This is my test note"
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Set-MSFDBNote
 {
@@ -2704,13 +2780,33 @@ function Remove-MSFDBNote
 
 <#
 .Synopsis
-   Short description
+   Get a events recorded in the Metasploit Database.
 .DESCRIPTION
-   Long description
+   Get a events recorded in the Metasploit Database.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFDBEvent -id 0 -Limit 10
+
+
+created_at  : 1352342121
+updated_at  : 1352342121
+name        : ui_start
+info        : {[revision, $Revision: 15713 $]}
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+created_at  : 1352342121
+updated_at  : 1352342121
+name        : ui_command
+info        : {[command, banner]}
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+created_at  : 1352342282
+updated_at  : 1352342282
+name        : ui_command
+info        : {[command, irb]}
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Get-MSFDBEvent
 {
@@ -2878,6 +2974,20 @@ function Get-MSFDBEvent
 }
 
 
+<#
+.Synopsis
+   Adds a credential in to the Metasploit database.
+.DESCRIPTION
+   Adds a credential obtained via bruteforce, exploit or post exploitation action 
+   in to the Metasploit database.
+.EXAMPLE
+   Set-MSFDBCred -Id 0 -Port 22 -Username sdm -Password 123456 -Type Password -IPAddress 192.168.1.1 | fl *
+
+
+result      : success
+MSHost      : 192.168.1.104
+MSSessionID : 0
+#>
 function Set-MSFDBCred
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
@@ -2905,14 +3015,17 @@ function Set-MSFDBCred
         ValueFromPipelineByPropertyName=$true)]
         [string]$Port,
 
+        # Username
         [Parameter(Mandatory=$true,
         ValueFromPipelineByPropertyName=$true)]
         [string]$Username,
 
+        # Cleartext password or Hash value
         [Parameter(Mandatory=$true,
         ValueFromPipelineByPropertyName=$true)]
         [string]$Password,
 
+        # Type of credential
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
         [ValidateSet("SMB_Hash","Hash","Password","Password_RO" )]
@@ -2928,9 +3041,30 @@ function Set-MSFDBCred
         ValueFromPipelineByPropertyName=$true)]
         [bool]$Active = $true,
 
+        # Database workspace name
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [string]$Workspace
+        [string]$Workspace,
+
+        # Service name
+        [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true)]
+        [string]$ServiceName,
+
+        # Data used to prove the account is actually active.
+        [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true)]
+        [string]$Proof,
+
+        # The exploit database source ID.
+        [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true)]
+        [string]$SourceID,
+
+        # The type of the source of the credentiam (Vuln, Exploit, Cred)
+        [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true)]
+        [string]$SourceType
        
     )
     BEGIN 
@@ -3004,6 +3138,27 @@ function Set-MSFDBCred
             $dbops.Add('workspace', $Workspace)
         }
 
+        if ($ServiceName)
+        {
+            $dbops.Add('sname', $ServiceName)
+        }
+
+        if ($Proof)
+        {
+            $dbops.Add('proof', $Proof)
+        }
+
+        if ($SourceID)
+        {
+            $dbops.Add('source_id', $Proof)
+        }
+
+        if ($SourceType)
+        {
+            $dbops.Add('source_type', $Proof)
+        }
+
+
         $dbops.Add('active', $Active)
 
         $request_reply = $MSession.Session.Execute("db.report_cred", $dbops)
@@ -3068,7 +3223,6 @@ function Set-MSFDBCred
         }
         else
         {
-            $request_reply
             if ($request_reply.ContainsKey('result'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
@@ -3084,13 +3238,23 @@ function Set-MSFDBCred
 
 <#
 .Synopsis
-   Short description
+   Get credentials saved in the Metasploit Database.
 .DESCRIPTION
-   Long description
+   Get credentials saved in the Metasploit Database.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFDBCred -Id 0
+
+
+host        : 192.168.1.1
+updated_at  : 1377351861
+port        : 22
+proto       : tcp
+type        : password
+user        : sdm
+pass        : 123456
+active      : True
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Get-MSFDBCred
 {
@@ -3268,13 +3432,22 @@ function Get-MSFDBCred
 
 <#
 .Synopsis
-   Short description
+   Get loot entries in the Metasploit Database.
 .DESCRIPTION
-   Long description
+   Get loot entries in the Metasploit Database.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFDBLoot -Id 0
+
+
+host        : 192.168.10.10
+ltype       : windows.hashes
+ctype       : text/plain
+created_at  : 1370909705
+updated_at  : 1370909705
+name        : DC01_hashes.txt
+info        : Windows Hashes
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Get-MSFDBLoot
 {
@@ -3452,13 +3625,17 @@ function Get-MSFDBLoot
 
 <#
 .Synopsis
-   Short description
+   Get the current database connection status for a Metasploit server.
 .DESCRIPTION
-   Long description
+   Get the current database connection status for a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFDBStatus -Id 0 | fl *
+
+
+driver      : postgresql
+db          : msf
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Get-MSFDBStatus
 {
@@ -3788,15 +3965,19 @@ function Connect-MSFDB
     }
 }
 
+
 <#
 .Synopsis
-   Short description
+   Disconnects the Metasploit server database.
 .DESCRIPTION
-   Long description
+   Disconnects the Metasploit server database.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Disconnect-MSFDB -Id 0 |  fl
+
+
+result      : success
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Disconnect-MSFDB
 {
@@ -3936,13 +4117,18 @@ function Disconnect-MSFDB
 
 <#
 .Synopsis
-   Short description
+   Get workspaces present on a Metaspoit serve.
 .DESCRIPTION
-   Long description
+   Get workspaces present on a Metaspoit serve.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFDBWorspace -Id 0
+
+
+name        : default
+created_at  : 1352342111
+updated_at  : 1352342111
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Get-MSFDBWorspace
 {
@@ -4089,13 +4275,16 @@ function Get-MSFDBWorspace
 
 <#
 .Synopsis
-   Short description
+   Gets the current Workspace under which a Metasploit server is running under.
 .DESCRIPTION
-   Long description
+   Gets the current Workspace under which a Metasploit server is running under.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFDBCurrentWorspace -Id 0 | fl *
+
+
+workspace   : default
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Get-MSFDBCurrentWorspace
 {
@@ -4236,13 +4425,17 @@ function Get-MSFDBCurrentWorspace
 
 <#
 .Synopsis
-   Short description
+   Creates a new workspace in the Metasploit server database.
 .DESCRIPTION
-   Long description
+   Creates a new workspace in the Metasploit server database.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   New-MSFDBWorkspace -Id 0 -Workspace "Engagement4707" | fl *
+
+
+result      : success
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
 #>
 function New-MSFDBWorkspace
 {
@@ -4393,13 +4586,14 @@ function New-MSFDBWorkspace
 
 <#
 .Synopsis
-   Short description
+   Deletes a workspace from the Metasploit database.
 .DESCRIPTION
-   Long description
+   Deletes a workspace from the Metasploit database.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+    Remove-MSFDBWorkspace -Id 0 -Workspace test2
+result      : success
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Remove-MSFDBWorkspace
 {
@@ -4550,13 +4744,36 @@ function Remove-MSFDBWorkspace
 
 <#
 .Synopsis
-   Short description
+   Changes de current working workspace on a Metasploit server database.
 .DESCRIPTION
-   Long description
+   Changes de current working workspace on a Metasploit server database.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFDBCurrentWorspace -Id 0 | fl
+
+
+workspace   : default
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+
+
+
+PS C:\> Set-MSFDBWorkspace -Id 0 -Workspace "Engagement4707" | fl 
+
+
+result      : success
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+
+
+
+PS C:\> Get-MSFDBCurrentWorspace -Id 0 | fl
+
+
+workspace   : Engagement4707
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Set-MSFDBWorkspace
 {
@@ -4707,13 +4924,118 @@ function Set-MSFDBWorkspace
 
 <#
 .Synopsis
-   Short description
+   Imports scan files and parses them in to the Metasploit Database.
 .DESCRIPTION
-   Long description
+   Imports scan files and parses them in to the Metasploit Database. File types are automatically detected.
+   Currently supported file types include:
+    Acunetix XML
+    Amap Log
+    Amap Log -m
+    Appscan XML
+    Burp Session XML
+    Foundstone XML
+    IP360 ASPL
+    IP360 XML v3
+    Microsoft Baseline Security Analyzer
+    Nessus NBE
+    Nessus XML (v1 and v2)
+    NetSparker XML
+    NeXpose Simple XML
+    NeXpose XML Report
+    Nmap XML
+    OpenVAS Report
+    Qualys Asset XML
+    Qualys Scan XML
+    Retina XML
+
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+    Get-MSFDBHost -Id 0
+
+PS C:\> Import-MSFDBData -Id 0 -File C:\Users\Carlos\Desktop\DevLabRepor.nessus
+
+result      : success
+MSHost      : 192.168.1.104
+MSSessionID : 0                                                                                                                                                     0
+
+
+
+PS C:\> Get-MSFDBHost -Id 0
+
+
+created_at  : 1377957716
+address     : 192.168.10.2
+mac         : 00:0C:29:F9:CD:9D
+name        : 192.168.10.2
+state       : alive
+os_name     : Microsoft Windows
+os_flavor   : Server 2012 Standard
+os_sp       : 
+os_lang     : 
+updated_at  : 1377957716
+purpose     : server
+info        : 
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+created_at  : 1377957715
+address     : 192.168.10.3
+mac         : 00:0C:29:28:7A:F9
+name        : nessus.darkoperator.com
+state       : alive
+os_name     : Linux
+os_flavor   : 
+os_sp       : 2.6.32-358
+os_lang     : 
+updated_at  : 1377957715
+purpose     : device
+info        : 
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+created_at  : 1377957719
+address     : 192.168.10.10
+mac         : 00:0C:29:2E:1F:F1
+name        : 192.168.10.10
+state       : alive
+os_name     : Microsoft Windows
+os_flavor   : Server 2012 Standard
+os_sp       : 
+os_lang     : 
+updated_at  : 1377957719
+purpose     : server
+info        : 
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+created_at  : 1377957718
+address     : 192.168.10.12
+mac         : 00:0C:29:EB:DF:67
+name        : 192.168.10.12
+state       : alive
+os_name     : Microsoft Windows
+os_flavor   : 2008
+os_sp       : SP1
+os_lang     : 
+updated_at  : 1377957718
+purpose     : server
+info        : 
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
+created_at  : 1377957716
+address     : 192.168.10.13
+mac         : 00:0C:29:02:EA:7B
+name        : 192.168.10.13
+state       : alive
+os_name     : Microsoft Windows
+os_flavor   : 2008
+os_sp       : SP1
+os_lang     : 
+updated_at  : 1377957716
+purpose     : server
+info        : 
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Import-MSFDBData
 {

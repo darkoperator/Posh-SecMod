@@ -1,4 +1,34 @@
-﻿function Get-MSFSession
+﻿
+<#
+.Synopsis
+   Enumerate sessions present from Shell and/or Meterpreter on a Metasploit server.
+.DESCRIPTION
+   Enumerate sessions present from Shell and/or Meterpreter on a Metasploit server. Provides full details
+   on the session including the Exploit ID and Session ID that can be used when referencing Event and Credentials.
+.EXAMPLE
+   Get-MSFSession -Id 0
+
+
+tunnel_peer  : 192.168.10.12:65352
+MSSessionID  : 0
+session_port : 65352
+type         : meterpreter
+tunnel_local : 192.168.1.104:4444
+exploit_uuid : kjlmsgbt
+username     : carlos
+desc         : Meterpreter
+uuid         : e2l2na8g
+workspace    : 
+via_payload  : payload/windows/meterpreter/reverse_tcp
+target_host  : 
+platform     : x86/win32
+routes       : 
+info         : ACMELABS\administrator @ DC02
+SessionID    : 1
+via_exploit  : exploit/multi/handler
+session_host : 192.168.10.12
+#>
+function Get-MSFSession
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -128,7 +158,7 @@
                 Write-Error -Message "$($reply.error_message)"
             }
         }
-        elseif ($request_reply.ContainsKey("error_message"))
+        elseif ($reply.ContainsKey("error_message"))
         {
             Write-Error -Message "$($request_reply.error_message)"
         }
@@ -163,11 +193,11 @@
 
 <#
 .Synopsis
-   Short description
+   Write text to a Meterpreter interactive console.
 .DESCRIPTION
-   Long description
+   Write text to a Meterpreter interactive console.
 .EXAMPLE
-   Write-MSFMeterpreterConsole -Index 0 -SessionId 1 -Command "sysinfo`n" | fl *
+   Write-MSFMeterpreterConsole -Index 0 -SessionId 1 -Text "sysinfo`n" | fl *
    
 
 result    : success
@@ -208,7 +238,7 @@ function Write-MSFMeterpreterConsole
         [Parameter(Mandatory=$true,
         Position=2,
         ValueFromPipelineByPropertyName=$true)]
-        [string]$Command
+        [string]$Text
     )
     BEGIN 
     {
@@ -278,8 +308,8 @@ function Write-MSFMeterpreterConsole
             Write-Warning "No sessions where found."
             return
         }
-        Write-Verbose "Executing command $command"
-        $request_reply = $MSession.Session.Execute("session.meterpreter_write",$SessionId,$Command)
+        Write-Verbose "Writing to the console `"$Text `""
+        $request_reply = $MSession.Session.Execute("session.meterpreter_write",$SessionId,$Text)
 
         if ($request_reply.ContainsKey("error_code"))
         {
@@ -319,13 +349,13 @@ function Write-MSFMeterpreterConsole
                     [void]$Global:MetasploitConn.Add($sessionobj)
 
                     # Get again the information
-                    $request_reply = $sessionobj.Session.Execute("session.meterpreter_write",$SessionId,$Command)
+                    $request_reply = $sessionobj.Session.Execute("session.meterpreter_write",$SessionId,$Text)
                     if ($request_reply.ContainsKey('result'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
                         $request_reply.add('SessionId', $SessionId)
                         $request_reply.Add("MSSessionID", $MSession.Id)
-                        $request_reply.add('Command', $Command)
+                        $request_reply.add('Text', $Text)
                         $writeobj = New-Object -TypeName psobject -Property $request_reply
                         $writeobj.pstypenames[0] = "Metasploit.MeterpreterConsole.Write"
                         $writeobj
@@ -348,7 +378,7 @@ function Write-MSFMeterpreterConsole
                 $request_reply.add('MSHost', $MSession.Host)
                 $request_reply.add('SessionId', $SessionId)
                 $request_reply.Add("MSSessionID", $MSession.Id)
-                $request_reply.add('Command', $Command)
+                $request_reply.add('Text', $Text)
                 $writeobj = New-Object -TypeName psobject -Property $request_reply
                 $writeobj.pstypenames[0] = "Metasploit.MeterpreterConsole.Write"
                 $writeobj
@@ -360,9 +390,9 @@ function Write-MSFMeterpreterConsole
 
 <#
 .Synopsis
-   Short description
+   Read the current data in the buffer for an interactive Meterpreter interactice console.
 .DESCRIPTION
-   Long description
+   Read the current data in the buffer for an interactive Meterpreter interactice console.
 .EXAMPLE
    Read-MSFMeterpreterConsole -Id 0 -SessionId 1 | fl *
 
@@ -549,9 +579,9 @@ function Read-MSFMeterpreterConsole
 
 <#
 .Synopsis
-   Short description
+   Finds compatible post modules for a given session on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Finds compatible post modules for a given session on a Metasploit server.
 .EXAMPLE
    Get-MSFSessionCompatPostModules -Id 0 -SessionId 2
 
@@ -770,9 +800,9 @@ function Get-MSFSessionCompatPostModules
 
 <#
 .Synopsis
-   Short description
+   Invokes a console command on a Meterpreter Session on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Invokes a console command on a Meterpreter Session on a Metasploit server given the session Id.
 .EXAMPLE
    Invoke-MSFMMeterpreterCommand -Id 0 -SessionId 1 -Command "getuid" | fl *
 
@@ -968,11 +998,11 @@ function Invoke-MSFMeterpreterCommand
 
 <#
 .Synopsis
-   Short description
+   Writes text to a specified session on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Writes text to a specified session on a Metasploit server given its session Id.
 .EXAMPLE
-   Write-MSFShellConsole -Id 0 -SessionId 2 -Command "ping -c 2 127.0.0.1`n" | fl *
+   Write-MSFShellConsole -Id 0 -SessionId 2 -Text "ping -c 2 127.0.0.1`n" | fl *
 
 
 write_count : 20
@@ -1012,7 +1042,7 @@ function Write-MSFShellConsole
         [Parameter(Mandatory=$true,
         Position=2,
         ValueFromPipelineByPropertyName=$true)]
-        [string]$Command
+        [string]$Text
     )
     BEGIN 
     {
@@ -1084,8 +1114,8 @@ function Write-MSFShellConsole
             return
         }
 
-        Write-Verbose "Executing command $command"
-        $request_reply = $MSession.Session.Execute("session.shell_write",$SessionId,$Command)
+        Write-Verbose "Writing to session `"$Text`""
+        $request_reply = $MSession.Session.Execute("session.shell_write",$SessionId,$Text)
 
         if ($request_reply.ContainsKey("error_code"))
         {
@@ -1125,14 +1155,14 @@ function Write-MSFShellConsole
                     [void]$Global:MetasploitConn.Add($sessionobj)
 
                     # Get again the information
-                    $request_reply = $sessionobj.Session.Execute("session.shell_write",$SessionId,$Command)
+                    $request_reply = $sessionobj.Session.Execute("session.shell_write",$SessionId,$Text)
 
                     if ($request_reply.ContainsKey('write_count'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
                         $request_reply.add('SessionId', $SessionId)
                         $request_reply.Add("MSSessionID",$MSession.Id)
-                        $request_reply.add('Command', $Command)
+                        $request_reply.add('Text', $Text)
                         $writeobj = New-Object -TypeName psobject -Property $request_reply
                         $writeobj.pstypenames[0] = "Metasploit.ShellConsole.Write"
                         $writeobj
@@ -1155,7 +1185,7 @@ function Write-MSFShellConsole
                 $request_reply.add('MSHost', $MSession.Host)
                 $request_reply.add('SessionId', $SessionId)
                 $request_reply.Add("MSSessionID", $MSession.Id)
-                $request_reply.add('Command', $Command)
+                $request_reply.add('Text', $Text)
                 $writeobj = New-Object -TypeName psobject -Property $request_reply
                 $writeobj.pstypenames[0] = "Metasploit.ShellConsole.Write"
                 $writeobj
@@ -1167,9 +1197,9 @@ function Write-MSFShellConsole
 
 <#
 .Synopsis
-   Short description
+   Reads the output generated in a Metasploit Shell Session.
 .DESCRIPTION
-   Long description
+   Reads the output generated by a command or a shell write in a Metasploit Shell Session given the Session Id.
 .EXAMPLE
    Read-MSFShellConsole -Id 0 -SessionId 2 | fl *
 
@@ -1383,6 +1413,12 @@ function Read-MSFShellConsole
 }
 
 
+<#
+.Synopsis
+   Terminate a specific session connected to a Metasploit server.
+.DESCRIPTION
+   Terminate a specific session connected to a Metasploit server given the Session Id number.
+#>
 function Remove-MSFSession
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]

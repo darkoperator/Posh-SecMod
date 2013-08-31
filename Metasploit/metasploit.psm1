@@ -52,10 +52,10 @@ function New-MSFServerSession
         ParameterSetName = "Credential")]
         [Management.Automation.PSCredential]$Credentials,
 
-        # Port of the Metasploit RPC server.
+        # Port of the Metasploit RPC server. Use 55553 for Framework and 3790 for commercial versions.
         [Parameter(Mandatory=$true,
         Position=2)]
-        [Int32]$Port = 3790,
+        [Int32]$Port = 55553,
 
         # Version of API to use depending on target server.
         [validateset('Pro','Framework')]
@@ -1030,6 +1030,14 @@ function Remove-MSFAuthToken
 }
 
 
+
+
+<#
+.Synopsis
+   Enumerates all current Metasploit server threads.
+.DESCRIPTION
+   Enumerates all current Metasploit server threads including detailed information on each one of them.
+#>
 function Get-MSFThread
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
@@ -1196,13 +1204,9 @@ function Get-MSFThread
 
 <#
 .Synopsis
-   Short description
+   Terminates a current thread in the Metasploit server.
 .DESCRIPTION
-   Long description
-.EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Terminates a current thread in the Metasploit server given the ThreadID.
 #>
 function Remove-MSFThread
 {

@@ -1,13 +1,18 @@
 ﻿
 <#
 .Synopsis
-   Short description
+   Gets active consoles on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Gets active consoles on a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+    Get-MSFConsole -Id 0
+
+
+Propmpt     : msf > 
+Busy        : False
+MSHost      : 192.168.1.104
+ConsoleId   : 0
+MSSessionID : 0
 #>
 function Get-MSFConsole
 {
@@ -155,13 +160,18 @@ function Get-MSFConsole
 
 <#
 .Synopsis
-   Short description
+   Creates a new console on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Creates a new console on a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   New-MSFConsole -Id 0 | fl 
+
+
+Propmpt     : msf > 
+Busy        : False
+MSHost      : 192.168.1.104
+ConsoleId   : 0
+MSSessionID : 0
 #>
 function New-MSFConsole
 {
@@ -303,13 +313,16 @@ function New-MSFConsole
 
 <#
 .Synopsis
-   Short description
+   Removes an active console from a Metasploit server.
 .DESCRIPTION
-   Long description
+   Removes an active console from a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Remove-MSFConsole -Id 0 -ConsoleId 1 | fl
+
+
+result      : success
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Remove-MSFConsole
 {
@@ -389,7 +402,7 @@ function Remove-MSFConsole
             $present = $false
             foreach ($con in $current_consoles)
             {
-                if ($con.consoleid -eq $ConsoleId)
+                if ($con.ConsoleId -eq $ConsoleId)
                 {
                     $present = $true
                 }
@@ -479,13 +492,17 @@ function Remove-MSFConsole
 
 <#
 .Synopsis
-   Short description
+   Writes text to a selected Metasploir console.
 .DESCRIPTION
-   Long description
+   Writes text to a selected Metasploir console.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Write-MSFConsole -Id 0 -ConsoleId 0 -Text "version`n" | fl *
+
+
+wrote       : 8
+MSHost      : 192.168.1.104
+Command     : 
+MSSessionID : 0
 #>
 function Write-MSFConsole
 {
@@ -645,7 +662,7 @@ function Write-MSFConsole
             if ($request_reply.ContainsKey('wrote'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.add('Command', $Command)
+                $request_reply.add('Command', $Command.TrimEnd())
                 $request_reply.Add("MSSessionID", $MSession.Id)
                 $writeobj = New-Object -TypeName psobject -Property $request_reply
                 $writeobj.pstypenames[0] = "Metasploit.Console.write"
@@ -658,13 +675,42 @@ function Write-MSFConsole
 
 <#
 .Synopsis
-   Short description
+   Invokes a console command on a specific console on the Metasploit server.
 .DESCRIPTION
-   Long description
+   Invokes a console command on a specific console on the Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Invoke-MSFConsoleCommand -Id 0 -ConsoleId 0 -Command "jobs" | fl *
+
+
+wrote       : 5
+MSHost      : 192.168.1.104
+Command     : jobs
+              
+MSSessionID : 0
+
+
+
+
+PS C:\> Read-MSFConsole -Id 0 -ConsoleId 0
+
+
+data        : Framework: 4.8.0-dev
+              Console  : 4.8.0-dev.15168
+              
+              Jobs
+              ====
+              
+                Id  Name
+                --  ----
+                1   Exploit: multi/handler
+                2   Exploit: multi/handler
+              
+              
+prompt      : msf > 
+busy        : False
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
 #>
 function Invoke-MSFConsoleCommand
 {
@@ -842,13 +888,32 @@ function Invoke-MSFConsoleCommand
 
 <#
 .Synopsis
-   Short description
+   Reads the current data in the buffer of a console on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Reads the current data in the buffer of a console on a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Write-MSFConsole -Id 0 -ConsoleId 0 -Text "version`n" | fl *
+
+
+wrote       : 8
+MSHost      : 192.168.1.104
+Command     : 
+MSSessionID : 0
+
+
+
+
+PS C:\> Read-MSFConsole -Id 0 -ConsoleId 0
+
+
+data        : Framework: 4.8.0-dev
+              Console  : 4.8.0-dev.15168
+              
+prompt      : msf > 
+busy        : False
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
 #>
 function Read-MSFConsole
 {
@@ -916,13 +981,13 @@ function Read-MSFConsole
         }
 
         $current_consoles = Get-MSFConsole -Session $MSession 
-        
+
         if ($current_consoles)
         {
             $present = $false
             foreach ($con in $current_consoles)
             {
-                if ($con.id -eq $ConsoleId)
+                if ($con.ConsoleId -eq $ConsoleId)
                 {
                     $present = $true
                 }

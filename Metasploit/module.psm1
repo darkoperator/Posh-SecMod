@@ -1,19 +1,24 @@
-﻿# Modules
-#########################################################################################
-
-#region module
-
+﻿
 <#
 .Synopsis
-   Short description
+   Gets the module count for each type on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Gets the module count for each type on a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFModuleStats -Id 0
+
+
+exploits    : 1167
+auxiliary   : 641
+post        : 185
+encoders    : 30
+nops        : 8
+payloads    : 312
+MSHost      : 192.168.1.104
+MSSessionID : 0
+
 #>
-function Get-MetasploitModuleStats
+function Get-MSFModuleStats
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -150,15 +155,23 @@ function Get-MetasploitModuleStats
 
 <#
 .Synopsis
-   Short description
+   Reloads all modules in a Metasploit server.
 .DESCRIPTION
-   Long description
+   Reloads all modules in a Metasploit server and returns the new module count per type.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Invoke-MSFModuleReload -Id 0
+
+
+exploits    : 1167
+auxiliary   : 641
+post        : 185
+encoders    : 30
+nops        : 8
+payloads    : 312
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
-function Invoke-MetasploitModuleReload
+function Invoke-MSFModuleReload
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -292,15 +305,27 @@ function Invoke-MetasploitModuleReload
     }
 }
 
+
 <#
 .Synopsis
-   Short description
+   Retrieves the name of all Auxiliary Modules in a Metasploit server.
 .DESCRIPTION
-   Long description
+   Retrieves the name of all Auxiliary Modules in a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFAuxiliaryModule -Id 0 | where {$_.name -like "*ipmi*"} | fl *
+
+
+MSHost      : 192.168.1.104
+Name        : scanner/ipmi/ipmi_version
+MSSessionID : 0
+
+MSHost      : 192.168.1.104
+Name        : scanner/ipmi/ipmi_dumphashes
+MSSessionID : 0
+
+MSHost      : 192.168.1.104
+Name        : scanner/ipmi/ipmi_cipher_zero
+MSSessionID : 0
 #>
 function Get-MSFAuxiliaryModule
 {
@@ -449,13 +474,9 @@ function Get-MSFAuxiliaryModule
 
 <#
 .Synopsis
-   Short description
+   Retrieves the name of all Post  Modules in a Metasploit server.
 .DESCRIPTION
-   Long description
-.EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Retrieves the name of all Post  Modules in a Metasploit server.
 #>
 function Get-MSFPostModule
 {
@@ -604,13 +625,9 @@ function Get-MSFPostModule
 
 <#
 .Synopsis
-   Short description
+   Retrieves the name of all Exploit  Modules in a Metasploit server.
 .DESCRIPTION
-   Long description
-.EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Retrieves the name of all Exploit  Modules in a Metasploit server.
 #>
 function Get-MSFExploitModule
 {
@@ -758,13 +775,9 @@ function Get-MSFExploitModule
 
 <#
 .Synopsis
-   Short description
+   Retrieves the name of all Payload  Modules in a Metasploit server.
 .DESCRIPTION
-   Long description
-.EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Retrieves the name of all Payload  Modules in a Metasploit server.
 #>
 function Get-MSFPayloadModule
 {
@@ -908,13 +921,9 @@ function Get-MSFPayloadModule
 
 <#
 .Synopsis
-   Short description
+   Retrieves the name of all Nop  Modules in a Metasploit server.
 .DESCRIPTION
-   Long description
-.EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Retrieves the name of all Nop  Modules in a Metasploit server.
 #>
 function Get-MSFNOPS
 {
@@ -1058,13 +1067,23 @@ function Get-MSFNOPS
 
 <#
 .Synopsis
-   Short description
+   Gets information about a specic module in a Metasploit server.
 .DESCRIPTION
-   Long description
+   Gets information about a specic module in a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFModuleInfo -Id 0 -Name scanner/ipmi/ipmi_version -Type auxiliary | fl *
+
+
+name        : IPMI Information Discovery
+description : Discover host information through IPMI Channel Auth probes
+license     : Metasploit Framework License (BSD)
+filepath    : /usr/local/share/metasploit-framework/modules/auxiliary/scanner/ipmi/ipmi_version.rb
+rank        : 300
+references  : {URL http://fish2.com/ipmi/}
+authors     : {Dan Farmer <zen@fish2.com>, hdm <hdm@metasploit.com>}
+actions     : {}
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Get-MSFModuleInfo
 {
@@ -1192,7 +1211,6 @@ function Get-MSFModuleInfo
 
                     # Get again the information
                     $request_reply = $sessionobj.Manager.GetModuleInformation($Type.ToLower(),$Name)
-                    $request_reply
                     if ($request_reply.ContainsKey('name'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
@@ -1225,13 +1243,33 @@ function Get-MSFModuleInfo
 
 <#
 .Synopsis
-   Short description
+   Identify compatible payloads for a specific exploit on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Identify compatible payloads for a specific exploit on a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+    Get-MSFExploitCompatiblePayloads -Id 0 -Name aix/rpc_cmsd_opcode21  | fl *
+
+
+MSHost      : 192.168.1.104
+Name        : aix/ppc/shell_bind_tcp
+MSSessionID : 0
+
+MSHost      : 192.168.1.104
+Name        : aix/ppc/shell_reverse_tcp
+MSSessionID : 0
+
+MSHost      : 192.168.1.104
+Name        : generic/custom
+MSSessionID : 0
+
+MSHost      : 192.168.1.104
+Name        : generic/shell_bind_tcp
+MSSessionID : 0
+
+MSHost      : 192.168.1.104
+Name        : generic/shell_reverse_tcp
+MSSessionID : 0
+
 #>
 function Get-MSFExploitCompatiblePayloads
 {
@@ -1388,13 +1426,34 @@ function Get-MSFExploitCompatiblePayloads
 
 <#
 .Synopsis
-   Short description
+   Get all options and details for a specific module on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Get all options and details for a specific module on a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFModuleOptions -Id 0 -Name windows/meterpreter/reverse_tcp -Type payload -Verbose
+VERBOSE: Getting information for module windows/meterpreter/reverse_tcp of type payload.
+
+
+WORKSPACE                  : {[type, string], [required, False], [advanced, True], [evasion, False]...}
+VERBOSE                    : {[type, bool], [required, False], [advanced, True], [evasion, False]...}
+LHOST                      : {[type, address], [required, True], [advanced, False], [evasion, False]...}
+LPORT                      : {[type, port], [required, True], [advanced, False], [evasion, False]...}
+ReverseConnectRetries      : {[type, integer], [required, True], [advanced, True], [evasion, False]...}
+ReverseListenerBindAddress : {[type, address], [required, False], [advanced, True], [evasion, False]...}
+ReverseListenerComm        : {[type, string], [required, False], [advanced, True], [evasion, False]...}
+ReverseAllowProxy          : {[type, bool], [required, True], [advanced, True], [evasion, False]...}
+EnableStageEncoding        : {[type, bool], [required, False], [advanced, True], [evasion, False]...}
+StageEncoder               : {[type, string], [required, False], [advanced, True], [evasion, False]...}
+PrependMigrate             : {[type, bool], [required, True], [advanced, True], [evasion, False]...}
+PrependMigrateProc         : {[type, string], [required, False], [advanced, True], [evasion, False]...}
+EXITFUNC                   : {[type, raw], [required, True], [advanced, False], [evasion, False]...}
+AutoLoadStdapi             : {[type, bool], [required, True], [advanced, True], [evasion, False]...}
+InitialAutoRunScript       : {[type, string], [required, False], [advanced, True], [evasion, False]...}
+AutoRunScript              : {[type, string], [required, False], [advanced, True], [evasion, False]...}
+AutoSystemInfo             : {[type, bool], [required, True], [advanced, True], [evasion, False]...}
+EnableUnicodeEncoding      : {[type, bool], [required, True], [advanced, True], [evasion, False]...}
+MSHost                     : 192.168.1.104
+MSSessionID                : 0
 #>
 function Get-MSFModuleOptions
 {
@@ -1480,7 +1539,7 @@ function Get-MSFModuleOptions
         }
         
         Write-Verbose "Getting information for module $name of type $type."
-        $request_reply = $MSession.Manager.GetModuleInformation($Type.ToLower(),$Name)
+        $request_reply = $MSession.Manager.GetModuleOptions($Type.ToLower(),$Name)
 
         if ($request_reply.ContainsKey("error_code"))
         {
@@ -1523,7 +1582,7 @@ function Get-MSFModuleOptions
                     # Get again the Optios
                     $request_reply = $sessionobj.Manager.GetModuleOptions($Type.ToLower(),$Name)
                     $request_reply
-                    if ($request_reply.ContainsKey('type'))
+                    if ($request_reply.ContainsKey('WORKSPACE'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
                         $request_reply.Add("MSSessionID", $MSession.Id)
@@ -1540,7 +1599,7 @@ function Get-MSFModuleOptions
         }
         else
         {
-            if ($request_reply.ContainsKey('type'))
+            if ($request_reply.ContainsKey('WORKSPACE'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
                 $request_reply.Add("MSSessionID", $MSession.Id)
@@ -1552,17 +1611,25 @@ function Get-MSFModuleOptions
     }
 }
 
+
 <#
 .Synopsis
-   Short description
+   Enumerates what sessions on a Metasploit server are compatible with a give Post Module
 .DESCRIPTION
-   Long description
+   Enumerates what sessions on a Metasploit server are compatible with a give Post Module
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-MSFCompatibleSession -Id 0 -Name "multi/general/execute" | fl *
+
+
+MSHost      : 192.168.1.104
+Session     : 1
+MSSessionID : 0
+
+MSHost      : 192.168.1.104
+Session     : 2
+MSSessionID : 0
 #>
-function Get-MSFPostCompatiblePayloads
+function Get-MSFPostCompatibleSession
 {
     [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
@@ -1633,7 +1700,7 @@ function Get-MSFPostCompatiblePayloads
         }
         
         $request_reply = $MSession.Manager.GetModuleCompatibleSessions($Name)
-
+       
         if ($request_reply.ContainsKey("error_code"))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
@@ -1674,14 +1741,15 @@ function Get-MSFPostCompatiblePayloads
 
                     # Get again the information
                     $request_reply = $sessionobj.Manager.GetModuleCompatibleSessions($Name)
-                    $request_reply
+                    
                     if ($request_reply.ContainsKey('sessions'))
                     {
-                        foreach ($payload in $request_reply['sessions'])
+                        foreach ($sessionidx in $request_reply['sessions'])
                         {
                             $moduleprops = @{}
                             $moduleprops.add('MSHost', $MSession.Host)
                             $moduleprops.Add("MSSessionID", $MSession.Id)
+                            $moduleprops.Add("Session", $sessionidx)
                             $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                             $consoleobj.pstypenames[0] = "Metasploit.Module.Session"
                             $consoleobj
@@ -1698,11 +1766,12 @@ function Get-MSFPostCompatiblePayloads
         {
             if ($request_reply.ContainsKey('sessions'))
             {
-                foreach ($payload in $request_reply['sessions'])
+                foreach ($sessionidx in $request_reply['sessions'])
                 {
                     $moduleprops = @{}
                     $moduleprops.add('MSHost', $MSession.Host)
                     $moduleprops.Add("MSSessionID", $MSession.Id)
+                    $moduleprops.Add("Session", $sessionidx)
                     $consoleobj = New-Object -TypeName psobject -Property $moduleprops
                     $consoleobj.pstypenames[0] = "Metasploit.Module.Session"
                     $consoleobj
@@ -1715,13 +1784,18 @@ function Get-MSFPostCompatiblePayloads
 
 <#
 .Synopsis
-   Short description
+   Invoke a specific module on a Metasploit server.
 .DESCRIPTION
-   Long description
+   Invoke a specific module on a Metasploit server.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Invoke-MSFModule -Id 0 -Type exploit -Name "multi/handler" -Options @{"PAYLOAD"="windows/meterpreter/reverse_tcp"; "LHOST"="192.168.1.104";"LPORT"=8080 } -Verbose 
+VERBOSE: Getting information for module multi/handler of type exploit.
+
+
+job_id      : 4
+uuid        : 9mo0x0ql
+MSHost      : 192.168.1.104
+MSSessionID : 0
 #>
 function Invoke-MSFModule
 {
@@ -1821,7 +1895,6 @@ function Invoke-MSFModule
         
         Write-Verbose "Getting information for module $name of type $type."
         $request_reply = $MSession.Manager.ExecuteModule($Type.ToLower(),$Name, $ops)
-
         if ($request_reply.ContainsKey("error_code"))
         {
             Write-Verbose "An error was reported with code $($request_reply.error_code)"
@@ -1862,7 +1935,6 @@ function Invoke-MSFModule
                     
                     # Get again the Optios
                     $request_reply = $sessionobj.Manager.ExecuteModule($Type.ToLower(),$Name, $ops)
-                    $request_reply
                     if ($request_reply.ContainsKey('job_id'))
                     {
                         $request_reply.add('MSHost', $MSession.Host)
@@ -1871,12 +1943,21 @@ function Invoke-MSFModule
                         $consoleobj.pstypenames[0] = "Metasploit.Job"
                         $consoleobj 
                     }
+                    else
+                    {
+                        Write-error "Module failed to execute, ensure name and options are correct."
+                        return
+                    }
                 }
             }
             else
             {
                 Write-Error -Message "$($request_reply.error_message)"
             }
+        }
+        elseif ($request_reply.ContainsKey("error_message"))
+        {
+            Write-Error -Message "$($request_reply.error_message)"
         }
         else
         {
@@ -1888,7 +1969,10 @@ function Invoke-MSFModule
                 $consoleobj.pstypenames[0] = "Metasploit.Job"
                 $consoleobj
             }
+            else
+            {
+                Write-error "Module failed to execute, ensure name and options are correct."
+            }
         }
     }
 }
-#endregion
