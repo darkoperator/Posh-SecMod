@@ -349,8 +349,8 @@ function Get-MSFDBHost
     )
     BEGIN 
     {
-        
-        
+        # Epoch time 
+        [datetime]$origin = '1970-01-01 00:00:00'
     }
     PROCESS 
     {    
@@ -448,11 +448,24 @@ function Get-MSFDBHost
                     {
                         foreach ($dbhost in $request_reply['hosts'])
                         {
-                            $dbhost.add('MSHost', $MSession.Host)
-                            $dbhost.Add("MSSessionID", $MSession.Id)
-                            $consoleobj = New-Object -TypeName psobject -Property $dbhost
-                            $consoleobj.pstypenames[0] = "Metasploit.host"
-                            $consoleobj 
+                            $hostprops = [ordered]@{}
+                            $hostprops.Add("Address", $dbhost.address)
+                            $hostprops.Add("Name", $dbhost.name)
+                            $hostprops.Add("State", $dbhost.state)
+                            $hostprops.Add("Mac", $dbhost.mac)
+                            $hostprops.Add("OS_Name", $dbhost.os_name)
+                            $hostprops.Add("OS_Flavor", $dbhost.os_flavor)
+                            $hostprops.Add("OS_SP", $dbhost.so_sp)
+                            $hostprops.Add("OS_Lang", $dbhost.os_lang)
+                            $hostprops.Add("Info", $dbhost.info)
+                            $hostprops.Add("Purpose", $dbhost.purpose)
+                            $hostprops.Add("Updated", $origin.AddSeconds($dbhost.updated_at))
+                            $hostprops.Add("Created", $origin.AddSeconds($dbhost.created_at))
+                            $hostprops.Add("MSHost", $MSession.Host)
+                            $hostprops.Add("MSSessionID", $MSession.Id)
+                            $hostobj = New-Object -TypeName psobject -Property $hostprops
+                            $hostobj.pstypenames[0] = "Metasploit.host"
+                            $hostobj 
                         }
                     }
                 }
@@ -472,9 +485,22 @@ function Get-MSFDBHost
             {
                 foreach ($dbhost in $request_reply['hosts'])
                 {
-                    $dbhost.add('MSHost', $MSession.Host)
-                    $dbhost.Add("MSSessionID", $MSession.Id)
-                    $consoleobj = New-Object -TypeName psobject -Property $dbhost
+                    $hostprops = [ordered]@{}
+                    $hostprops.Add("Address", $dbhost.address)
+                    $hostprops.Add("Name", $dbhost.name)
+                    $hostprops.Add("State", $dbhost.state)
+                    $hostprops.Add("Mac", $dbhost.mac)
+                    $hostprops.Add("OS_Name", $dbhost.os_name)
+                    $hostprops.Add("OS_Flavor", $dbhost.os_flavor)
+                    $hostprops.Add("OS_SP", $dbhost.so_sp)
+                    $hostprops.Add("OS_Lang", $dbhost.os_lang)
+                    $hostprops.Add("Info", $dbhost.info)
+                    $hostprops.Add("Purpose", $dbhost.purpose)
+                    $hostprops.Add("Updated", $origin.AddSeconds($dbhost.updated_at))
+                    $hostprops.Add("Created", $origin.AddSeconds($dbhost.created_at))
+                    $hostprops.Add("MSHost", $MSession.Host)
+                    $hostprops.Add("MSSessionID", $MSession.Id)
+                    $consoleobj = New-Object -TypeName psobject -Property $hostprops
                     $consoleobj.pstypenames[0] = "Metasploit.host"
                     $consoleobj 
                 }
@@ -755,8 +781,8 @@ function Get-MSFDBServcie
     )
     BEGIN 
     {
-        
-        
+        # Epoch time 
+        [datetime]$origin = '1970-01-01 00:00:00'
     }
     PROCESS 
     {    
@@ -868,13 +894,22 @@ function Get-MSFDBServcie
                     $request_reply = $sessionobj.Session.Execute("db.services", $dbops)
                     if ($request_reply.ContainsKey('services'))
                     {
-                        foreach ($dbhost in $request_reply['services'])
+                        foreach ($dbsrv in $request_reply['services'])
                         {
-                            $dbhost.add('MSHost', $MSession.Host)
-                            $dbhost.Add("MSSessionID", $MSession.Id)
-                            $consoleobj = New-Object -TypeName psobject -Property $dbhost
-                            $consoleobj.pstypenames[0] = "Metasploit.Service"
-                            $consoleobj 
+                            $srvprops = [ordered]@{}
+                            $srvprops.Add("Host", $dbsrv.host)
+                            $srvprops.Add("Port", $dbsrv.port)
+                            $srvprops.Add("proto", $dbsrv.proto)
+                            $srvprops.Add("Name", $dbsrv.name)
+                            $srvprops.Add("State", $dbsrv.state)
+                            $srvprops.Add("Info", $dbsrv.info)
+                            $srvprops.Add("Updated", $origin.AddSeconds($dbsrv.updated_at))
+                            $srvprops.Add("Created", $origin.AddSeconds($dbsrv.created_at))
+                            $srvprops.Add("MSHost", $MSession.Host)
+                            $srvprops.Add("MSSessionID", $MSession.Id)
+                            $srvobj = New-Object -TypeName psobject -Property $srvprops
+                            $srvobj.pstypenames[0] = "Metasploit.Service"
+                            $srvobj 
                         }
                     }
                 }
@@ -892,13 +927,22 @@ function Get-MSFDBServcie
         {
             if ($request_reply.ContainsKey('services'))
             {
-                foreach ($dbhost in $request_reply['services'])
+                foreach ($dbsrv in $request_reply['services'])
                 {
-                    $dbhost.add('MSHost', $MSession.Host)
-                    $dbhost.Add("MSSessionID", $MSession.Id)
-                    $consoleobj = New-Object -TypeName psobject -Property $dbhost
-                    $consoleobj.pstypenames[0] = "Metasploit.Service"
-                    $consoleobj 
+                    $srvprops = [ordered]@{}
+                    $srvprops.Add("Host", $dbsrv.host)
+                    $srvprops.Add("Port", $dbsrv.port)
+                    $srvprops.Add("proto", $dbsrv.proto)
+                    $srvprops.Add("Name", $dbsrv.name)
+                    $srvprops.Add("State", $dbsrv.state)
+                    $srvprops.Add("Info", $dbsrv.info)
+                    $srvprops.Add("Updated", $origin.AddSeconds($dbsrv.updated_at))
+                    $srvprops.Add("Created", $origin.AddSeconds($dbsrv.created_at))
+                    $srvprops.Add("MSHost", $MSession.Host)
+                    $srvprops.Add("MSSessionID", $MSession.Id)
+                    $srvobj = New-Object -TypeName psobject -Property $srvprops
+                    $srvobj.pstypenames[0] = "Metasploit.Service"
+                    $srvobj 
                 }
             }
         }
@@ -1660,8 +1704,8 @@ function Get-MSFDBVuln
     )
     BEGIN 
     {
-        
-        
+        # Epoch time 
+        [datetime]$origin = '1970-01-01 00:00:00'
     }
     PROCESS 
     {    
@@ -1780,9 +1824,16 @@ function Get-MSFDBVuln
                     {
                         foreach ($vuln in $request_reply['vulns'])
                         {
-                            $vuln.Add('MSHost', $MSession.Host)
-                            $vuln.Add("MSSessionID", $MSession.Id)
-                            $vulnobj = New-Object -TypeName psobject -Property $vuln
+                            $vulnops = [ordered]@{}
+                            $vulnops.Add("Host", $vuln.host)
+                            $vulnops.Add("Port", $vuln.port)
+                            $vulnops.Add("proto", $vuln.proto)
+                            $vulnops.Add("Name", $vuln.name)
+                            $vulnops.Add("References", $vuln.refs)
+                            $vulnops.Add("Time", $origin.AddSeconds($vuln.time))
+                            $vulnops.Add("MSHost", $MSession.Host)
+                            $vulnops.Add("MSSessionID", $MSession.Id)
+                            $vulnobj = New-Object -TypeName psobject -Property $vulnops
                             $vulnobj.pstypenames[0] = "Metasploit.Vuln"
                             $vulnobj 
                         }
@@ -1804,9 +1855,16 @@ function Get-MSFDBVuln
             {
                 foreach ($vuln in $request_reply['vulns'])
                 {
-                    $vuln.add('MSHost', $MSession.Host)
-                    $vuln.Add("MSSessionID", $MSession.Id)
-                    $vulnobj = New-Object -TypeName psobject -Property $vuln
+                    $vulnops = [ordered]@{}
+                    $vulnops.Add("Host", $vuln.host)
+                    $vulnops.Add("Port", $vuln.port)
+                    $vulnops.Add("proto", $vuln.proto)
+                    $vulnops.Add("Name", $vuln.name)
+                    $vulnops.Add("References", $vuln.refs)
+                    $vulnops.Add("Time", $origin.AddSeconds($vuln.time))
+                    $vulnops.Add("MSHost", $MSession.Host)
+                    $vulnops.Add("MSSessionID", $MSession.Id)
+                    $vulnobj = New-Object -TypeName psobject -Property $vulnops
                     $vulnobj.pstypenames[0] = "Metasploit.Vuln"
                     $vulnobj 
                 }
@@ -1814,7 +1872,6 @@ function Get-MSFDBVuln
         }
     }
 }
-
 
 
 <#
@@ -2158,8 +2215,8 @@ function Get-MSFDBNote
     )
     BEGIN 
     {
-        
-        
+        # Epoch time 
+        [datetime]$origin = '1970-01-01 00:00:00'
     }
     PROCESS 
     {    
@@ -2283,9 +2340,15 @@ function Get-MSFDBNote
                     {
                         foreach ($note in $request_reply['notes'])
                         {
-                            $note.add('MSHost', $MSession.Host)
-                            $note.Add("MSSessionID", $MSession.Id)
-                            $notenobj = New-Object -TypeName psobject -Property $note
+                            $noteops = [ordered]@{}
+                            $noteops.Add("Host", $note.host)
+                            $noteops.Add("Service", $note.service)
+                            $noteops.Add("Data", $note.data)
+                            $noteops.Add("Type", $note.type)
+                            $noteops.Add("Time", $origin.AddSeconds($note.time))
+                            $noteops.Add("MSHost", $MSession.Host)
+                            $noteops.Add("MSSessionID", $MSession.Id)
+                            $notenobj = New-Object -TypeName psobject -Property $noteops
                             $notenobj.pstypenames[0] = "Metasploit.Note"
                             $notenobj 
                         }
@@ -2307,9 +2370,15 @@ function Get-MSFDBNote
             {
                 foreach ($note in $request_reply['notes'])
                 {
-                    $note.add('MSHost', $MSession.Host)
-                    $note.Add("MSSessionID", $MSession.Id)
-                    $notenobj = New-Object -TypeName psobject -Property $note
+                    $noteops = [ordered]@{}
+                    $noteops.Add("Host", $note.host)
+                    $noteops.Add("Service", $note.service)
+                    $noteops.Add("Data", $note.data)
+                    $noteops.Add("Type", $note.type)
+                    $noteops.Add("Time", $origin.AddSeconds($note.time))
+                    $noteops.Add("MSHost", $MSession.Host)
+                    $noteops.Add("MSSessionID", $MSession.Id)
+                    $notenobj = New-Object -TypeName psobject -Property $noteops
                     $notenobj.pstypenames[0] = "Metasploit.Note"
                     $notenobj 
                 }
@@ -2843,8 +2912,8 @@ function Get-MSFDBEvent
     )
     BEGIN 
     {
-        
-        
+        # Epoch time 
+        [datetime]$origin = '1970-01-01 00:00:00'
     }
     PROCESS 
     {    
@@ -2938,11 +3007,16 @@ function Get-MSFDBEvent
                     {
                         foreach ($event in $request_reply['events'])
                         {
-                            $event.add('MSHost', $MSession.Host)
-                            $event.Add("MSSessionID", $MSession.Id)
-                            $notenobj = New-Object -TypeName psobject -Property $event
-                            $notenobj.pstypenames[0] = "Metasploit.Event"
-                            $notenobj 
+                            $eventprops = [ordered]@{}
+                            $eventprops.Add("Name", $event.name)
+                            $eventprops.Add("Info", $event.info)
+                            $eventprops.Add("Updated", $origin.AddSeconds($event.updated_at))
+                            $eventprops.Add("Created", $origin.AddSeconds($event.created_at))
+                            $eventprops.Add("MSHost", $MSession.Host)
+                            $eventprops.Add("MSSessionID", $MSession.Id)
+                            $eventobj = New-Object -TypeName psobject -Property $eventprops
+                            $eventobj.pstypenames[0] = "Metasploit.Event"
+                            $eventobj 
                         }
                     }
                 }
@@ -2962,11 +3036,16 @@ function Get-MSFDBEvent
             {
                 foreach ($event in $request_reply['events'])
                 {
-                    $event.add('MSHost', $MSession.Host)
-                    $event.Add("MSSessionID", $MSession.Id)
-                    $notenobj = New-Object -TypeName psobject -Property $event
-                    $notenobj.pstypenames[0] = "Metasploit.Event"
-                    $notenobj 
+                    $eventprops = [ordered]@{}
+                    $eventprops.Add("Name", $event.name)
+                    $eventprops.Add("Info", $event.info)
+                    $eventprops.Add("Updated", $origin.AddSeconds($event.updated_at))
+                    $eventprops.Add("Created", $origin.AddSeconds($event.created_at))
+                    $eventprops.Add("MSHost", $MSession.Host)
+                    $eventprops.Add("MSSessionID", $MSession.Id)
+                    $eventobj = New-Object -TypeName psobject -Property $eventprops
+                    $eventobj.pstypenames[0] = "Metasploit.Event"
+                    $eventobj 
                 }
             }
         }
@@ -3299,8 +3378,8 @@ function Get-MSFDBCred
     )
     BEGIN 
     {
-        
-        
+        # Epoch time 
+        [datetime]$origin = '1970-01-01 00:00:00'
     }
     PROCESS 
     {    
