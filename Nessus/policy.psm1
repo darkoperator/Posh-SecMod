@@ -29,10 +29,9 @@
     --------                     ----------                   -----------                  ----------                  
     1                            Mobile Devices Audit         carlos                       private     
 #>
-
 function Show-NessusPolicy
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -142,10 +141,9 @@ function Show-NessusPolicy
     PS C:\> Remove-NessusPolicy -Index 0 -PolicyID 0 -Verbose
     VERBOSE: Policy with ID 0 was successfully removed
 #>
-
 function Remove-NessusPolicy
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -298,10 +296,9 @@ function Remove-NessusPolicy
     Scientific Linux Local Security Checks                    disabled                                                 
     AIX Local Security Checks                                 disabled                                                 
 #>
-
 function Get-NessusPolicyXML
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -379,7 +376,7 @@ function Get-NessusPolicyXML
 
 function Get-NessusPolicyPluginFamilies
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -463,7 +460,7 @@ function Get-NessusPolicyPluginFamilies
 
 function Publish-NessusPolicy
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -555,7 +552,7 @@ function Publish-NessusPolicy
 
 function Update-NessusPolicyGeneralSettings
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -673,7 +670,7 @@ function Update-NessusPolicyGeneralSettings
 
 function Update-NessusPolicyFamily
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -914,7 +911,7 @@ function Update-NessusPolicyFamily
 
 function New-NessusPolicy
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -1040,10 +1037,9 @@ function New-NessusPolicy
 
     Creates a copy of a policy.
 #>
-
 function Copy-NessusPolicy
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -1142,7 +1138,7 @@ function Copy-NessusPolicy
 #>
 function Set-NessusPolicyWindowsCredential
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -1306,7 +1302,7 @@ function Set-NessusPolicyWindowsCredential
 
 function Set-NessusPolicySSHCredential
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,

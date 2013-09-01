@@ -67,10 +67,9 @@
     GetReportItems ScriptMethod System.Object GetReportItems();         
     GetXML         ScriptMethod System.Object GetXML(); 
 #>
-
 function Get-NessusReports
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -199,7 +198,7 @@ function Get-NessusReports
 
 function Publish-NessusReport
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -317,7 +316,6 @@ function Publish-NessusReport
     192.168.10.12                          HostProperties                         {ReportItem, ReportItem, ReportIte...
     192.168.10.10                          HostProperties                         {ReportItem, ReportItem, ReportIte...
 #>
-
 function Get-NessusV2ReportXML
 {
     [CmdletBinding()]
@@ -406,10 +404,9 @@ function Get-NessusV2ReportXML
    Removes a specified report from a Nessus Server
 
 #>
-
 function Remove-NessusReport
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -530,10 +527,9 @@ function Remove-NessusReport
     High     : 0
     Critical : 0
 #>
-
 function Get-NessusReportHostSummary
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -645,10 +641,9 @@ function Get-NessusReportHostSummary
     system_type      : general-purpose
     HOST_END         : Thu Apr 11 04:25:08 2013
 #>
-
 function Get-NessusReportHostsDetailed
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -850,10 +845,9 @@ function Get-NessusReportHostsDetailed
     PluginType           : remote
     PluginVersion        : 
 #>
-
 function Get-NessusReportItems
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -1090,10 +1084,9 @@ function Get-NessusReportItems
     Count        : 1
     Severity     : Info
 #>
-
 function Get-NessusReportVulnSummary
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -1201,10 +1194,9 @@ function Get-NessusReportVulnSummary
     ExitCode : 0
     Reason   : fedora_2011-5495.nasl was not launched because the key Host/local_checks_enabled is missing
 #>
-
 function Get-NessusReportPluginAudit
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     param(
         [Parameter(Mandatory=$true,
         Position=0,
@@ -1333,7 +1325,7 @@ function Get-NessusReportPluginAudit
 #>
 function Import-NessusV2Report
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     Param
     (
         # Nessus Version 2 report file
@@ -1593,10 +1585,9 @@ function Import-NessusV2Report
 
     PS C:\> $KB = Get-NessusReportHostKB -Index 0 -ReportID $ReportID -ReportHost $ScannedHost 
 #>
-
 function Get-NessusReportHostKB
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
     Param
     (
         [Parameter(Mandatory=$true,
@@ -1705,7 +1696,7 @@ function Get-NessusReportHostKB
 #>
 function Import-NessusKB
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Index')]
 
     Param
     (

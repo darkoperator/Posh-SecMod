@@ -13,13 +13,13 @@
 .EXAMPLE
    Opens database main.db and creates a connection object for it.
 
-   PS C:\> Connect-SQLite3 -DataBase .\main.db
+   PS C:\> Connect-DBSQLite3 -DataBase .\main.db
 
     Connection                             Database                               Index                                 
     ----------                             --------                               -----                                 
    System.Data.SQLite.SQLiteConnection    .\main.db                              0  
 #>
-function Connect-SQLite3 
+function Connect-DBSQLite3 
 {
     [CmdletBinding()]
 	param (
@@ -94,7 +94,7 @@ function Connect-SQLite3
 .EXAMPLE
    Disconnect all SQLite3 connections
 
-   PS C:\> Get-SQLite3Connection | Remove-SQLite3Connection
+   PS C:\> Get-DBSQLite3Connection | Remove-SQLite3Connection
 
    Connection                             Database                               Index                                 
    ----------                             --------                               -----                                 
@@ -103,14 +103,14 @@ function Connect-SQLite3
 .EXAMPLE
    Remove a SQLite3 connection given its index
 
-   PS C:\> Remove-SQLite3Connection -Index 0
+   PS C:\> Remove-DBSQLite3Connection -Index 0
 
    Connection                             Database                               Index                                 
    ----------                             --------                               -----                                 
    System.Data.SQLite.SQLiteConnection    .\main.db                              0                                     
 
 #>
-function Remove-SQLite3Connection
+function Remove-DBSQLite3Connection
 {
     [CmdletBinding()]
     param( 
@@ -158,14 +158,14 @@ function Remove-SQLite3Connection
 .EXAMPLE
    Gets all SQLIte3 Connections 
    
-   PS C:\> Get-SQLite3Connection
+   PS C:\> Get-DBSQLite3Connection
 
     Connection                             Database                               Index                                 
     ----------                             --------                               -----                                 
     System.Data.SQLite.SQLiteConnection    .\main.db                              0     
 
 #>
-function Get-SQLite3Connection 
+function Get-DBSQLite3Connection 
 {
     [CmdletBinding()]
     param( 
@@ -213,7 +213,7 @@ function Get-SQLite3Connection
    PS C:\> Invoke-SQLite3Query -SQL "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;" -Index 0
 
 #>
-function Invoke-SQLite3Query           
+function Invoke-DBSQLite3Query           
 {
     [CmdletBinding()]            
     param( 
@@ -252,4 +252,29 @@ function Invoke-SQLite3Query
         $da.fill($ds) | Out-Null            
         return $ds.tables[0]
     }         
+}
+
+
+function New-DBSQLConnectionString
+{
+    [CmdletBinding()]
+    Param(
+        [string]$ServerName,
+        [string]$DatabaseName,
+        [string]$UserName,
+        [string]$Password,
+        [Switch]$IntegratedAuth
+    )
+	If($IntegratedAuth)
+	{
+		$ConnectionString = "server=$ServerName;database=$DatabaseName;trusted_connection=true;"
+ 
+	}
+	Else
+	{
+		$ConnectionString = "server=$ServerName;database=$DatabaseName;User Id=$UserName;Password=$Password;trusted_connection=False;"
+	}
+ 
+	Return $ConnectionString
+ 
 }

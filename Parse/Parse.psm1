@@ -39,7 +39,6 @@
     192.168.10.13  
 
 #>
-
 function Import-NmapXML
 {
     [CmdletBinding()]
