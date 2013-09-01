@@ -465,7 +465,7 @@ function Remove-MSFConsole
                         $request_reply.add('MSHost', $MSession.Host)
                         $request_reply.Add("MSSessionID", $MSession.Id)
                         $pluginobj = New-Object -TypeName psobject -Property $request_reply
-                        $pluginobj.pstypenames[0] = "Metasploit.Console.Destroy"
+                        $pluginobj.pstypenames[0] = "Metasploit.Action"
                         $pluginobj
                     }
                 }
@@ -482,7 +482,7 @@ function Remove-MSFConsole
                 $request_reply.add('MSHost', $MSession.Host)
                 $request_reply.Add("MSSessionID", $MSession.Id)
                 $pluginobj = New-Object -TypeName psobject -Property $request_reply
-                $pluginobj.pstypenames[0] = "Metasploit.Console.Destroy"
+                $pluginobj.pstypenames[0] = "Metasploit.Action"
                 $pluginobj
             }
         }

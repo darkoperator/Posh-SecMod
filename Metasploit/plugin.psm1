@@ -344,7 +344,7 @@ function Register-MSFPlugin
 .DESCRIPTION
    Unloads a plugin from a Metasploit server.
 .EXAMPLE
-   UnRegister-MSFPlugin 0 -Name nessus | fl *
+   UnRegister-MSFPlugin 0 -Name nessus 
 
 
 result      : success

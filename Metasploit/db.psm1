@@ -664,7 +664,7 @@ function Remove-MSFDBHost
                             }
                         }
                         $connectobj = New-Object -TypeName psobject -Property $deleteprops
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = "Metasploit.Removed.Hosts"
                         $connectobj 
                     }
                 }
@@ -698,7 +698,7 @@ function Remove-MSFDBHost
                     }
                 }
                 $connectobj = New-Object -TypeName psobject -Property $deleteprops
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = "Metasploit.Removed.Hosts"
                 $connectobj 
             }
         }
@@ -1354,7 +1354,7 @@ function Remove-MSFDBServcie
                             }
                         }
                         $connectobj = New-Object -TypeName psobject -Property $deleteprops
-                        $connectobj.pstypenames[0] = "Metasploit.Action"
+                        $connectobj.pstypenames[0] = "Metasploit.Removed.Service"
                         $connectobj 
                     }
                 }
@@ -1388,7 +1388,7 @@ function Remove-MSFDBServcie
                     }
                 }
                 $connectobj = New-Object -TypeName psobject -Property $deleteprops
-                $connectobj.pstypenames[0] = "Metasploit.Action"
+                $connectobj.pstypenames[0] = "Metasploit.Removed.Service"
                 $connectobj 
             }
         }
@@ -4234,8 +4234,8 @@ function Get-MSFDBWorspace
     )
     BEGIN 
     {
-        
-        
+        # Epoch time 
+        [datetime]$origin = '1970-01-01 00:00:00'
     }
     PROCESS 
     {    
@@ -4316,9 +4316,13 @@ function Get-MSFDBWorspace
                     {
                         foreach ($workspace in $request_reply['workspaces'])
                         {
-                            $workspace.add('MSHost', $MSession.Host)
-                            $workspace.Add("MSSessionID", $MSession.Id)
-                            $wsobj = New-Object -TypeName psobject -Property $workspace
+                            $wrkprops = [ordered]@{}
+                            $wrkprops.Add("Name", $workspace.name)
+                            $wrkprops.Add("Updated", $origin.AddSeconds($workspace.updated_at))
+                            $wrkprops.Add("Created", $origin.AddSeconds($workspace.created_at))
+                            $wrkprops.add('MSHost', $MSession.Host)
+                            $wrkprops.Add("MSSessionID", $MSession.Id)
+                            $wsobj = New-Object -TypeName psobject -Property $wrkprops
                             $wsobj.pstypenames[0] = "Metasploit.Workspace"
                             $wsobj 
                         }
@@ -4340,9 +4344,13 @@ function Get-MSFDBWorspace
             {
                 foreach ($workspace in $request_reply['workspaces'])
                 {
-                    $workspace.add('MSHost', $MSession.Host)
-                    $workspace.Add("MSSessionID", $MSession.Id)
-                    $wsobj = New-Object -TypeName psobject -Property $workspace
+                    $wrkprops = [ordered]@{}
+                    $wrkprops.Add("Name", $workspace.name)
+                    $wrkprops.Add("Updated", $origin.AddSeconds($workspace.updated_at))
+                    $wrkprops.Add("Created", $origin.AddSeconds($workspace.created_at))
+                    $wrkprops.add('MSHost', $MSession.Host)
+                    $wrkprops.Add("MSSessionID", $MSession.Id)
+                    $wsobj = New-Object -TypeName psobject -Property $wrkprops
                     $wsobj.pstypenames[0] = "Metasploit.Workspace"
                     $wsobj 
                 }
@@ -4494,7 +4502,7 @@ function Get-MSFDBCurrentWorspace
                 $request_reply.add('MSHost', $MSession.Host)
                 $request_reply.Add("MSSessionID", $MSession.Id)
                 $wsobj = New-Object -TypeName psobject -Property $request_reply
-                $wsobj.pstypenames[0] = "Metasploit.Workspace"
+                $wsobj.pstypenames[0] = "Metasploit.Default.Workspace"
                 $wsobj 
             }
         }

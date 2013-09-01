@@ -1940,7 +1940,7 @@ function Invoke-MSFModule
                         $request_reply.add('MSHost', $MSession.Host)
                         $request_reply.Add("MSSessionID", $MSession.Id)
                         $consoleobj = New-Object -TypeName psobject -Property $request_reply
-                        $consoleobj.pstypenames[0] = "Metasploit.Job"
+                        $consoleobj.pstypenames[0] = "Metasploit.Invoked.Job"
                         $consoleobj 
                     }
                     else
@@ -1966,7 +1966,7 @@ function Invoke-MSFModule
                 $request_reply.add('MSHost', $MSession.Host)
                 $request_reply.Add("MSSessionID", $MSession.Id)
                 $consoleobj = New-Object -TypeName psobject -Property $request_reply
-                $consoleobj.pstypenames[0] = "Metasploit.Job"
+                $consoleobj.pstypenames[0] = "Metasploit.Invoked.Job"
                 $consoleobj
             }
             else
