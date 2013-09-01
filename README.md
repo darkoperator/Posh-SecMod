@@ -9,9 +9,17 @@ This module is a PowerShell v3 only module at the moment. The module is a collec
 - Utilities: General purpose functions.
 - Audit: Functions that may be usful when performing audit of systems.
 - Database: Functions that are useful when interacting with databases.
+- Shodan: Functions for doing discovery using Shodan using a valid API key.
+- VirusTotal: Functions for Interacting with Virus Total using a valid API key.
+- Metasploit: Functions for automating Metasploit Framework and the comercial version using the XMLRPC API.
 
-The project is still in development and should be considered in a Alpha stage.
-
+## ChangeLog
+### Version 1.2
+- Added Shodan submodule
+- Added VirusTotal submodule
+- Added Metasploit submodule
+- BugFixes
+- Added new fuctions in audit that work in WinPE for performing incident response and auditing (Disk MSFT Time, ADSI functions)
 ## Licensing
 The functions I have written are BSD 3-Clause Licensed. The other files I used for the project are licensed as follows: 
 
@@ -24,82 +32,8 @@ The functions I have written are BSD 3-Clause Licensed. The other files I used f
 - Whois Library from http://coderbuddy.wordpress.com/ under the GPL2 License
 
 ## Installation Instrcutions
-###Install PSGet
 
-Run PowerShell with elevetaed privelages and make sure that you have set the ExecutionPolicy to RemoteSigned since none of the scripts, binaries and modules are signed with authenticode. 
+To install the module from a PowerShell v3 session run:
 <pre>
-Set-ExecutionPolicy RemoteSigned
-</pre>
-
-We will use the PS-Get utility to download and install Posh-Git, for this we first install PS-Get we do this by running in PowerShell:
-<pre>
-(new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | iex
-</pre>
-
-Once installed we can either install directly from github using PSget or install Git and use it to keep the module update
-
-###Installing Module using PSGet
-
-This is the simplest way of installing the module, you just need to run:
-<pre>
-install-module -ModuleUrl https://github.com/darkoperator/Posh-SecMod/archive/master.zip
-</pre>
-
-and the module will be available
-
-###Download and Install Git
-
-Download the latest version of Git for Windows from http://msysgit.github.com/
-When you install make sure of the following:
-
-- Select **Run Git from the Windows Command Prompt** in the **Ajusting your PATH environment** step of the installation wizard.
-- Select Checkout as-is and commit as-is in the options for formating.
- 	
-###Install Posh-Git using PsGet
-
- now install Posh-Git by running:
-<pre>
-install-module posh-git
-</pre>
-
-Reload your profile to make sure everything is set to use Posh-Git by running:
-<pre>
-. $PROFILE
-</pre>
-If you get an error for SSH-Agent not being present do not worry since the checkout is done via web for the module. If you want to use SSH to do checkouts in GitHub and plan on using it you will have to append to your path in PowerShell the path to the executable. In PowerShell run:
-<pre>
-notepad $PROFILE
-</pre>
-Add to the begining of the file:
-<pre>
-$env:path += ";" + (Get-Item "Env:ProgramFiles(x86)").Value + "\Git\bin"
-</pre>
-
-and reload your profile by running:
-<pre>
-. $PROFILE
-</pre>
-
-###Install the Latest Development Version of Posh-SecMod
-
-To download the latest version go to your profile module path from withing PowerShell:
-<pre>
-cd $env:PSModulePath.split(";")[0]
-</pre>
-
-Use git to clone the latest development version of the module:
-<pre>
-git clone https://github.com/darkoperator/Posh-SecMod.git
-</pre>
-
-The module should now be available and you can load the module and look at the functions it provides:
-<pre>
-Import-Module posh-secmod
-Get-Command -Module posh-secmod
-</pre>
-
-To Update the module with any recent changes just:
-<pre>
-cd "$($env:PSModulePath.split(";")[0])\posh-secmod"
-git pull
+iex (New-Object Net.WebClient).DownloadString("https://gist.github.com/darkoperator/6404266/raw/982cae410fc41f6c64e69d91fc3dda777554f241/gistfile1.ps1")
 </pre>
