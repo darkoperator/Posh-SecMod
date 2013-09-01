@@ -23,7 +23,7 @@ This module is a PowerShell v3 only module at the moment. The module is a collec
 ## Licensing
 The functions I have written are BSD 3-Clause Licensed. The other files I used for the project are licensed as follows: 
 
-- NessusSharp library from Brandon Perry from: https://github.com/brandonprry/nessus-sharp thos is BSD 3-Clause Licensed.
+- NessusSharp and Metasploit-Sharp libraries from Brandon Perry from: https://github.com/brandonprry are BSD 3-Clause Licensed.
 
 - SQlite Libraries provided by the SQLite Projects these libraries are GPL2 licensed libraries.
 
