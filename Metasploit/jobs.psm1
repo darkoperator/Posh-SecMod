@@ -323,6 +323,7 @@ function Get-MSFJobInfo
                         $jobprops = [ordered]@{}
                         $jobprops.add("JobId", $request_reply.jid)
                         $jobprops.add("Name", $request_reply.name)
+                        $jobprops.add("URI", $request_reply.uripath)
                         $jobprops.add("StartTime", $origin.AddSeconds($request_reply.start_time))
                         $jobprops.add("Datastore", (New-Object -TypeName psobject -Property $request_reply.datastore))
                         $jobprops.add('MSHost', $MSession.Host)
@@ -349,6 +350,7 @@ function Get-MSFJobInfo
                 $jobprops = [ordered]@{}
                 $jobprops.add("JobId", $request_reply.jid)
                 $jobprops.add("Name", $request_reply.name)
+                $jobprops.add("URI", $request_reply.uripath)
                 $jobprops.add("StartTime", $origin.AddSeconds($request_reply.start_time))
                 $jobprops.add("Datastore", (New-Object -TypeName psobject -Property $request_reply.datastore))
                 $jobprops.add('MSHost', $MSession.Host)
