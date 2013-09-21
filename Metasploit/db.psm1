@@ -340,7 +340,11 @@ function Get-MSFDBHost
 
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [int]$Limit = 50,
+        [int]$Limit = 100,
+
+        [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true)]
+        [int]$Offset = 0,
 
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
@@ -399,6 +403,11 @@ function Get-MSFDBHost
         if ($Limit)
         {
             $dbops.Add('limit',$Limit)
+        }
+
+        if ($Offset)
+        {
+            $dbops.Add('offset',$Offset)
         }
 
         if ($Workspace)
@@ -781,7 +790,11 @@ function Get-MSFDBServcie
 
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [int]$Limit,
+        [int]$Limit = 100,
+
+        [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true)]
+        [int]$Offset = 0,
 
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
@@ -852,6 +865,16 @@ function Get-MSFDBServcie
         if ($Limit)
         {
             $dbops.Add('limit',$Limit)
+        }
+
+        if ($Offset)
+        {
+            $dbops.Add('offset',$Offset)
+        }
+
+        if ($Offset)
+        {
+            $dbops.Add('offset',$Offset)
         }
 
         if ($Workspace)
@@ -1704,7 +1727,11 @@ function Get-MSFDBVuln
 
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [int]$Limit,
+        [int]$Limit = 100,
+
+        [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true)]
+        [int]$Offset = 0,
 
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
@@ -1780,6 +1807,11 @@ function Get-MSFDBVuln
         if ($Limit)
         {
             $dbops.Add('limit',$Limit)
+        }
+
+        if ($Offset)
+        {
+            $dbops.Add('offset',$Offset)
         }
 
         if ($Workspace)
@@ -2206,10 +2238,13 @@ function Get-MSFDBNote
         ValueFromPipelineByPropertyName=$true)]
         [string]$Address,
 
-        # Maximun number of results to pull from server
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [int]$Limit,
+        [int]$Limit = 100,
+
+        [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true)]
+        [int]$Offset = 0,
 
         # Workspace to execute query against
         [Parameter(Mandatory=$false,
@@ -2291,6 +2326,11 @@ function Get-MSFDBNote
         if ($Limit)
         {
             $dbops.Add('limit',$Limit)
+        }
+
+        if ($Offset)
+        {
+            $dbops.Add('offset',$Offset)
         }
 
         if ($Workspace)
@@ -2911,7 +2951,11 @@ function Get-MSFDBEvent
         # Maximun number of results to pull from server
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [int]$Limit,
+        [int]$Limit = 100,
+
+        [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true)]
+        [int]$Offset = 0,
 
         # Workspace to execute query against
         [Parameter(Mandatory=$false,
@@ -2963,6 +3007,11 @@ function Get-MSFDBEvent
         if ($Limit)
         {
             $dbops.Add('limit',$Limit)
+        }
+
+        if ($Offset)
+        {
+            $dbops.Add('offset',$Offset)
         }
 
         if ($Workspace)
@@ -3368,12 +3417,12 @@ function Get-MSFDBCred
 
         # Maximun number of results to pull from server
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Session")]
+        ValueFromPipelineByPropertyName=$true)]
+        [int]$Limit = 100,
+
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Index")]
-        [int]$Limit,
+        ValueFromPipelineByPropertyName=$true)]
+        [int]$Offset = 0,
 
         # Workspace to execute query against
         [Parameter(Mandatory=$false,
@@ -3429,6 +3478,11 @@ function Get-MSFDBCred
         if ($Limit)
         {
             $dbops.Add('limit',$Limit)
+        }
+
+        if ($Offset)
+        {
+            $dbops.Add('offset',$Offset)
         }
 
         if ($Workspace)
@@ -3561,12 +3615,12 @@ function Get-MSFDBLoot
 
         # Maximun number of results to pull from server
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Session")]
+        ValueFromPipelineByPropertyName=$true)]
+        [int]$Limit = 100,
+
         [Parameter(Mandatory=$false,
-        ValueFromPipelineByPropertyName=$true,
-        ParameterSetName = "Index")]
-        [int]$Limit,
+        ValueFromPipelineByPropertyName=$true)]
+        [int]$Offset = 0,
 
         # Workspace to execute query against
         [Parameter(Mandatory=$false,
@@ -3622,6 +3676,11 @@ function Get-MSFDBLoot
         if ($Limit)
         {
             $dbops.Add('limit',$Limit)
+        }
+
+        if ($Offset)
+        {
+            $dbops.Add('offset',$Offset)
         }
 
         if ($Workspace)
