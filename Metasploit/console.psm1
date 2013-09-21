@@ -662,7 +662,7 @@ function Write-MSFConsole
             if ($request_reply.ContainsKey('wrote'))
             {
                 $request_reply.add('MSHost', $MSession.Host)
-                $request_reply.add('Command', $Command.TrimEnd())
+                $request_reply.add('Text', $Text.TrimEnd())
                 $request_reply.Add("MSSessionID", $MSession.Id)
                 $writeobj = New-Object -TypeName psobject -Property $request_reply
                 $writeobj.pstypenames[0] = "Metasploit.Console.write"

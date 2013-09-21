@@ -1098,7 +1098,7 @@ function Write-MSFShellConsole
                     }
                     else
                     {
-                        Write-Error "This is not a Meterpreter session" -ErrorAction Stop
+                        Write-Error "This is not a Shell session" -ErrorAction Stop
                     }
                 }
             }

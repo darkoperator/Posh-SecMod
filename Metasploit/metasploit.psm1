@@ -53,7 +53,7 @@ function New-MSFServerSession
         [Management.Automation.PSCredential]$Credentials,
 
         # Port of the Metasploit RPC server. Use 55553 for Framework and 3790 for commercial versions.
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory=$false,
         Position=2)]
         [Int32]$Port = 55553,
 
@@ -65,7 +65,7 @@ function New-MSFServerSession
         [switch]$DisableSSL,
 
         # Specify a existing permanent token to use.
-        [Parameter(Mandatory=$true, ParameterSetName = "Token")]
+        [Parameter(Mandatory=$false, ParameterSetName = "Token")]
         [ValidateScript({ $_.Length -eq 32})]
         [string]$Token
     )

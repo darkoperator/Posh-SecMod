@@ -340,11 +340,15 @@ function Get-MSFDBHost
 
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [int]$Limit,
+        [int]$Limit = 50,
 
         [Parameter(Mandatory=$false,
         ValueFromPipelineByPropertyName=$true)]
-        [string]$Workspace
+        [string]$Workspace,
+
+        [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true)]
+        [string[]]$Address
        
     )
     BEGIN 
@@ -400,6 +404,11 @@ function Get-MSFDBHost
         if ($Workspace)
         {
             $dbops.Add('workspace', $Workspace)
+        }
+
+        if ($Address)
+        {
+            $dbops.Add('addresses', $IPAddresses)
         }
        
         $request_reply = $MSession.Session.Execute("db.hosts", $dbops)
