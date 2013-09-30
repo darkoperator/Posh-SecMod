@@ -222,16 +222,16 @@ function Get-FileHash
 	
 	Process
 	{
-		$inputStream = New-Object IO.StreamReader $File
+		$inputStream = New-Object IO.StreamReader (resolve-path $File).Path
     	$hashBytes = $hasher.ComputeHash($inputStream.BaseStream)
     	$inputStream.Close()
 
    		 # Convert the result to hexadecimal
     	$builder = New-Object System.Text.StringBuilder
-    	Foreach-Object -Process { [void] $builder.Append($_.ToString("X2")) } -InputObject $hashBytes
+    	$hashBytes | Foreach-Object -Process { [void] $builder.Append($_.ToString("X2")) }
 		# Create Object
     	$output = New-Object PsObject -Property @{
-        		Path = ([IO.Path]::GetFileName($file));
+        		Path = (resolve-path $file).path;
         		HashAlgorithm = $hashAlgorithm;
         		HashValue = $builder.ToString()
 			}
