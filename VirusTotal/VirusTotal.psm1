@@ -382,32 +382,32 @@ function Submit-VirusTotalFile
         $headers.add("apikey",$apikey)
         $boundary = "----------------------------" + [DateTime]::Now.Ticks.ToString("x")
         $req.ContentType = "multipart/form-data; boundary=" + $boundary
-        [byte[]]$boundarybytes = [System.Text.Encoding]::ASCII.GetBytes("`r`n--" + $boundary + "`r`n");
-        [string]$formdataTemplate = "`r`n--" + $boundary + "`r`nContent-Disposition: form-data; name=`"{0}`";`r`n`r`n{1}";
-        [string]$formitem = [string]::Format($formdataTemplate, "apikey", $apikey);
-        [byte[]]$formitembytes = [System.Text.Encoding]::UTF8.GetBytes($formitem);
-        [string]$headerTemplate = "Content-Disposition: form-data; name=`"{0}`"; filename=`"{1}`"`r`nContent-Type: application/octet-stream`r`n`r`n";
-        [string]$header = [string]::Format($headerTemplate, "file", (get-item $file).name);
-        [byte[]]$headerbytes = [System.Text.Encoding]::UTF8.GetBytes($header);
-        [string]$footerTemplate = "Content-Disposition: form-data; name=`"Upload`"`r`n`r`nSubmit Query`r`n" + $boundary + "--";
-        [byte[]]$footerBytes = [System.Text.Encoding]::UTF8.GetBytes($footerTemplate);
+        [byte[]]$boundarybytes = [System.Text.Encoding]::ASCII.GetBytes("`r`n--" + $boundary + "`r`n")
+        [string]$formdataTemplate = "`r`n--" + $boundary + "`r`nContent-Disposition: form-data; name=`"{0}`";`r`n`r`n{1}"
+        [string]$formitem = [string]::Format($formdataTemplate, "apikey", $apikey)
+        [byte[]]$formitembytes = [System.Text.Encoding]::UTF8.GetBytes($formitem)
+        [string]$headerTemplate = "Content-Disposition: form-data; name=`"{0}`"; filename=`"{1}`"`r`nContent-Type: application/octet-stream`r`n`r`n"
+        [string]$header = [string]::Format($headerTemplate, "file", (get-item $file).name)
+        [byte[]]$headerbytes = [System.Text.Encoding]::UTF8.GetBytes($header)
+        [string]$footerTemplate = "Content-Disposition: form-data; name=`"Upload`"`r`n`r`nSubmit Query`r`n" + $boundary + "--"
+        [byte[]]$footerBytes = [System.Text.Encoding]::UTF8.GetBytes($footerTemplate)
 
 
         # Read the file and format the message
         $stream = $req.GetRequestStream()
-        $rdr = new-object System.IO.FileStream($fileinfo.FullName, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read);
+        $rdr = new-object System.IO.FileStream($fileinfo.FullName, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read)
         [byte[]]$buffer = new-object byte[] $rdr.Length
         [int]$total = [int]$count = 0
-        $stream.Write($formitembytes, 0, $formitembytes.Length);
-        $stream.Write($boundarybytes, 0, $boundarybytes.Length);
-        $stream.Write($headerbytes, 0,$headerbytes.Length);
+        $stream.Write($formitembytes, 0, $formitembytes.Length)
+        $stream.Write($boundarybytes, 0, $boundarybytes.Length)
+        $stream.Write($headerbytes, 0,$headerbytes.Length)
         $count = $rdr.Read($buffer, 0, $buffer.Length)
         do{
-            $stream.Write($buffer, 0, $count);
+            $stream.Write($buffer, 0, $count)
             $count = $rdr.Read($buffer, 0, $buffer.Length)
         }while ($count > 0)
-        $stream.Write($boundarybytes, 0, $boundarybytes.Length);
-        $stream.Write($footerBytes, 0, $footerBytes.Length);
+        $stream.Write($boundarybytes, 0, $boundarybytes.Length)
+        $stream.Write($footerBytes, 0, $footerBytes.Length)
         $stream.close()
 
         Try
@@ -416,9 +416,9 @@ function Submit-VirusTotalFile
             $response = $req.GetResponse()
 
             # Read the response
-            $respstream = $response.GetResponseStream(); 
-            $sr = new-object System.IO.StreamReader $respstream; 
-            $result = $sr.ReadToEnd(); 
+            $respstream = $response.GetResponseStream()
+            $sr = new-object System.IO.StreamReader $respstream
+            $result = $sr.ReadToEnd()
             ConvertFrom-Json $result
         }
         Catch [Net.WebException]
