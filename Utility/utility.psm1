@@ -206,8 +206,9 @@ function Get-FileHash
 	[OutputType([string])]
 	param(
 		[Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
+        ValueFromPipelineByPropertyName=$true,
+        Position=0)]
+        [Alias("Name","FileName","FullName")]
         [ValidateScript({Test-Path $_})] 
         $File,
 
@@ -216,29 +217,36 @@ function Get-FileHash
 	)
 	 Begin
     {
-		$hashType = [Type] "System.Security.Cryptography.$HashAlgorithm"
-		$hasher = $hashType::Create()
+		
 	}
 	
 	Process
 	{
-		$inputStream = New-Object IO.StreamReader (resolve-path $File).Path
-    	$hashBytes = $hasher.ComputeHash($inputStream.BaseStream)
-    	$inputStream.Close()
+        
+        if (Test-Path (resolve-path $File).Path -PathType Leaf)
+        {
+            Write-Verbose "Hashing $((resolve-path $File).Path)"
+            $hashType = [Type] "System.Security.Cryptography.$HashAlgorithm"
+		    $hasher = $hashType::Create()
+		    $inputStream = New-Object IO.StreamReader ((resolve-path $File).Path)
+    	    $hashBytes = $hasher.ComputeHash($inputStream.BaseStream)
+    	    $inputStream.Close()
 
-   		 # Convert the result to hexadecimal
-    	$builder = New-Object System.Text.StringBuilder
-    	$hashBytes | Foreach-Object -Process { [void] $builder.Append($_.ToString("X2")) }
-		# Create Object
-    	$output = New-Object PsObject -Property @{
-        		Path = (resolve-path $file).path;
-        		HashAlgorithm = $hashAlgorithm;
-        		HashValue = $builder.ToString()
-			}
+   		     # Convert the result to hexadecimal
+    	    $builder = New-Object System.Text.StringBuilder
+    	    $hashBytes | Foreach-Object -Process { [void] $builder.Append($_.ToString("X2")) }
+		    # Create Object
+    	    $output = New-Object PsObject -Property @{
+        		    Path = (resolve-path $file).path;
+        		    HashAlgorithm = $hashAlgorithm;
+        		    HashValue = $builder.ToString()
+	   		    }
+            $output
+        }
 	}
 	End
 	{
-		$output
+		
 	}
 }
 
