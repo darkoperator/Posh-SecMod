@@ -364,31 +364,62 @@ function Submit-VirusTotalFile
         $fileinfo = Get-ItemProperty -Path $File
 
         # Check the file size
-        if ($fileinfo.length -gt 20mb)
+        if ($fileinfo.length -gt 64mb)
         {
-            Write-Error "VirusTotal has a limit of 20MB per file submited"
+            Write-Error "VirusTotal has a limit of 64MB per file submited" -ErrorAction Stop
         }
+   
+        $req = [System.Net.httpWebRequest][System.Net.WebRequest]::Create("http://www.virustotal.com/vtapi/v2/file/scan")
+        $req.Headers = $headers
+        $req.Method = "POST"
+        $req.AllowWriteStreamBuffering = $true;
+        $req.SendChunked = $false;
+        $req.KeepAlive = $true;
 
-        # Set parameters for request
-        $boundary = [System.Guid]::NewGuid().ToString()
-        $contents = Get-Content $File
-        $body = @"
---$boundary
-Content-Disposition: form-data; name="apikey"
+        $headers = New-Object -TypeName System.Net.WebHeaderCollection
 
-$APIKey
---$boundary
-Content-Disposition: form-data; name="file"; filename="$($fileinfo.Name)"
+        # Prep the POST Headers for the message
+        $headers.add("apikey",$apikey)
+        $boundary = "----------------------------" + [DateTime]::Now.Ticks.ToString("x")
+        $req.ContentType = "multipart/form-data; boundary=" + $boundary
+        [byte[]]$boundarybytes = [System.Text.Encoding]::ASCII.GetBytes("`r`n--" + $boundary + "`r`n");
+        [string]$formdataTemplate = "`r`n--" + $boundary + "`r`nContent-Disposition: form-data; name=`"{0}`";`r`n`r`n{1}";
+        [string]$formitem = [string]::Format($formdataTemplate, "apikey", $apikey);
+        [byte[]]$formitembytes = [System.Text.Encoding]::UTF8.GetBytes($formitem);
+        [string]$headerTemplate = "Content-Disposition: form-data; name=`"{0}`"; filename=`"{1}`"`r`nContent-Type: application/octet-stream`r`n`r`n";
+        [string]$header = [string]::Format($headerTemplate, "file", (get-item $file).name);
+        [byte[]]$headerbytes = [System.Text.Encoding]::UTF8.GetBytes($header);
+        [string]$footerTemplate = "Content-Disposition: form-data; name=`"Upload`"`r`n`r`nSubmit Query`r`n" + $boundary + "--";
+        [byte[]]$footerBytes = [System.Text.Encoding]::UTF8.GetBytes($footerTemplate);
 
-$contents
---$boundary--
-"@
-        
+
+        # Read the file and format the message
+        $stream = $req.GetRequestStream()
+        $rdr = new-object System.IO.FileStream($fileinfo.FullName, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read);
+        [byte[]]$buffer = new-object byte[] $rdr.Length
+        [int]$total = [int]$count = 0
+        $stream.Write($formitembytes, 0, $formitembytes.Length);
+        $stream.Write($boundarybytes, 0, $boundarybytes.Length);
+        $stream.Write($headerbytes, 0,$headerbytes.Length);
+        $count = $rdr.Read($buffer, 0, $buffer.Length)
+        do{
+            $stream.Write($buffer, 0, $count);
+            $count = $rdr.Read($buffer, 0, $buffer.Length)
+        }while ($count > 0)
+        $stream.Write($boundarybytes, 0, $boundarybytes.Length);
+        $stream.Write($footerBytes, 0, $footerBytes.Length);
+        $stream.close()
 
         Try
         {
-            Invoke-RestMethod -Uri $URI -method Post -header @{'apikey'= $APIKey} -ContentType "multipart/form-data;boundary=$boundary" -Body $body
-           
+            # Upload the file
+            $response = $req.GetResponse()
+
+            # Read the response
+            $respstream = $response.GetResponseStream(); 
+            $sr = new-object System.IO.StreamReader $respstream; 
+            $result = $sr.ReadToEnd(); 
+            ConvertFrom-Json $result
         }
         Catch [Net.WebException]
         {
