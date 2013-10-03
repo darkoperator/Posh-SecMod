@@ -626,7 +626,7 @@ function Get-AuditDSDisabledUserAcount
 }
 
 
-function Get-AuditDSDeletedAcount
+function Get-AuditDSDeletedAccount
 {
     [CmdletBinding()]
     Param(

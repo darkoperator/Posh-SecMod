@@ -1,4 +1,5 @@
-﻿<#
+﻿
+<#
 .Synopsis
    Downloads a file from a specified URL on the Internet.
 .DESCRIPTION
@@ -85,21 +86,29 @@ function Add-Zip
 		$ZipFile,
 		
 		[Parameter(Mandatory=$true,
-                  ValueFromPipeline=$true,
-                   Position=1)]
+        ValueFromPipelineByPropertyName=$true,
+        Position=1)]
         [ValidateScript({Test-Path $_})]
+        [Alias("Name", "FullName")]
 		$File
 		
 	)
-	if(-not (test-path($ZipFile)))
-	{
-		set-content $ZipFile ("PK" + [char]5 + [char]6 + ("$([char]0)" * 18))
-		(dir $ZipFile).IsReadOnly = $false	
-	}
-	Write-Verbose $File
-	$shellApplication = new-object -com shell.application
-	$zipPackage = (new-object -com shell.application).NameSpace(((get-item $ZipFile).fullname))
-	$zipPackage.CopyHere((get-item $File).FullName)
+
+    Begin
+    {
+	    if(-not (test-path($ZipFile)))
+	    {
+		    set-content $ZipFile ("PK" + [char]5 + [char]6 + ("$([char]0)" * 18))
+		    (dir $ZipFile).IsReadOnly = $false	
+	    }
+    }
+    Process
+    {
+	    Write-Verbose $File
+	    $shellApplication = new-object -com shell.application
+	    $zipPackage = (new-object -com shell.application).NameSpace(((get-item $ZipFile).fullname))
+	    $zipPackage.CopyHere((get-item $File).FullName)
+    }
 }
 
 
@@ -130,8 +139,8 @@ function Get-Zip
     Param
     (
 	    [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
+        ValueFromPipelineByPropertyName=$true,
+        Position=0)]
         [ValidateScript({Test-Path $_})]
 		$ZipFile,
 		$Recurse = $true
@@ -192,13 +201,15 @@ function Expand-Zip
 		Calculates either the MD5, SHA1, SHA256, SHA384 or SHA512 checksum of a given file.
 
 	.PARAMETER  File
-		The description of the ParameterA parameter.
+		File to hash.
 
 	.PARAMETER  HashAlgorithm
-		The description of the ParameterB parameter.
+		Algorithum to use for hashing.  MD5, SHA1, SHA256, SHA384 or SHA512 
 
 	.EXAMPLE
-		PS C:\> Get-Something -ParameterA 'One value' -ParameterB 32
+		Get-ChildItem *.dll | Get-FileHash
+
+        
 #>
 function Get-FileHash 
 {
