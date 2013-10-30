@@ -89,7 +89,7 @@ function Show-NessusScans
 
             if ($request_reply.contents.scans.scanlist.scan -ne $null) {
                 # Return all scans if none is specified by name
-                if ($ScantName -eq $null){
+                if ($ScanName -eq $null){
                     foreach ($scan in $request_reply.contents.scans.scanlist.scan){
                         $scan_proprties = [ordered]@{
                             ScanID   = $scan.uuid
