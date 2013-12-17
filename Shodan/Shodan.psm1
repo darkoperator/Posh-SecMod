@@ -47,7 +47,6 @@ function Get-ShodanAPIInfo
    - OSVDB Open Source Vulnerability Database
    - ExploitDB
    - Metasploit Framework
-   - PacketStorm
 
    Specific IDs can be use to narrow down a search:
     - Microsoft Buletin
@@ -87,7 +86,7 @@ function Search-ShodanExploit
         
         # Sources to limit the seach.
         [Parameter(Mandatory=$false)]
-        [Validateset('metasploit', 'cve', 'osvdb', 'exploitdb', 'packetstorm')]
+        [Validateset('metasploit', 'cve', 'osvdb', 'exploitdb')]
         [string[]]$Sources,
 
         # CVE ID
@@ -581,6 +580,7 @@ function Search-ShodanMSF
     {
     }
 }
+
 
 <#
 .Synopsis
