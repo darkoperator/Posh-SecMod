@@ -1169,14 +1169,20 @@ function Set-NessusPolicyWindowsCredential
         Position=3)]
         [Management.Automation.PSCredential]$Credential,
 
-        # Sets if NTLMv2 will be used to transmit the credentials
+        # Sets if NTLMv2 will be used to transmit the credentials.
         [Parameter(Mandatory=$false,
         Position=4)]
         [switch]$NTLMv2 = $true,
 
+        # Sets if Kerberos will be used for authentication.
+        [Parameter(Mandatory=$false,
+        Position=4)]
+        [switch]$KerberosOnly = $true,
+
+
         # Type of password format, text password, LM Hash or NTML Hash.
         [Parameter(Mandatory=$false,
-        Position=5)]
+        Position=6)]
         [ValidateSet("Password","NTLMHash","LMHash")]
         [String]$PasswordType = "Password"
 
@@ -1195,48 +1201,57 @@ function Set-NessusPolicyWindowsCredential
         switch ($UserIndex)
         {
             0 {
-                $opt.add("credentials.Windows+credentials.265", $Credential.GetNetworkCredential().UserName)
-                $opt.add("credentials.Windows+credentials.266", $Credential.GetNetworkCredential().Password)
-                $opt.add("credentials.Windows+credentials.267",$Credential.GetNetworkCredential().Domain)
+                $opt.add("credentials.Windows+credentials.364", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.365", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.Windows+credentials.366", $Credential.GetNetworkCredential().Domain)
               }
 
             1 {
-                $opt.add("credentials.Windows+credentials.269", $Credential.GetNetworkCredential().UserName)
-                $opt.add("credentials.Windows+credentials.270", $Credential.GetNetworkCredential().Password)
-                $opt.add("credentials.Windows+credentials.271",$Credential.GetNetworkCredential().Domain)
+                $opt.add("credentials.Windows+credentials.368", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.369", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.Windows+credentials.370", $Credential.GetNetworkCredential().Domain)
             }
 
             2 {
-                $opt.add("credentials.Windows+credentials.272", $Credential.GetNetworkCredential().UserName)
-                $opt.add("credentials.Windows+credentials.273", $Credential.GetNetworkCredential().Password)
-                $opt.add("credentials.Windows+credentials.274",$Credential.GetNetworkCredential().Domain)
+                $opt.add("credentials.Windows+credentials.371", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.372", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.Windows+credentials.373", $Credential.GetNetworkCredential().Domain)
             }
 
             3 {
-                $opt.add("credentials.Windows+credentials.275", $Credential.GetNetworkCredential().UserName)
-                $opt.add("credentials.Windows+credentials.276", $Credential.GetNetworkCredential().Password)
-                $opt.add("credentials.Windows+credentials.277",$Credential.GetNetworkCredential().Domain)
+                $opt.add("credentials.Windows+credentials.374", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.Windows+credentials.375", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.Windows+credentials.376", $Credential.GetNetworkCredential().Domain)
             }
         }
 
         switch ($PasswordType)
         {
-            "Password" {$opt.add("credentials.Windows+credentials.268",'Password')}
-            "NTLMHash" {$opt.add("credentials.Windows+credentials.268",'NTLM+Hash')}
-            "LMHash"   {$opt.add("credentials.Windows+credentials.268",'LM+Hash')}
+            "Password" {$opt.add("credentials.Windows+credentials.367",'Password')}
+            "NTLMHash" {$opt.add("credentials.Windows+credentials.367",'NTLM+Hash')}
+            "LMHash"   {$opt.add("credentials.Windows+credentials.367",'LM+Hash')}
         }
 
         if ($NTLMv2)
         {
-            $opt.add("credentials.Windows+credentials.279",'yes')
+            $opt.add("credentials.Windows+credentials.378",'yes')
         }
         else
         {
-            $opt.add("credentials.Windows+credentials.279",'no')
+            $opt.add("credentials.Windows+credentials.378",'no')
+        }
+
+        if ($KerberosOnly)
+        {
+            $opt.add("credentials.Windows+credentials.379",'yes')
+        }
+        else
+        {
+            $opt.add("credentials.Windows+credentials.379",'no')
         }
 
         # Make sure the credentials are never sent in as cleartext
-        $opt.add("credentials.Windows+credentials.148",'yes')
+        $opt.add("credentials.Windows+credentials.377",'yes')
     }
     Process
     {
@@ -1331,7 +1346,20 @@ function Set-NessusPolicySSHCredential
         # Credential object with credentials that will be set.
         [Parameter(Mandatory=$true,
         Position=3)]
-        [Management.Automation.PSCredential]$Credential
+        [Management.Automation.PSCredential]$Credential,
+
+        [Parameter(Mandatory=$false,
+        ParameterSetName = "Index")]
+        [int32]$SSHPort = 22,
+
+        # Credential object with credentials that will be used for elevation.
+        [Parameter(Mandatory=$false)]
+        [Management.Automation.PSCredential]$ElevationCredential,
+
+        [Parameter(Mandatory=$false,
+        Position=6)]
+        [ValidateSet("su", "sudo", "su+sudo", "pbrun", "Cisco_Enable", "dzdo", "Nothing")]
+        [String]$ElevationMethod
 
     )
 
@@ -1345,36 +1373,71 @@ function Set-NessusPolicySSHCredential
             seq  = $rand.Next()
             policy_id = $PolicyID
         }
+
         switch ($UserIndex)
         {
             0 {
-                $opt.add("credentials.Windows+credentials.215", $Credential.GetNetworkCredential().UserName)
-                $opt.add("credentials.Windows+credentials.216", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.SSH+settings.306", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.SSH+settings.307", $Credential.GetNetworkCredential().Password)
               }
 
             1 {
-                $opt.add("credentials.Windows+credentials.227", $Credential.GetNetworkCredential().UserName)
-                $opt.add("credentials.Windows+credentials.228", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.SSH+settings.319", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.SSH+settings.320", $Credential.GetNetworkCredential().Password)
             }
 
             2 {
-                $opt.add("credentials.Windows+credentials.229", $Credential.GetNetworkCredential().UserName)
-                $opt.add("credentials.Windows+credentials.230", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.SSH+settings.321", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.SSH+settings.322", $Credential.GetNetworkCredential().Password)
             }
 
             3 {
-                $opt.add("credentials.Windows+credentials.231", $Credential.GetNetworkCredential().UserName)
-                $opt.add("credentials.Windows+credentials.232", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.SSH+settings.323", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.SSH+settings.324", $Credential.GetNetworkCredential().Password)
             }
 
             4 {
-                $opt.add("credentials.Windows+credentials.233", $Credential.GetNetworkCredential().UserName)
-                $opt.add("credentials.Windows+credentials.234", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.SSH+settings.325", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.SSH+settings.326", $Credential.GetNetworkCredential().Password)
             }
 
             5 {
-                $opt.add("credentials.Windows+credentials.235", $Credential.GetNetworkCredential().UserName)
-                $opt.add("credentials.Windows+credentials.236", $Credential.GetNetworkCredential().Password)
+                $opt.add("credentials.SSH+settings.327", $Credential.GetNetworkCredential().UserName)
+                $opt.add("credentials.SSH+settings.328", $Credential.GetNetworkCredential().Password)
+            }
+        }
+
+        if ($SSHPort)
+        {
+            $opt.add("credentials.SSH+settings.317", $SSHPort)
+        }
+
+        if ($ElevationCredential)
+        {
+            $opt.add("credentials.SSH+settings.314", $ElevationCredential.GetNetworkCredential().UserName)
+            $opt.add("credentials.SSH+settings.315", $ElevationCredential.GetNetworkCredential().Password)
+        }
+
+        if ($ElevationMethod)
+        {
+            switch ($ElevationMethod)
+            {
+
+                "su"{$opt.add("credentials.SSH+settings.311", "su")}
+
+                "sudo"{$opt.add("credentials.SSH+settings.311", "sudo")}
+
+                "su+sudo"{$opt.add("credentials.SSH+settings.311", "su%2Bsudo")}
+
+                "pbrun"{$opt.add("credentials.SSH+settings.311", "pbrun")}
+
+                "Cisco_Enable"{$opt.add("credentials.SSH+settings.314", "Cisco+'enable'")}
+
+                "dzdo"{$opt.add("credentials.SSH+settings.314", "dzdo")}
+
+                "Nothing"{$opt.add("credentials.SSH+settings.314", "Nothing")}
+
+                default {$opt.add("credentials.SSH+settings.314", "Nothing")}
             }
         }
     }
