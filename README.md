@@ -14,6 +14,8 @@ This module is a PowerShell v3 only module at the moment. The module is a collec
 - Metasploit: Functions for automating Metasploit Framework and the comercial version using the XMLRPC API.
 
 ## ChangeLog
+### Version 1.3
+Moved Nessus, Shodan, VirusTotal and Metasploit modules to individual ones for easier maintenance and update.
 ### Version 1.2
 - Added Shodan submodule
 - Added VirusTotal submodule

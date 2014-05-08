@@ -1,1 +1,0 @@
-Add formating for Nessus.Server.Policyfamily to show only Name, PluginCount and Status in Table

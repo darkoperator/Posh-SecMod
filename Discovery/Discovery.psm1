@@ -863,7 +863,7 @@ public static class NetUtils
                 Start-Sleep -milliseconds 500
             }
     
-            # create a "powershell pipeline runner"   
+            # create a "powershell pipeline runner"
             $ps += [powershell]::create()
 
             # assign our pool of 3 runspaces to use   
