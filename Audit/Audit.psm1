@@ -423,7 +423,8 @@ function Get-AuditDSUserAcount
             $UserProps.Add('LastLogon', [dateTime]::FromFileTime("$($_.properties.lastlogon)"))
             $UserProps.Add('GroupMembership', "$($_.properties.memberof)")
             $UserProps.Add('SID', "$(&{$sidobj = [byte[]]"$($_.Properties.objectsid)".split(" ");$sid = new-object System.Security.Principal.SecurityIdentifier $sidobj, 0; $sid.Value})")
-
+	    $UserProps.Add('PropertyNames', "$($_.properties.PropertyNames)")
+	    
             [pscustomobject]$UserProps
             }
     }
