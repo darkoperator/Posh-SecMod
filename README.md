@@ -5,14 +5,9 @@ This module is a PowerShell v3 only module at the moment. The module is a collec
 - Parse: Parsers for Nmap, DNSRecon and other type of output files from security tools.
 - PostExploitation: Functions to help in performing post exploitation tasks.
 - Registry: Collection of functions for manipulating the registry in remote hosts using WMI.
-- Nessus: Collection of assemblies and functions for automating the Nessus Vulnerability Scanner.
 - Utilities: General purpose functions.
 - Audit: Functions that may be usful when performing audit of systems.
 - Database: Functions that are useful when interacting with databases.
-- Shodan: Functions for doing discovery using Shodan using a valid API key.
-- VirusTotal: Functions for Interacting with Virus Total using a valid API key.
-- Metasploit: Functions for automating Metasploit Framework and the comercial version using the XMLRPC API.
-
 ## ChangeLog
 ### Version 1.3
 Moved Nessus, Shodan, VirusTotal and Metasploit modules to individual ones for easier maintenance and update.
