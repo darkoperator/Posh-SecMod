@@ -71,7 +71,7 @@ function Get-AuditLogedOnSessions
 .Synopsis
    Gets a list of Domain Computer accounts and their details using ADSI.
 .DESCRIPTION
-   Gets a list of Domain coputer accounts and their details using ADSI. If the machine it is ran from is
+   Gets a list of Domain Computer accounts and their details using ADSI. If the machine it is ran from is
    in the domain and no Domain Controller is specified it will run with the privelages of the user. 
    Support the use of alternate user credentials when ran against a domain controller. The host must use 
    the same DNS server to be able to reseolve the hostnames to the proper IPAddress.
@@ -223,9 +223,9 @@ function Get-AuditDSComputerAccount
 
 <#
 .Synopsis
-   Gets a list of Domain users and their details using ADSI.
+   Gets a list of Domain Users and their details using ADSI.
 .DESCRIPTION
-   Gets a list of Domain users and their details using ADSI. If the machine it is ran from is
+   Gets a list of Domain Users and their details using ADSI. If the machine it is ran from is
    in the domain and no Domain Controller is specified it will run with the privelages of the user. 
    Support the use of alternate user credentials when ran against a domain controller.
 .EXAMPLE
@@ -434,9 +434,9 @@ function Get-AuditDSUserAcount
 
 <#
 .Synopsis
-   Gets a list of Domain users and their details using ADSI.
+   Gets a list of Domain Users and their details using ADSI.
 .DESCRIPTION
-   Gets a list of Domain users and their details using ADSI. If the machine it is ran from is
+   Gets a list of Domain Users and their details using ADSI. If the machine it is ran from is
    in the domain and no Domain Controller is specified it will run with the privelages of the user. 
    Support the use of alternate user credentials when ran against a domain controller.
 .EXAMPLE
@@ -811,7 +811,7 @@ function Get-AuditPrefechList
 
     .DESCRIPTION
         Retrieves the timestamps for a given file. This not only shows the LastAccess, LastWrite and Creation timestamps, 
-        but also shows the Entrie Modified timestamp, which is not viewable just by looking at the properties of a file.
+        but also shows the Entry Modified timestamp, which is not viewable just by looking at the properties of a file.
 
     .PARAMETER File
         Name of the file to get timestamps from.
@@ -945,12 +945,12 @@ Function Get-AuditFileTimeStamp
 	HKCC - Symbolic link to the key of the current hardware profile
 
 	.PARAMETER SubKey
-	Registry Key to query
+	Registry key to query
 
 	.EXAMPLE
 	Get-AuditRegKeyLastWriteTime -ComputerName testwks -Key HKLM -SubKey Software
 
-        .EXAMPLE
+    .EXAMPLE
 	Get-AuditRegKeyLastWriteTime -ComputerName testwks1,testwks2 -SubKey Software
 
 	.EXAMPLE

@@ -156,7 +156,7 @@ function Remove-DBSQLite3Connection
 .DESCRIPTION
    Get all or a specified existing SQLite3 Connection.
 .EXAMPLE
-   Gets all SQLIte3 Connections 
+   Gets all SQLite3 Connections 
    
    PS C:\> Get-DBSQLite3Connection
 

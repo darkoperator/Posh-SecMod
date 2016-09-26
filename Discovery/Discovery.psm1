@@ -4,7 +4,7 @@
 .DESCRIPTION
    Performs a Whois query for a given Domain.
 .EXAMPLE
-   Perfrom a whois query for google.com
+   Perform a whois query for google.com
 
    PS C:\> Get-Whois google.com
 
@@ -48,7 +48,7 @@ function Get-Whois
 .Synopsis
    Enumerates all mDNS records in the local subnet.
 .DESCRIPTION
-   Unsing mDNS the function qill query and resolve all mDNS records for
+   Unsing mDNS the function will query and resolve all mDNS records for
    devices advertising on the local subnet.
 .EXAMPLE
    Shows only the A and AAAA Records for hosts in the local subnet
@@ -88,9 +88,9 @@ function Get-MDNSRecords
 
 <#
 .Synopsis
-    Generates a IP Address Objects for IPv4 and IPv6 Ranges.
+    Generates an IP Address Objects for IPv4 and IPv6 Ranges.
 .DESCRIPTION
-    Generates a IP Address Objects for IPv4 and IPv6 Ranges given a ranges in CIDR or
+    Generates an IP Address Objects for IPv4 and IPv6 Ranges given a ranges in CIDR or
     range <StartIP>-<EndIP> format.
 .EXAMPLE
     PS C:\> New-IPvRange -Range 192.168.1.1-192.168.1.5
@@ -243,12 +243,12 @@ function New-IPv4RangeFromCIDR
 .DESCRIPTION
    Performs a DNS Reverse Lookup of a given IPv4 IP Range.
 .EXAMPLE
-   Perfrom a threaded reverse lookup against a given CIDR
+   Perform a threaded reverse lookup against a given CIDR
 
    PS C:\> Invoke-ReverseDNSLookup -CIDR 192.168.1.0/24
 
 .EXAMPLE
-   Perfrom a reverse lookup against a given range given the start and end IP Addresses
+   Perform a reverse lookup against a given range given the start and end IP Addresses
 
    PS C:\> Invoke-ReverseDNSLookup -Range 192.168.1.1-192.168.1.20
 #>
@@ -306,7 +306,7 @@ function Invoke-ReverseDNSLookup
 
         #Multithreading setup
 
-        # create a pool of maxThread runspaces   
+        # Create a pool of maxThread runspaces   
         $pool = [runspacefactory]::CreateRunspacePool(1, $MaxThreads)   
         $pool.Open()
   
@@ -489,18 +489,18 @@ function Invoke-PingScan
                 Start-Sleep -milliseconds 500
             }
     
-            # create a "powershell pipeline runner"   
+            # Create a "powershell pipeline runner"   
             $ps += [powershell]::create()
    
             $ps[$i].runspacepool = $pool
 
-            # command to run
+            # Command to run
             [void]$ps[$i].AddScript($PingScripBlock).AddParameter('ip', $ip).AddParameter('Timeout', $TimeOut)
     
-            # start job
+            # Start job
             $jobs += $ps[$i].BeginInvoke();
      
-            # store wait handles for WaitForAll call   
+            # Store wait handles for WaitForAll call   
             $wait += $jobs[$i].AsyncWaitHandle
     
             $i++
@@ -514,11 +514,11 @@ function Invoke-PingScan
                 Start-Sleep -milliseconds 500
             } 
   
-        # end async call   
+        # End async call   
         for ($y = 0; $y -lt $i; $y++) {     
   
             try {   
-                # complete async job   
+                # Complete async job   
                 $ScanResults += $ps[$y].EndInvoke($jobs[$y])   
   
             } catch {
@@ -836,9 +836,9 @@ public static class NetUtils
         $start = get-date
         write-verbose "Begin Scanning at $start"
 
-        #Multithreading setup
+        # Multithreading setup
 
-        # create a pool of maxThread runspaces   
+        # Create a pool of maxThread runspaces   
         $pool = [runspacefactory]::CreateRunspacePool(1, $MaxThreads)   
         $pool.Open()
   
@@ -851,7 +851,7 @@ public static class NetUtils
         # How many servers
         $record_count = $targets.Length
 
-        #Loop through the endpoints starting a background job for each endpoint
+        # Loop through the endpoints starting a background job for each endpoint
         foreach ($IPAddress in $targets)
         {
             # Show Progress
@@ -863,20 +863,20 @@ public static class NetUtils
                 Start-Sleep -milliseconds 500
             }
     
-            # create a "powershell pipeline runner"
+            # Create a "powershell pipeline runner"
             $ps += [powershell]::create()
 
-            # assign our pool of 3 runspaces to use   
+            # Assign our pool of 3 runspaces to use   
             $ps[$i].runspacepool = $pool
 
-            # command to run
+            # Command to run
             [void]$ps[$i].AddScript($scancode).AddParameter('IPaddress', $IPAddress).AddParameter('IPHlp', $IPHlp)
             #[void]$ps[$i].AddParameter()
     
-            # start job
+            # Start job
             $jobs += $ps[$i].BeginInvoke();
      
-            # store wait handles for WaitForAll call   
+            # Store wait handles for WaitForAll call   
             $wait += $jobs[$i].AsyncWaitHandle
     
             $i++
@@ -891,7 +891,7 @@ public static class NetUtils
                 Start-Sleep -milliseconds 500
         } 
   
-        # end async call   
+        # End async call   
         for ($y = 0; $y -lt $i; $y++) {     
   
             try 
@@ -963,10 +963,12 @@ function Get-SystemDNSServer
 
 <#
 .Synopsis
-   Enumerates common DNS SRV Records for a given domain.
+   Enumerates common DNS SRV records for a given domain.
 .DESCRIPTION
-   Enumerates common DNS SRV Records for a given domain.
+   Enumerates common DNS SRV records for a given domain.
 .EXAMPLE
+   Enumerate common DNS SRV records for a given domain.
+
    PS C:\> Invoke-EnumSRVRecords -Domain microsoft.com
 
 
@@ -1061,7 +1063,7 @@ function Invoke-EnumSRVRecords
             $dnsopts.TimeOut = New-TimeSpan -Seconds $TimeOut
          }
 
-         # Set Retries
+         # Set retries
          if ($Retries)
          {
             $dnsopts.RetryCount = $Retries
@@ -1114,10 +1116,11 @@ function Invoke-EnumSRVRecords
 
 <#
 .Synopsis
-   Resolve a given FQDN
+   Resolves a given FQDN.
 .DESCRIPTION
    Resolves a given FQDN to its A, AAAA and CNAME record.
 .EXAMPLE
+   Resolve a given FQDN to its A, AAAA and CNAME record.
 
    C:\> Resolve-HostRecord ipv6.google.com
 
@@ -1178,7 +1181,7 @@ function Resolve-HostRecord
             $dnsopts.TimeOut = New-TimeSpan -Seconds $TimeOut
          }
 
-         # Set Retries
+         # Set retries
          if ($Retries)
          {
             $dnsopts.RetryCount = $Retries
@@ -1187,7 +1190,7 @@ function Resolve-HostRecord
     process
     {
         $ARecs = @()
-        # Resolve A Record
+        # Resolve A record
         try 
         {
             $answer = [JHSoftware.DnsClient]::Lookup($target,[JHSoftware.DnsClient+RecordType]::A,$dnsopts).AnswerRecords
@@ -1199,7 +1202,7 @@ function Resolve-HostRecord
         catch {}
         try
         {
-            # Resolve AAAA Recod
+            # Resolve AAAA recod
             $answer = [JHSoftware.DnsClient]::Lookup($target,[JHSoftware.DnsClient+RecordType]::AAAA,$dnsopts).AnswerRecords
             foreach ($AAAA in $answer)
             {
@@ -1218,10 +1221,12 @@ function Resolve-HostRecord
 
 <#
 .Synopsis
-   Query for specific DNS Records against a Nameserver
+   Queries for specific DNS records against a Nameserver.
 .DESCRIPTION
-   Query for specific DNS Records against a Nameserver
+   Queries for specific DNS records against a Nameserver.
 .EXAMPLE
+   Query for MX records against a Nameserver.
+
     C:\> Resolve-DNSRecord -Target microsoft.com -Type MX
 
     Name                                     Type                   TTL Data
@@ -1229,6 +1234,7 @@ function Resolve-HostRecord
     microsoft.com                              MX                  1001 10 microsoft-com.m...
 
 .EXAMPLE
+   Query for NS records against a Nameserver.
 
     C:\> Resolve-DNSRecord -Target microsoft.com -Type NS
 
@@ -1302,7 +1308,7 @@ function Resolve-DNSRecord
             $dnsopts.TimeOut = New-TimeSpan -Seconds $TimeOut
          }
 
-         # Set Retries
+         # Set retries
          if ($Retries)
          {
             $dnsopts.RetryCount = $Retries
@@ -1312,7 +1318,7 @@ function Resolve-DNSRecord
     
     process
     {
-        # Resolve A Record
+        # Resolve A record
         $answer = [JHSoftware.DnsClient]::Lookup($target,[JHSoftware.DnsClient+RecordType]::$Type,$dnsopts).AnswerRecords
         foreach ($A in $answer)
         {
@@ -1328,10 +1334,12 @@ function Resolve-DNSRecord
 
 <#
 .Synopsis
-   Convert a string representation of an IPV4 IP to In-Addr-ARPA format.
+   Converts a string representation of an IPV4 IP to In-Addr-ARPA format.
 .DESCRIPTION
-   Convert a string representation of an IPV4 IP to In-Addr-ARPA format for performing PTR Lookups.
+   Converts a string representation of an IPV4 IP to In-Addr-ARPA format for performing PTR Lookups.
 .EXAMPLE
+   Convert a string representation of an IPV4 IP to In-Addr-ARPA format.
+
     ConvertTo-InAddrARPA -IPAddress 192.168.1.10
     10.1.168.192.in-addr.arpa
 
