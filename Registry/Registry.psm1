@@ -1,8 +1,8 @@
 ﻿<#
 .Synopsis
-   Enumerates the keys that are under a given Registry Key.
+   Enumerates the keys that are under a given registry key.
 .DESCRIPTION
-   Enumerates the keys that are under a given Registry Key.
+   Enumerates the keys that are under a given registry key.
 .EXAMPLE
    Listing all of the keys under HKCU\Software key
    PS C:\> Get-RegKeys -Hive HKCU -Key software
@@ -94,9 +94,9 @@ function Get-RegKeys
 
 <#
 .Synopsis
-   Creates a registry key under a given Registry Key.
+   Creates a registry key under a given registry key.
 .DESCRIPTION
-   Creates a registry key under a given Registry Key.
+   Creates a registry key under a given registry key.
 .EXAMPLE
    Create a key named _deleteme under the registry HKCU key.
    PS C:\> New-RegKey -Hive HKCU -Key _deleteme -Verbose
@@ -162,9 +162,9 @@ function New-RegKey
 
 <#
 .Synopsis
-   Removes a registry key under a given Registry Key.
+   Removes a registry key under a given registry key.
 .DESCRIPTION
-   Removes a registry key under a given Registry Key.
+   Removes a registry key under a given registry key.
 .EXAMPLE
    Remove a key named _deleteme under the registry HKCU key.
    PS C:\> Remove-RegKey -Hive HKCU -Key _deleteme -Verbose
@@ -230,9 +230,9 @@ function Remove-RegKey
 
 <#
 .Synopsis
-   Enumerates the values and their type of a given Registry Key.
+   Enumerates the values and their type of a given registry key.
 .DESCRIPTION
-   Enumerates the values and their type of a given Registry Key.
+   Enumerates the values and their type of a given registry key.
 .EXAMPLE
    Listing all of the console settings in the HKCU\Console key
    Get-RegValues -Hive HKCU -Key console
@@ -507,7 +507,7 @@ function Set-RegValue
             "BINARY"    {$data = ($reg.SetBinaryValue($reg_hive, $key, $Name, $Data))}
         }
 
-        # process return value
+        # Process return value
         if ($data.ReturnValue -eq 0)
         {
            Write-Verbose "Value set on $hive\$key\$name of type $type"
@@ -533,7 +533,7 @@ function Set-RegValue
 .DESCRIPTION
    Retrives a the content of a specified value in a given key.
 .EXAMPLE
-   Getting the Windows Version fromt the registry
+   Getting the Windows Version from the registry
    PS C:\> Get-RegValue -Hive HKLM -key "SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name ProductName
    Windows 8 Enterprise
 .EXAMPLE
@@ -588,7 +588,7 @@ function Get-RegValue
         $valdata = $reg.EnumValues($reg_hive, $key)
         if ($valdata.returnvalue -eq 0) 
         {
-            # check that the value actualy exists
+            # Check that the value actualy exists
             if ($valdata.snames -contains $Name) 
             {
                 # Get value index in the array
@@ -617,7 +617,7 @@ function Get-RegValue
         }
         else
         {
-            Write-Error "Error when retreaving value on key: $($data.ReturnValue)"
+            Write-Error "Error when retrieving value on key: $($data.ReturnValue)"
         }
     }
     End
@@ -680,7 +680,7 @@ function Remove-RegValue
         $valdata = $reg.EnumValues($reg_hive, $key)
         if ($valdata.returnvalue -eq 0) 
         {
-            # check that the value actualy exists
+            # Check that the value actualy exists
             if ($valdata.snames -contains $Name) 
             {
                 $data = $reg.DeleteValue($reg_hive, $Key, $Name)
@@ -712,9 +712,9 @@ function Remove-RegValue
 
 <#
 .Synopsis
-   Gets the Security DACL and Owner of a given Registry Key.
+   Gets the Security DACL and Owner of a given registry key.
 .DESCRIPTION
-   Gets the Security DACL and Owner of a given Registry Key.
+   Gets the Security DACL and Owner of a given registry key.
 .EXAMPLE
    Get the DACL for the SAM key in HKLM
    PS C:\> Get-RegKeySecurityDescriptor -Hive HKlm -Key sam
