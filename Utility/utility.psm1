@@ -3,7 +3,8 @@
 .Synopsis
    Downloads a file from a specified URL on the Internet.
 .DESCRIPTION
-   Function will download a single file from the Internet.  This cmdlet requires that an explicit URI is entered and that the destination file name and location is specified as well
+   Downloads a single file from the Internet.  This cmdlet requires that an explicit URI 
+   is entered and that the destination file name and location is specified as well
 .PARAMETER URL
 	Target location to download a specified file from a remote location.
 .PARAMETER LocalFile
@@ -48,7 +49,7 @@
             Register-ObjectEvent $client DownloadFileCompleted -SourceIdentifier Finished
             $WebClient.DownloadFileAsync($URL, $LocalFile)
 
-            # optionally wait, but you can break out and it will still write progress
+            # Optionally wait, but you can break out and it will still write progress
             Wait-Event -SourceIdentifier Finished
 
         } 
@@ -195,7 +196,7 @@ function Expand-Zip
 
 <#
 	.SYNOPSIS
-		cmdlet for calculatingt the hash of a given file.
+		Calculates the hash of a given file.
 
 	.DESCRIPTION
 		Calculates either the MD5, SHA1, SHA256, SHA384 or SHA512 checksum of a given file.
@@ -243,10 +244,10 @@ function Get-FileHash
     	    $hashBytes = $hasher.ComputeHash($inputStream.BaseStream)
     	    $inputStream.Close()
 
-   		     # Convert the result to hexadecimal
+   		    # Convert the result to hex
     	    $builder = New-Object System.Text.StringBuilder
     	    $hashBytes | Foreach-Object -Process { [void] $builder.Append($_.ToString("X2")) }
-		    # Create Object
+		      # Create object
     	    $output = New-Object PsObject -Property @{
         		    Path = (resolve-path $file).path;
         		    HashAlgorithm = $hashAlgorithm;
@@ -264,16 +265,16 @@ function Get-FileHash
 
 <#
 .Synopsis
-   Updateds to the latest version the Sysinternals Tool Suite
+   Updates to the latest version of the Sysinternals Tool Suite
 .DESCRIPTION
-   Updates to the latest version the Sysinternals Tool Suite the files
+   Updates to the latest version of the Sysinternals Tool Suite, the files
    located in a given path using WebDav to connect to the Microsoft Servers.
    If the Path does not exists it will create the folder and download  
    the tools if the force parameter is used.
 .EXAMPLE
    PS C:\> Update-SysinternalsTools -Path C:\SysinternalsSuite -Verbose
 
-   Updates the to the latest version the tools in a given path
+   Updates to the latest version of the tools in a given path
 
 .EXAMPLE
    PS C:\> Update-SysinternalsTools -Path C:\SysinternalsSuite -Verbose -Force
@@ -287,13 +288,13 @@ function Update-SysinternalsTools
     [OutputType([int])]
     Param
     (
-        # Path to where update the tools
+        # Path to where to update the tools
         [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
         [string]$Path,
 
-        # Creates the directory for the tools if it does not exist.
+        # Creates the directory for the tools if it does not exist
         [Parameter(Mandatory=$false)]
         [switch]$Force
 
@@ -362,9 +363,9 @@ function Update-SysinternalsTools
 
 <#
 .Synopsis
-   Gets a list of the COM Objects Available on the local system.
+   Lists the COM Objects available on the local system.
 .DESCRIPTION
-   Gets a list of the COM Objects Available on the local system.
+   Lists the COM Objects available on the local system.
 .NOTES
     http://www.powershellmagazine.com/2013/06/27/pstip-get-a-list-of-all-com-objects-available/
 #>

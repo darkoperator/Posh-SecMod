@@ -8,11 +8,11 @@ function Confirm-IsAdmin
 {
 	<#
 	.Synopsis
-	   Checks if current PowerShell Session is running with administrative privelages.
+	   Checks if current PowerShell Session is running with administrative privileges.
 	.DESCRIPTION
-	   Checks if current PowerShell Session is running with administrative privelages
+	   Checks if current PowerShell Session is running with administrative privileges.
 	.EXAMPLE
-	   Return True or False if curremt PowerShell session is running with adminitratibe privelages.
+	   Return True or False if curremt PowerShell session is running with adminitratibe privileges.
 	   PS c:\> Confirm-IsAdmin
        True
 	#>

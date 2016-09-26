@@ -1,4 +1,4 @@
-#Posh-SecModule
+#Posh-SecMod
 This module is a PowerShell v3 only module at the moment. The module is a collection of functions that I have found usefull in my day to day work as a security professional. The functions are broken in to functionality:
 
 - Discovery: Perform network discovery.
@@ -10,7 +10,7 @@ This module is a PowerShell v3 only module at the moment. The module is a collec
 - Database: Functions that are useful when interacting with databases.
 ## ChangeLog
 ### Version 1.3
-Moved Nessus, Shodan, VirusTotal and Metasploit modules to individual ones for easier maintenance and update.
+Moved Nessus, Shodan, VirusTotal and Metasploit modules to individual modules for easier maintenance and update.
 ### Version 1.2
 - Added Shodan submodule
 - Added VirusTotal submodule
