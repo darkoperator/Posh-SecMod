@@ -1,4 +1,4 @@
-#Posh-SecModule
+# Posh-SecModule
 This module is a PowerShell v3 only module at the moment. The module is a collection of functions that I have found usefull in my day to day work as a security professional. The functions are broken in to functionality:
 
 - Discovery: Perform network discovery.
