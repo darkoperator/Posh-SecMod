@@ -541,8 +541,6 @@ function Set-RegValue
     PS C:\> $bindata = Get-RegValue -Hive HKCU -Key _deleteme -Name binval
     PS C:\> ([System.Text.Encoding]::ASCII).GetString($bindata)
     PowerShell
-
-PS C:\Wind
 #>
 function Get-RegValue
 {
