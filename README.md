@@ -1,5 +1,5 @@
 #Posh-SecModule
-This module is a PowerShell v3 only module at the moment. The module is a collection of functions that I have found usefull in my day to day work as a security professional. The functions are broken in to functionality:
+This module is a PowerShell v3 only module at the moment. The module is a collection of functions that I have found usefull in my day to day work as a security professional. The functions are divided according to functionality:
 
 - Discovery: Perform network discovery.
 - Parse: Parsers for Nmap, DNSRecon and other type of output files from security tools.
