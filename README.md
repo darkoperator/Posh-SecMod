@@ -1,4 +1,5 @@
-#Posh-SecModule
+# Posh-SecModule
+
 This module is a PowerShell v3 only module at the moment. The module is a collection of functions that I have found usefull in my day to day work as a security professional. The functions are broken in to functionality:
 
 - Discovery: Perform network discovery.
@@ -8,16 +9,24 @@ This module is a PowerShell v3 only module at the moment. The module is a collec
 - Utilities: General purpose functions.
 - Audit: Functions that may be usful when performing audit of systems.
 - Database: Functions that are useful when interacting with databases.
+
 ## ChangeLog
+
 ### Version 1.3
+
 Moved Nessus, Shodan, VirusTotal and Metasploit modules to individual ones for easier maintenance and update.
+
 ### Version 1.2
+
 - Added Shodan submodule
 - Added VirusTotal submodule
 - Added Metasploit submodule
 - BugFixes
 - Added new fuctions in audit that work in WinPE for performing incident response and auditing (Disk MSFT Time, ADSI functions)
+
+
 ## Licensing
+
 The functions I have written are BSD 3-Clause Licensed. The other files I used for the project are licensed as follows: 
 
 - NessusSharp and Metasploit-Sharp libraries from Brandon Perry from: https://github.com/brandonprry are BSD 3-Clause Licensed.
