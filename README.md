@@ -7,7 +7,7 @@ This module is a PowerShell v3 only module at the moment. The module is a collec
 - PostExploitation: Functions to help in performing post exploitation tasks.
 - Registry: Collection of functions for manipulating the registry in remote hosts using WMI.
 - Utilities: General purpose functions.
-- Audit: Functions that may be usful when performing audit of systems.
+- Audit: Functions that may be usful when performing audits of systems.
 - Database: Functions that are useful when interacting with databases.
 
 ## ChangeLog
